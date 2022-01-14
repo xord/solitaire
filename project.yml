@@ -1,0 +1,19 @@
+name: RubySolitaire
+options:
+  bundleIdPrefix: org.xord
+targets:
+  RubySolitaire:
+    type: application
+    platform: iOS
+    sources:
+      - RubySolitaire
+  RubySolitaireTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - RubySolitaireTests
+  RubySolitaireUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - RubySolitaireUITests
