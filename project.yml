@@ -3,7 +3,7 @@ name: RubySolitaire
 options:
   bundleIdPrefix: org.xord
   deploymentTarget:
-    iOS: 13.0
+    iOS: 14.0
   developmentLanguage: ja
 
 settings:
@@ -19,6 +19,9 @@ targets:
   RubySolitaire:
     type: application
     platform: iOS
+    dependencies:
+      - framework: CoreMedia.framework
+        embed: false
     sources:
       - RubySolitaire
     settings:
