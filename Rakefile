@@ -1,4 +1,3 @@
-
 NAME = 'RubySolitaire'
 
 XCWORKSPACE = "#{NAME}.xcworkspace"
@@ -11,32 +10,39 @@ PODS_DIR   = 'Pods'
 
 task :default => :build
 
-task :build => XCWORKSPACE do
-  sh %( xcodebuild build )
-end
+task :build => 'xcode:build'
 
-task :xcode => XCWORKSPACE do
-  sh %( open #{XCWORKSPACE} )
-end
+task :xcode => 'xcode:open'
 
-task :update => %w[bundle:update pods:update]
+task :update => %w[bundle pods].map {|s| "#{s}:update"}
 
-task :bundle => BUNDLE_DIR
+task :clean => %w[xcode].map {|s| "#{s}:clean"}
 
-task :pods => PODS_DIR
+task :clobber => %w[xcode bundle pods].map {|s| "#{s}:clobber"}
 
-task :clean do
-  sh %( xcodebuild clean ) if File.exist?(PBXPROJ)
-end
 
-task :clobber => [:clean, 'bundle:clobber', 'pods:clobber'] do
-  sh %( rm -rf #{XCWORKSPACE} #{XCODEPROJ} )
-end
+namespace :xcode do
+  task :clean do
+    sh %( xcodebuild clean ) if File.exist?(PBXPROJ)
+  end
 
-file XCWORKSPACE => [BUNDLE_DIR, PODS_DIR]
+  task :clobber => 'xcode:clean' do
+    sh %( rm -rf #{XCWORKSPACE} #{XCODEPROJ} )
+  end
 
-file PBXPROJ do
-  sh %( xcodegen generate )
+  task :build => XCWORKSPACE do
+    sh %( xcodebuild build )
+  end
+
+  task :open => XCWORKSPACE do
+    sh %( open #{XCWORKSPACE} )
+  end
+
+  file XCWORKSPACE => [BUNDLE_DIR, PODS_DIR]
+
+  file PBXPROJ do
+    sh %( xcodegen generate )
+  end
 end
 
 
