@@ -4,7 +4,7 @@ import SwiftUI
 struct RubySolitaireApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GameView()
         }
     }
 }

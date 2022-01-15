@@ -1,14 +1,22 @@
 import SwiftUI
 
-struct ContentView: View {
+struct GameView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        ReflexViewControllerWrapper()
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct ReflexViewControllerWrapper : UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> some UIViewController {
+        return ReflexViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+    }
+}
+
+struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        GameView()
     }
 }
