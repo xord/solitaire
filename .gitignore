@@ -1,5 +1,8 @@
+*.xcworkspace
 *.xcodeproj
 */Info.plist
 *~
 
+vendor/bundle/
+Pods/
 .DS_Store

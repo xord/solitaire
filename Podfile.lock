@@ -1,0 +1,60 @@
+PODS:
+  - CRuby (3.1.0)
+  - Reflexion (0.1.0):
+    - Reflexion/Beeps (= 0.1.0)
+    - Reflexion/Rays (= 0.1.0)
+    - Reflexion/Reflex (= 0.1.0)
+    - Reflexion/Reflexion (= 0.1.0)
+    - Reflexion/Rucy (= 0.1.0)
+    - Reflexion/Xot (= 0.1.0)
+  - Reflexion/Beeps (0.1.0):
+    - Reflexion/Beeps/Ext (= 0.1.0)
+    - Reflexion/Beeps/STK (= 0.1.0)
+  - Reflexion/Beeps/Ext (0.1.0)
+  - Reflexion/Beeps/STK (0.1.0)
+  - Reflexion/Rays (0.1.0):
+    - Reflexion/Rays/Clipper (= 0.1.0)
+    - Reflexion/Rays/Ext (= 0.1.0)
+    - Reflexion/Rays/Poly2Tri (= 0.1.0)
+    - Reflexion/Rays/SplineLib (= 0.1.0)
+  - Reflexion/Rays/Clipper (0.1.0)
+  - Reflexion/Rays/Ext (0.1.0)
+  - Reflexion/Rays/Poly2Tri (0.1.0)
+  - Reflexion/Rays/SplineLib (0.1.0)
+  - Reflexion/Reflex (0.1.0):
+    - Reflexion/Reflex/Box2D (= 0.1.0)
+    - Reflexion/Reflex/Ext (= 0.1.0)
+  - Reflexion/Reflex/Box2D (0.1.0)
+  - Reflexion/Reflex/Ext (0.1.0)
+  - Reflexion/Reflexion (0.1.0)
+  - Reflexion/Rucy (0.1.0):
+    - Reflexion/Rucy/Ext (= 0.1.0)
+  - Reflexion/Rucy/Ext (0.1.0)
+  - Reflexion/Xot (0.1.0)
+
+DEPENDENCIES:
+  - CRuby (from `https://github.com/xord/cruby.git`, tag `v3.1.0`)
+  - Reflexion (from `https://github.com/xord/reflexion.git`)
+
+EXTERNAL SOURCES:
+  CRuby:
+    :git: https://github.com/xord/cruby.git
+    :tag: v3.1.0
+  Reflexion:
+    :git: https://github.com/xord/reflexion.git
+
+CHECKOUT OPTIONS:
+  CRuby:
+    :git: https://github.com/xord/cruby.git
+    :tag: v3.1.0
+  Reflexion:
+    :commit: fae5c353e2b46051c188f2139ead2fa3d3b3541a
+    :git: https://github.com/xord/reflexion.git
+
+SPEC CHECKSUMS:
+  CRuby: 105678eafdbde14d0b955cbf6d250d3e89b1dec6
+  Reflexion: 3ca79b350feb626c424bc89895bcbdee9b159286
+
+PODFILE CHECKSUM: 60a7a6494c3a94932ab7205cc3b94c14a6e3f11c
+
+COCOAPODS: 1.11.2
