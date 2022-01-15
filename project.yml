@@ -6,6 +6,15 @@ options:
     iOS: 14.0
   developmentLanguage: ja
 
+settingGroups:
+  all:
+    SWIFT_OBJC_BRIDGING_HEADER: RubySolitaire/BridgingHeader.h
+  app:
+    ENABLE_PREVIEWS: YES
+    DEVELOPMENT_ASSET_PATHS: "\"RubySolitaire/Preview Content\""
+  test:
+    ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+
 settings:
   base:
     MARKETING_VERSION: 1.0.0
@@ -25,9 +34,7 @@ targets:
     sources:
       - RubySolitaire
     settings:
-      base:
-        ENABLE_PREVIEWS: YES
-        DEVELOPMENT_ASSET_PATHS: "\"RubySolitaire/Preview Content\""
+      groups: [all, app]
     info:
       path: RubySolitaire/Info.plist
       properties:
@@ -56,8 +63,7 @@ targets:
     sources:
       - RubySolitaireTests
     settings:
-      base:
-        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+      groups: [all, test]
     info:
       path: RubySolitaireTests/Info.plist
       properties:
@@ -72,8 +78,7 @@ targets:
     sources:
       - RubySolitaireUITests
     settings:
-      base:
-        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+      groups: [all, test]
     info:
       path: RubySolitaireUITests/Info.plist
       properties:
