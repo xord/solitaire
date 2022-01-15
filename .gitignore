@@ -1,3 +1,5 @@
+*.xcodeproj
+*/Info.plist
 *~
 
-*.xcodeproj
+.DS_Store

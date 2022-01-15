@@ -1,19 +1,78 @@
 name: RubySolitaire
+
 options:
   bundleIdPrefix: org.xord
+  deploymentTarget:
+    iOS: 13.0
+  developmentLanguage: ja
+
+settings:
+  base:
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: 1.0.0
+    DEVELOPMENT_TEAM: XXXXXXXXX
+  configs:
+    debug:
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+
 targets:
   RubySolitaire:
     type: application
     platform: iOS
     sources:
       - RubySolitaire
+    settings:
+      base:
+        ENABLE_PREVIEWS: YES
+        DEVELOPMENT_ASSET_PATHS: "\"RubySolitaire/Preview Content\""
+    info:
+      path: RubySolitaire/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        LSRequiresIPhoneOS: YES
+        UILaunchScreen: ""
+        UIApplicationSupportsIndirectInputEvents: YES
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: YES
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+
   RubySolitaireTests:
     type: bundle.unit-test
     platform: iOS
+    dependencies:
+      - target: RubySolitaire
     sources:
       - RubySolitaireTests
+    settings:
+      base:
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    info:
+      path: RubySolitaireTests/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+
   RubySolitaireUITests:
     type: bundle.ui-testing
     platform: iOS
+    dependencies:
+      - target: RubySolitaire
     sources:
       - RubySolitaireUITests
+    settings:
+      base:
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    info:
+      path: RubySolitaireUITests/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
