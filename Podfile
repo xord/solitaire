@@ -1,11 +1,12 @@
 # -*- mode: ruby -*-
 
-platform :ios, '13.0'
+platform :ios, '14.0'
 
 %w[RubySolitaire RubySolitaireTests].each do |t|
   target t do
-    pod 'CRuby',     git: 'https://github.com/xord/cruby.git', tag: 'v3.1.0'
-    pod 'Reflexion', git: 'https://github.com/xord/reflexion.git'
+    pod 'CRuby',      git: 'https://github.com/xord/cruby.git'
+    pod 'Reflexion',  git: 'https://github.com/xord/reflexion.git'
+    pod 'RubySketch', git: 'https://github.com/xord/rubysketch.git'
   end
 end
 

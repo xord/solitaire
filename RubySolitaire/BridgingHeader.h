@@ -3,7 +3,9 @@
 
 
 #import <CRuby.h>
-#import "reflex/src/ios/view_controller.h"
+#import <Reflexion.h>
+#import <RubySketch.h>
+#import "../src/ios/view_controller.h"
 
 
 #endif /* BridgingHeader_h */

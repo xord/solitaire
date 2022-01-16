@@ -1,60 +1,67 @@
 PODS:
   - CRuby (3.1.0)
-  - Reflexion (0.1.0):
-    - Reflexion/Beeps (= 0.1.0)
-    - Reflexion/Rays (= 0.1.0)
-    - Reflexion/Reflex (= 0.1.0)
-    - Reflexion/Reflexion (= 0.1.0)
-    - Reflexion/Rucy (= 0.1.0)
-    - Reflexion/Xot (= 0.1.0)
-  - Reflexion/Beeps (0.1.0):
-    - Reflexion/Beeps/Ext (= 0.1.0)
-    - Reflexion/Beeps/STK (= 0.1.0)
-  - Reflexion/Beeps/Ext (0.1.0)
-  - Reflexion/Beeps/STK (0.1.0)
-  - Reflexion/Rays (0.1.0):
-    - Reflexion/Rays/Clipper (= 0.1.0)
-    - Reflexion/Rays/Ext (= 0.1.0)
-    - Reflexion/Rays/Poly2Tri (= 0.1.0)
-    - Reflexion/Rays/SplineLib (= 0.1.0)
-  - Reflexion/Rays/Clipper (0.1.0)
-  - Reflexion/Rays/Ext (0.1.0)
-  - Reflexion/Rays/Poly2Tri (0.1.0)
-  - Reflexion/Rays/SplineLib (0.1.0)
-  - Reflexion/Reflex (0.1.0):
-    - Reflexion/Reflex/Box2D (= 0.1.0)
-    - Reflexion/Reflex/Ext (= 0.1.0)
-  - Reflexion/Reflex/Box2D (0.1.0)
-  - Reflexion/Reflex/Ext (0.1.0)
-  - Reflexion/Reflexion (0.1.0)
-  - Reflexion/Rucy (0.1.0):
-    - Reflexion/Rucy/Ext (= 0.1.0)
-  - Reflexion/Rucy/Ext (0.1.0)
-  - Reflexion/Xot (0.1.0)
+  - Reflexion (0.1.25):
+    - Reflexion/Beeps (= 0.1.25)
+    - Reflexion/Rays (= 0.1.25)
+    - Reflexion/Reflex (= 0.1.25)
+    - Reflexion/Reflexion (= 0.1.25)
+    - Reflexion/Rucy (= 0.1.25)
+    - Reflexion/Xot (= 0.1.25)
+  - Reflexion/Beeps (0.1.25):
+    - Reflexion/Beeps/Ext (= 0.1.25)
+    - Reflexion/Beeps/STK (= 0.1.25)
+  - Reflexion/Beeps/Ext (0.1.25)
+  - Reflexion/Beeps/STK (0.1.25)
+  - Reflexion/Rays (0.1.25):
+    - Reflexion/Rays/Clipper (= 0.1.25)
+    - Reflexion/Rays/Ext (= 0.1.25)
+    - Reflexion/Rays/Poly2Tri (= 0.1.25)
+    - Reflexion/Rays/SplineLib (= 0.1.25)
+  - Reflexion/Rays/Clipper (0.1.25)
+  - Reflexion/Rays/Ext (0.1.25)
+  - Reflexion/Rays/Poly2Tri (0.1.25)
+  - Reflexion/Rays/SplineLib (0.1.25)
+  - Reflexion/Reflex (0.1.25):
+    - Reflexion/Reflex/Box2D (= 0.1.25)
+    - Reflexion/Reflex/Ext (= 0.1.25)
+  - Reflexion/Reflex/Box2D (0.1.25)
+  - Reflexion/Reflex/Ext (0.1.25)
+  - Reflexion/Reflexion (0.1.25)
+  - Reflexion/Rucy (0.1.25):
+    - Reflexion/Rucy/Ext (= 0.1.25)
+  - Reflexion/Rucy/Ext (0.1.25)
+  - Reflexion/Xot (0.1.25)
+  - RubySketch (0.3.19)
 
 DEPENDENCIES:
-  - CRuby (from `https://github.com/xord/cruby.git`, tag `v3.1.0`)
+  - CRuby (from `https://github.com/xord/cruby.git`)
   - Reflexion (from `https://github.com/xord/reflexion.git`)
+  - RubySketch (from `https://github.com/xord/rubysketch.git`)
 
 EXTERNAL SOURCES:
   CRuby:
     :git: https://github.com/xord/cruby.git
-    :tag: v3.1.0
   Reflexion:
     :git: https://github.com/xord/reflexion.git
+  RubySketch:
+    :git: https://github.com/xord/rubysketch.git
 
 CHECKOUT OPTIONS:
   CRuby:
+    :commit: 6adf2c88d430dc7f57ad7d4158c844b8d887b68a
     :git: https://github.com/xord/cruby.git
-    :tag: v3.1.0
   Reflexion:
-    :commit: fae5c353e2b46051c188f2139ead2fa3d3b3541a
+    :commit: 2e91ba13e38b0b9eb16a994aef6c8bee44f432cf
     :git: https://github.com/xord/reflexion.git
+  RubySketch:
+    :commit: 374e8df9e47613427384c9af713db4fd73884391
+    :git: https://github.com/xord/rubysketch.git
 
 SPEC CHECKSUMS:
   CRuby: 105678eafdbde14d0b955cbf6d250d3e89b1dec6
-  Reflexion: 3ca79b350feb626c424bc89895bcbdee9b159286
+  Reflexion: 46a48895bee98f79852436a018afd3d6100712fd
+  RubySketch: ec46bab53b1c452d69fdce5663f96b66d4dc3e6d
 
-PODFILE CHECKSUM: 60a7a6494c3a94932ab7205cc3b94c14a6e3f11c
+PODFILE CHECKSUM: e59921138923ac3aa11199a4c08323dfd72904e8
 
 COCOAPODS: 1.11.2
