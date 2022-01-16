@@ -2,7 +2,6 @@ NAME = 'RubySolitaire'
 
 XCWORKSPACE = "#{NAME}.xcworkspace"
 XCODEPROJ   = "#{NAME}.xcodeproj"
-PBXPROJ     = "#{XCODEPROJ}/project.pbxproj"
 
 BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
@@ -23,7 +22,7 @@ task :clobber => %w[xcode bundle pods].map {|s| "#{s}:clobber"}
 
 namespace :xcode do
   task :clean do
-    sh %( xcodebuild clean ) if File.exist?(PBXPROJ)
+    sh %( xcodebuild clean ) if File.exist?(XCODEPROJ)
   end
 
   task :clobber => 'xcode:clean' do
@@ -40,7 +39,7 @@ namespace :xcode do
 
   file XCWORKSPACE => [BUNDLE_DIR, PODS_DIR]
 
-  file PBXPROJ do
+  file XCODEPROJ do
     sh %( xcodegen generate )
   end
 end
@@ -57,7 +56,7 @@ namespace :bundle do
 
   file BUNDLE_DIR do
     sh %( bundle install )
-    raise "failed to install gems" unless File.exist? BUNDLE_DIR
+    raise "failed to bundle install" unless File.exist? BUNDLE_DIR
   end
 end
 
@@ -67,11 +66,11 @@ namespace :pods do
     sh %( rm -rf #{PODS_DIR} )
   end
 
-  task :update => BUNDLE_DIR do
+  task :update => [BUNDLE_DIR, XCODEPROJ] do
     sh %( bundle exec pod update --verbose )
   end
 
-  file PODS_DIR => [BUNDLE_DIR, PBXPROJ] do
+  file PODS_DIR => [BUNDLE_DIR, XCODEPROJ] do
     sh %( bundle exec pod install --verbose --repo-update )
   end
 end
