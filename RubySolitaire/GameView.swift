@@ -8,8 +8,12 @@ class GameViewController : ReflexViewController {
         RubySketch.setup()
         RubySketch.setActiveReflexViewController(self)
 
-        CRuby.evaluate("require 'rubysketch-processing'")
-        CRuby.load("\(Bundle.main.bundlePath)/lib/solitaire.rb")
+        CRuby.evaluate("""
+            Encoding.default_internal = Encoding::UTF_8
+            Encoding.default_external = Encoding::UTF_8
+            Warning[:experimental]    = false
+        """)
+        RubySketch.start("\(Bundle.main.bundlePath)/lib/solitaire.rb");
     }
 }
 

@@ -54,7 +54,7 @@ CHECKOUT OPTIONS:
     :commit: 2e91ba13e38b0b9eb16a994aef6c8bee44f432cf
     :git: https://github.com/xord/reflexion.git
   RubySketch:
-    :commit: 374e8df9e47613427384c9af713db4fd73884391
+    :commit: 72d7e397e86579117c1451e7d1a1d9065c30872f
     :git: https://github.com/xord/rubysketch.git
 
 SPEC CHECKSUMS:
