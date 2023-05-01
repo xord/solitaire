@@ -3,7 +3,6 @@
 
 
 #import <CRuby.h>
-#import <Reflexion.h>
 #import <RubySketch.h>
 #import "../src/ios/view_controller.h"
 

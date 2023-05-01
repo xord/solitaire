@@ -5,7 +5,6 @@ platform :ios, '14.0'
 %w[RubySolitaire RubySolitaireTests].each do |t|
   target t do
     pod 'CRuby',      git: 'https://github.com/xord/cruby.git'
-    pod 'Reflexion',  git: 'https://github.com/xord/reflexion.git'
     pod 'RubySketch', git: 'https://github.com/xord/rubysketch.git'
   end
 end

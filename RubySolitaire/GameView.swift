@@ -4,16 +4,24 @@ class GameViewController : ReflexViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Reflexion.setup()
-        RubySketch.setup()
-        RubySketch.setActiveReflexViewController(self)
+        let mainBundleDir = Bundle.main.bundlePath
 
         CRuby.evaluate("""
             Encoding.default_internal = Encoding::UTF_8
             Encoding.default_external = Encoding::UTF_8
             Warning[:experimental]    = false
+
+            %w[
+                ruby/lib
+            ].each do |lib|
+                $LOAD_PATH.unshift File.join '\(mainBundleDir)', lib
+            end
         """)
-        RubySketch.start("\(Bundle.main.bundlePath)/lib/solitaire.rb");
+
+        RubySketch.setup()
+        RubySketch.setActiveReflexViewController(self)
+
+        RubySketch.start("\(mainBundleDir)/lib/solitaire.rb");
     }
 }
 
@@ -29,11 +37,5 @@ struct GameViewControllerWrapper : UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-    }
-}
-
-struct GameView_Previews: PreviewProvider {
-    static var previews: some View {
-        GameView()
     }
 }

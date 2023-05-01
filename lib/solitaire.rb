@@ -1,3 +1,5 @@
+using RubySketch
+
 MARKS = %w[❤ ♦ ☘ ♠]
 
 CW = 100 # card width
