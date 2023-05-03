@@ -2,6 +2,23 @@
 using RubySketch
 
 
+class Card
+
+  MARKS = %i[heart diamond clover spade]
+
+  def initialize(mark, number)
+    @mark, @number = mark, number
+  end
+
+  attr_reader :mark, :number
+
+  def sprite()
+    @sprite ||= CardSprite.new(self)
+  end
+
+end# Card
+
+
 class CardSprite < Sprite
 
   def initialize(card)
@@ -20,7 +37,7 @@ class CardSprite < Sprite
       s = 9 # size
       g.beginDraw
       g.image c.cardImage, 0, 0
-      g.copy c.marksImage, MARKS.index(@card.mark) * s, 0, s, s, m, m, s, s
+      g.copy c.marksImage, Card::MARKS.index(@card.mark) * s, 0, s, s, m, m, s, s
       g.copy c.numbersImage, @card.number * s, 0, s, s, g.width - s - m, m, s, s
       g.endDraw
     end
@@ -39,21 +56,6 @@ class CardSprite < Sprite
   end
 
 end# CardSprite
-
-
-class Card
-
-  def initialize(mark, number)
-    @mark, @number = mark, number
-  end
-
-  attr_reader :mark, :number
-
-  def sprite()
-    @sprite ||= CardSprite.new(self)
-  end
-
-end# Card
 
 
 class CardOld < GameObject
