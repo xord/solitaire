@@ -1,7 +1,75 @@
 using RubySketch
 
 
-class CardPlace < GameObject
+def drawSprite(*args)
+  sprite *args
+end
+
+
+class CardPlace
+
+  include HasSprite
+
+  def initialize()
+    @cards = []
+  end
+
+  attr_reader :cards
+
+  def add(*cards)
+    cards.flatten.each do |card|
+      @cards.push card
+      card.instance_variable_set :@place, self
+      card.pos = pos
+      card.close
+    end
+  end
+
+  def remove(*cards)
+    cards.flatten!
+    @cards -= cards
+    cards.each do |card|
+      card.instance_variable_set :@place, nil
+    end
+  end
+
+  def draw()
+    drawSprite self.sprite
+    cards.each {|card| drawSprite card.sprite}
+  end
+
+  def sprite()
+    @sprite ||= Sprite.new image: spriteImage
+  end
+
+  private
+
+  def spriteImage()
+    @image ||= createGraphics(CW, CH).tap do |g|
+      g.beginDraw
+      g.noStroke
+      g.fill 100, 32
+      g.rect 0, 0, g.width, g.height, 4
+      g.endDraw
+    end
+  end
+
+end# CardPlace
+
+
+class MarkPlace < CardPlace
+
+  def initialize(mark)
+    super
+    @mark = mark
+  end
+
+  attr_reader :mark
+
+end# MarkPlace
+
+
+class CardPlaceOld < GameObject
   def initialize()
     super CW, CH, z: -1, color: [40, 120, 40]
     @cards = []

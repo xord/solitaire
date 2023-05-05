@@ -5,25 +5,16 @@ class Klondike < Scene
 
   def initialize()
     super
-    @cards   = Card::MARKS.product((1..13).to_a).map {|m, n| Card.new m, n}
-    @sprites = cards.map &:sprite
-    @pick    = nil
-    shuffle
+    @sprites = [*cards, deck, nexts, *marks, *columns].map &:sprite
+    @pick = nil
+    updateLayout
+    start
   end
 
   attr_reader :cards, :sprites
 
-  def shuffle()
-    cards.each do |card|
-      sp         = card.sprite
-      sp.x       = rand 0...(windowWidth  - sp.width)
-      sp.y       = rand 0...(windowHeight - sp.height)
-      sp.angle   = rand 0...360
-      sp.dynamic = true
-      sp.mousePressed  {@pick = sp}
-      sp.mouseReleased {@pick = nil}
-      sp.contact? {true}
-    end
+  def start()
+    deck.add cards.shuffle
   end
 
   def draw()
@@ -42,6 +33,47 @@ class Klondike < Scene
   def mouseDragged(x, y, dx, dy)
     @pick&.x += dx
     @pick&.y += dy
+  end
+
+  private
+
+  def cards()
+    @cards ||= Card::MARKS.product((1..13).to_a).map {|m, n| Card.new m, n}
+  end
+
+  def deck()
+    @deck ||= CardPlace.new
+  end
+
+  def nexts()
+    @nexts ||= CardPlace.new
+  end
+
+  def marks()
+    @marks ||= Card::MARKS.map {|mark| MarkPlace.new mark}
+  end
+
+  def columns()
+    @culumns ||= 7.times.map {CardPlace.new}
+  end
+
+  def updateLayout()
+    card      = cards.first
+    w, h      = width, height
+    cw, ch    = card.then {|c| [c.w, c.h]}
+    margin    = cw * 0.2
+
+    deck.pos  = [w - (cw + margin), margin]
+    nexts.pos = [deck.x - (cw + margin), deck.y]
+    marks.each do |mark|
+      index    = Card::MARKS.index mark.mark
+      mark.pos = [margin + (cw + margin) * index, deck.y]
+    end
+    columns.each.with_index do |column, index|
+      s = columns.size
+      m = (w - cw * s) / (s + 1) # margin
+      column.pos = [m + (cw + m) * index, deck.y + deck.h + margin]
+    end
   end
 
 end# Klondike

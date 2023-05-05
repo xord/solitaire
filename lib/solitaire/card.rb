@@ -4,41 +4,69 @@ using RubySketch
 
 class Card
 
+  include HasSprite
+
   MARKS = %i[heart diamond clover spade]
 
   def initialize(mark, number)
-    @mark, @number = mark, number
+    @mark, @number, @state = mark, number, :close
   end
 
   attr_reader :mark, :number
 
+  def open()
+    @state = :open
+  end
+
+  def opened?()
+    @state == :open
+  end
+
+  def close()
+    @state = :close
+  end
+
+  def closed?()
+    @state == :close
+  end
+
+  def toggle()
+    closed? ? open : close
+  end
+
   def sprite()
-    @sprite ||= CardSprite.new(self)
+    @sprite ||= Sprite.new(image: closedImage).tap do |sp|
+      sp.update do
+        sp.image = opened? ? openedImage : closedImage
+      end
+    end
   end
-
-end# Card
-
-
-class CardSprite < Sprite
-
-  def initialize(card)
-    @card = card
-    super image: self.cardImage
-  end
-
-  attr_reader :card
 
   private
 
-  def cardImage()
-    @image ||= createGraphics(CW, CH).tap do |g|
-      c = self.class
-      m = 4 # margin
-      s = 9 # size
+  def openedImage()
+    @openedImage ||= createGraphics(CW, CH).tap do |g|
+      c         = self.class
+      s         = c.marksImage.height # size
+      m         = 4 # margin
+      markIndex = Card::MARKS.index self.mark
+      number    = (self.number - 1)
       g.beginDraw
       g.image c.cardImage, 0, 0
-      g.copy c.marksImage, Card::MARKS.index(@card.mark) * s, 0, s, s, m, m, s, s
-      g.copy c.numbersImage, @card.number * s, 0, s, s, g.width - s - m, m, s, s
+      g.copy c.marksImage, markIndex * s, 0, s, s,               m, m, s, s
+      g.copy c.numbersImage,     num * s, 0, s, s, g.width - s - m, m, s, s
+      g.endDraw
+    end
+  end
+
+  def closedImage()
+    self.class.closedImage
+  end
+
+  def self.closedImage()
+    @closedImage ||= createGraphics(CW, CH).tap do |g|
+      g.beginDraw
+      g.copy cardImage, CW, 0, CW, CH, 0, 0, CW, CH
       g.endDraw
     end
   end
@@ -55,7 +83,7 @@ class CardSprite < Sprite
     @numbersImage ||= loadImage 'data/numbers.png'
   end
 
-end# CardSprite
+end# Card
 
 
 class CardOld < GameObject

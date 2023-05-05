@@ -28,8 +28,6 @@ class Title < Scene
         textAlign CENTER, CENTER
         textSize 50
         text 'Solitaire', 0, 0, sp.w, sp.h
-        fill 100, 100, 100, 100
-        rect 0, 0, sp.w, sp.h
       end
     end
   end
@@ -41,8 +39,6 @@ class Title < Scene
         textAlign CENTER, CENTER
         textSize 20
         text 'Tap to Start!', 0, 0, sp.w, sp.h
-        fill 100, 100, 100, 100
-        rect 0, 0, sp.w, sp.h
       end
     end
   end
