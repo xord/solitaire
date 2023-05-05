@@ -49,13 +49,13 @@ targets:
           UIApplicationSupportsMultipleScenes: YES
         UISupportedInterfaceOrientations~iphone:
           - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
-        UISupportedInterfaceOrientations~ipad:
-          - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationPortraitUpsideDown
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
+          #- UIInterfaceOrientationLandscapeLeft
+          #- UIInterfaceOrientationLandscapeRight
+        #UISupportedInterfaceOrientations~ipad:
+          #- UIInterfaceOrientationPortrait
+          #- UIInterfaceOrientationPortraitUpsideDown
+          #- UIInterfaceOrientationLandscapeLeft
+          #- UIInterfaceOrientationLandscapeRight
 
   RubySolitaireTests:
     type: bundle.unit-test
