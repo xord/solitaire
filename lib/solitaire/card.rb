@@ -16,6 +16,7 @@ class Card
 
   def open()
     @state = :open
+    self
   end
 
   def opened?()
@@ -24,6 +25,7 @@ class Card
 
   def close()
     @state = :close
+    self
   end
 
   def closed?()
@@ -34,8 +36,14 @@ class Card
     closed? ? open : close
   end
 
+  def placed(place)
+    @place = place
+  end
+
   def sprite()
     @sprite ||= Sprite.new(image: closedImage).tap do |sp|
+      sp.pivot = [0.5, 0.5]
+      sp.angle = rand -5..5
       sp.update do
         sp.image = opened? ? openedImage : closedImage
       end
@@ -54,7 +62,7 @@ class Card
       g.beginDraw
       g.image c.cardImage, 0, 0
       g.copy c.marksImage, markIndex * s, 0, s, s,               m, m, s, s
-      g.copy c.numbersImage,     num * s, 0, s, s, g.width - s - m, m, s, s
+      g.copy c.numbersImage,  number * s, 0, s, s, g.width - s - m, m, s, s
       g.endDraw
     end
   end

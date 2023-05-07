@@ -18,20 +18,19 @@ def animate(name = unique, seconds, ease: OUT_EXPO, &block)
   startTimer name, 0, &eachDrawBlock
 end
 
-def move(obj, toPos, seconds, zOnMove: nil, &block)
-  from = createVector obj.x, obj.y, obj.z
-  to = createVector *toPos
+def move(obj, toPos, seconds, &block)
+  from = createVector obj.x, obj.y
+  to   = createVector *toPos.to_a[0, 2]
   animate seconds do |t, finished|
-    obj.pos = Vector.lerp(from, to, t).then { [_1.x, _1.y, _1.z] }
-    obj.z = zOnMove if zOnMove && !finished
+    obj.pos = Vector.lerp(from, to, t).then {|v| [v.x, v.y]}
     block&.call if finished
   end
 end
 
-def moveCard(card, toPlace, seconds, zOnMove: nil, &block)
-  fromPos = card.pos
+def moveCard(card, toPlace, seconds, &block)
+  fromPos  = card.pos.dup
   toPlace.add card
-  toPos = card.pos.dup
+  toPos    = card.pos.dup
   card.pos = fromPos
-  move card, toPos, seconds, zOnMove: zOnMove, &block
+  move card, toPos, seconds, &block
 end

@@ -1,11 +1,6 @@
 using RubySketch
 
 
-def drawSprite(*args)
-  sprite *args
-end
-
-
 class CardPlace
 
   include HasSprite
@@ -16,25 +11,21 @@ class CardPlace
 
   attr_reader :cards
 
-  def add(*cards)
-    cards.flatten.each do |card|
-      @cards.push card
-      card.instance_variable_set :@place, self
-      card.pos = pos
-      card.close
-    end
+  def add(card)
+    @cards.push card
+    card.placed self
+    card.pos = pos
+    card
   end
 
-  def remove(*cards)
-    cards.flatten!
-    @cards -= cards
-    cards.each do |card|
-      card.instance_variable_set :@place, nil
+  def pop()
+    cards.pop.tap do |card|
+      card.placed nil
     end
   end
 
   def draw()
-    drawSprite self.sprite
+    drawSprite sprite
     cards.each {|card| drawSprite card.sprite}
   end
 
@@ -45,7 +36,7 @@ class CardPlace
   private
 
   def spriteImage()
-    @image ||= createGraphics(CW, CH).tap do |g|
+    @spriteImage ||= createGraphics(CW, CH).tap do |g|
       g.beginDraw
       g.noStroke
       g.fill 100, 32
@@ -60,13 +51,26 @@ end# CardPlace
 class MarkPlace < CardPlace
 
   def initialize(mark)
-    super
+    super()
     @mark = mark
   end
 
   attr_reader :mark
 
 end# MarkPlace
+
+
+class ColumnPlace < CardPlace
+
+  def add(card)
+    super.tap do
+      cards.each.with_index do |card, index|
+        card.y = y + card.h * 0.2 * index
+      end
+    end
+  end
+
+end# ColumnPlace
 
 
 class CardPlaceOld < GameObject
@@ -117,7 +121,7 @@ class CardPlaceOld < GameObject
   end
 end
 
-class ColumnPlace < CardPlace
+class ColumnPlaceOld < CardPlace
   def canAdd?(x, y, card)
     if empty?
       hit?(x, y) && card.number == 13
@@ -146,7 +150,7 @@ class ColumnPlace < CardPlace
   end
 end
 
-class MarkPlace < CardPlace
+class MarkPlaceOld < CardPlace
   def initialize(mark)
     super()
     @mark = mark
