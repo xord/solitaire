@@ -23,27 +23,39 @@ class Klondike < Scene
   end
 
   def draw()
-    places.each {|place| place.draw}
+    (@places - columns).each {|place| place.draw}
+    (0..).each do |index|
+      break unless columns.map {|column| column.drawAt index}.any?
+    end
+    @picked&.each {|card| card.draw}
   end
 
-  def mousePressed(x, y, button, clickCount)
+  def picked(card)
+    @picked = card if card.z >= (@picked&.z || 0)
   end
 
-  def mouseReleased(x, y, button)
-  end
-
-  def mouseMoved(x, y, dx, dy)
+  def mouseReleased(x, y, mouseButton)
+    if @picked && @placePickedFrom
+      @placePickedFrom.add @picked
+      @picked = @placePickedFrom = nil
+    end
   end
 
   def mouseDragged(x, y, dx, dy)
-    @pick&.x += dx
-    @pick&.y += dy
+    return unless @picked
+    unless @placePickedFrom
+      @placePickedFrom = @picked.place
+      @placePickedFrom.pop @picked
+    end
+    @picked.pos += createVector(dx, dy)
   end
 
   private
 
   def cards()
-    @cards ||= Card::MARKS.product((1..13).to_a).map {|m, n| Card.new m, n}
+    @cards ||= Card::MARKS
+      .product((1..13).to_a)
+      .map {|m, n| Card.new self, m, n}
   end
 
   def deck()

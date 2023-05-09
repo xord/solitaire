@@ -9,24 +9,43 @@ class CardPlace
     @cards = []
   end
 
-  attr_reader :cards
-
-  def add(card)
-    @cards.push card
-    card.placed self
-    card.pos = pos
-    card
-  end
-
-  def pop()
-    cards.pop.tap do |card|
-      card.placed nil
+  def add(*cards)
+    cards.flatten.each do |card|
+      card.each do |c|
+        @cards.push c
+        c.place = self
+        c.next  = nil
+        c.pos   = pos
+        c.z     = @cards.size
+      end
     end
   end
 
-  def draw()
+  def pop(card = nil)
+    if card
+      index = @cards.index(card) || return
+      cards = @cards.slice! index, @cards.size
+      cards.reduce {|card, next_| card.next  = next_}
+      cards.first
+    else
+      @cards.pop
+    end.tap do |card|
+      card&.each {|c| c.place = nil}
+      @cards.last&.next = nil
+    end
+  end
+
+  def size()
+    @cards.size
+  end
+
+  def __last()
+    @head.last
+  end
+
+  def draw(index = nil)
     drawSprite sprite
-    cards.each {|card| drawSprite card.sprite}
+    @cards.each {|card| card.draw}
   end
 
   def sprite()
@@ -62,12 +81,17 @@ end# MarkPlace
 
 class ColumnPlace < CardPlace
 
-  def add(card)
+  def add(*cards)
     super.tap do
-      cards.each.with_index do |card, index|
-        card.y = y + card.h * 0.2 * index
+      @cards.each.with_index do |card, index|
+        card.y = y + card.h * 0.3 * index
       end
     end
+  end
+
+  def drawAt(index)
+    drawSprite sprite if index == 0
+    @cards[index]&.tap {|card| drawSprite card.sprite}
   end
 
 end# ColumnPlace

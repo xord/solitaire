@@ -5,14 +5,55 @@ using RubySketch
 class Card
 
   include HasSprite
+  include Enumerable
 
   MARKS = %i[heart diamond clover spade]
 
-  def initialize(mark, number)
-    @mark, @number, @state = mark, number, :close
+  def initialize(game, mark, number)
+    @game, @mark, @number, @state, @z = game, mark, number, :close, 0
+    @place = @next = nil
   end
 
   attr_reader :mark, :number
+
+  attr_accessor :place, :next, :z
+
+  def __pop(card = nil)
+    card, prev = find_or_last_and_prev card
+    prev.next = nil
+    card
+  end
+
+  def each(&block)
+    return to_enum :each unless block
+    card = self
+    while card
+      next_ = card.next
+      block.call card
+      card = next_
+    end
+    self
+  end
+
+  def pos=(pos)
+    old = self.pos.dup
+    super
+    self.next&.tap {|next_| next_.pos += self.pos - old}
+  end
+
+  def x=(x)
+    self.pos = createVector(x, self.y)
+  end
+
+  def y=(y)
+    self.pos = createVector(self.x, y)
+  end
+
+  def z=(z)
+    old = self.z
+    @z = z
+    self.next&.tap {|next_| next_.z += @z - old}
+  end
 
   def open()
     @state = :open
@@ -32,22 +73,39 @@ class Card
     @state == :close
   end
 
-  def toggle()
+  def __toggle()
     closed? ? open : close
   end
 
-  def placed(place)
-    @place = place
+  def __last()
+    card = self
+    card = card.next while card.next
+    card
+  end
+
+  def __last?()
+    self.next == nil && place&.cards.last == self
+  end
+
+  def draw()
+    drawSprite sprite
   end
 
   def sprite()
     @sprite ||= Sprite.new(image: closedImage).tap do |sp|
       sp.pivot = [0.5, 0.5]
-      sp.angle = rand -5..5
+      sp.angle = rand -1..1
       sp.update do
         sp.image = opened? ? openedImage : closedImage
       end
+      sp.mousePressed do
+        @game.picked self if opened?
+      end
     end
+  end
+
+  def inspect()
+    "#<Card #{mark} #{number}>"
   end
 
   private
@@ -89,6 +147,15 @@ class Card
 
   def self.numbersImage()
     @numbersImage ||= loadImage 'data/numbers.png'
+  end
+
+  def __find_or_last_and_prev(card = nil)
+    prev, it = nil, self
+    while it.next
+      break if it == card
+      prev, it = it, it.next
+    end
+    return it, prev
   end
 
 end# Card

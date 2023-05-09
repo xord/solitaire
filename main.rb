@@ -2,13 +2,15 @@ require 'solitaire'
 using RubySketch
 
 
+SW = 240 # screen width
+SH = 320
 CW = 32 # card width
-CH = 46 #CW * 89 / 58
+CH = 46 # CW * 89 / 58
 
 
 setup do
   setTitle "Solitaire"
-  size 240, 320
+  size SW, SH
   angleMode DEGREES
   noStroke
 
