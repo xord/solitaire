@@ -14,9 +14,9 @@ class Card
     @place = @next = nil
   end
 
-  attr_reader :mark, :number
+  attr_reader :mark, :number, :place
 
-  attr_accessor :place, :next, :z
+  attr_accessor :next, :z
 
   def each(&block)
     return to_enum :each unless block
@@ -35,24 +35,32 @@ class Card
     move self, pos, seconds, &block
   end
 
+  def place=(place)
+    @place           = place
+    self.next&.place = place
+  end
+
   def pos=(pos)
     old = self.pos.dup
     super
-    self.next&.tap {|next_| next_.pos += self.pos - old}
+    self.next&.pos += self.pos - old
+    self.pos
   end
 
   def x=(x)
     self.pos = createVector(x, self.y)
+    self.x
   end
 
   def y=(y)
     self.pos = createVector(self.x, y)
+    self.y
   end
 
   def z=(z)
-    old = self.z
-    @z = z
-    self.next&.tap {|next_| next_.z += @z - old}
+    old, @z       = self.z, z
+    self.next&.z += @z - old
+    self.z
   end
 
   def open()
@@ -77,8 +85,12 @@ class Card
     MARKS[0, 2].include?(mark) ? :red : :black
   end
 
-  def draw()
-    each {|card| drawSprite card.sprite}
+  def last?()
+    self.next == nil
+  end
+
+  def drawPriority()
+    z + (pos != @prevPos ? 100 : 0)
   end
 
   def sprite()
@@ -87,6 +99,7 @@ class Card
       sp.angle = rand -2.0..2.0
       sp.update do
         sp.image = opened? ? openedImage : closedImage
+        @prevPos = sp.pos
       end
       sp.mousePressed do
         @game.picked self if opened?

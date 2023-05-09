@@ -22,15 +22,23 @@ class Klondike < Scene
   end
 
   def draw()
-    (@places - columns).each {|place| place.draw}
-    (0..).each do |index|
-      break unless columns.map {|column| column.drawAt index}.any?
-    end
-    @picked&.each {|card| card.draw}
+    places.each {|place| sprite place.sprite}
+    cards
+      .sort {|a, b| a.drawPriority <=> b.drawPriority}
+      .each {|card| sprite card.sprite}
   end
 
   def picked(card)
     @picked = card if card.z >= (@picked&.z || 0)
+  end
+
+  def mousePressed(x, y, mouseButton, clickCount)
+    if clickCount == 2
+      cards
+        .select {|card| card.hit? x, y}
+        .sort {|a, b| a.drawPriority <=> b.drawPriority}
+        .last&.then {|card| cardDoubleClicked card}
+    end
   end
 
   def mouseReleased(x, y, mouseButton)
@@ -45,22 +53,27 @@ class Klondike < Scene
       @placePickedFrom = @picked.place
       @placePickedFrom.pop @picked
     end
+    @picked.z    = 100
     @picked.pos += createVector(dx, dy)
   end
 
   def deckClicked()
-    deck.cards.empty? ? refillDeck : openNexts
+    deck.empty? ? refillDeck : openNexts
   end
 
   def nextsClicked()
-    openNexts if nexts.cards.empty?
+    openNexts if nexts.empty?
   end
 
   def cardClicked(card)
     card.open if
       card.closed? &&
       card.place&.is_a?(ColumnPlace) &&
-      card == card.place&.cards.last
+      card.last?
+  end
+
+  def cardDoubleClicked(card)
+    p card
   end
 
   private
@@ -135,11 +148,11 @@ class Klondike < Scene
   end
 
   def openNexts(count = 1)
-    deck.pop.open.addTo nexts, 0.3
+    deck.pop.open.addTo nexts, 0.3 unless deck.empty?
   end
 
   def refillDeck()
-    nexts.pop.close.addTo deck, 0.3 until nexts.cards.empty?
+    nexts.pop.close.addTo deck, 0.3 until nexts.empty?
   end
 
   def getPlaceAccepts(x, y, card)
