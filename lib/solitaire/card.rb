@@ -18,12 +18,6 @@ class Card
 
   attr_accessor :place, :next, :z
 
-  def __pop(card = nil)
-    card, prev = find_or_last_and_prev card
-    prev.next = nil
-    card
-  end
-
   def each(&block)
     return to_enum :each unless block
     card = self
@@ -33,6 +27,12 @@ class Card
       card = next_
     end
     self
+  end
+
+  def addTo(place, seconds = 0, &block)
+    pos = place.posFor self
+    place.add self
+    move self, pos, seconds, &block
   end
 
   def pos=(pos)
@@ -73,28 +73,18 @@ class Card
     @state == :close
   end
 
-  def __toggle()
-    closed? ? open : close
-  end
-
-  def __last()
-    card = self
-    card = card.next while card.next
-    card
-  end
-
-  def __last?()
-    self.next == nil && place&.cards.last == self
+  def color()
+    MARKS[0, 2].include?(mark) ? :red : :black
   end
 
   def draw()
-    drawSprite sprite
+    each {|card| drawSprite card.sprite}
   end
 
   def sprite()
     @sprite ||= Sprite.new(image: closedImage).tap do |sp|
       sp.pivot = [0.5, 0.5]
-      sp.angle = rand -1..1
+      sp.angle = rand -2.0..2.0
       sp.update do
         sp.image = opened? ? openedImage : closedImage
       end

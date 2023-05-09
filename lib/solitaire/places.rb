@@ -9,13 +9,14 @@ class CardPlace
     @cards = []
   end
 
+  attr_reader :cards
+
   def add(*cards)
     cards.flatten.each do |card|
       card.each do |c|
         @cards.push c
         c.place = self
         c.next  = nil
-        c.pos   = pos
         c.z     = @cards.size
       end
     end
@@ -25,7 +26,7 @@ class CardPlace
     if card
       index = @cards.index(card) || return
       cards = @cards.slice! index, @cards.size
-      cards.reduce {|card, next_| card.next  = next_}
+      cards.each_cons(2) {|card, next_| card.next = next_}
       cards.first
     else
       @cards.pop
@@ -35,12 +36,12 @@ class CardPlace
     end
   end
 
-  def size()
-    @cards.size
+  def accept?(x, y, card)
+    false
   end
 
-  def __last()
-    @head.last
+  def posFor(card)
+    pos.dup
   end
 
   def draw(index = nil)
@@ -76,16 +77,31 @@ class MarkPlace < CardPlace
 
   attr_reader :mark
 
+  def accept?(x, y, card)
+    hit?(x, y) &&
+      card.mark   == mark &&
+      card.number == @cards.last&.number.then {|n| n ? n + 1 : 1}
+  end
+
 end# MarkPlace
 
 
 class ColumnPlace < CardPlace
 
-  def add(*cards)
-    super.tap do
-      @cards.each.with_index do |card, index|
-        card.y = y + card.h * 0.3 * index
-      end
+  def accept?(x, y, card)
+    if @cards.empty?
+      hit?(x, y) && card.number == 13
+    else
+      last = @cards.last
+      @cards.any? {|c| c.hit?(x, y)}   &&
+        card.number == last.number - 1 &&
+        card.color  != last.color
+    end
+  end
+
+  def posFor(card)
+    super.tap do |pos|
+      pos.y += self.h * 0.3 * (@cards.index(card) || @cards.size)
     end
   end
 

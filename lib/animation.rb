@@ -26,11 +26,3 @@ def move(obj, toPos, seconds, &block)
     block&.call if finished
   end
 end
-
-def moveCard(card, toPlace, seconds, &block)
-  fromPos  = card.pos.dup
-  toPlace.add card
-  toPos    = card.pos.dup
-  card.pos = fromPos
-  move card, toPos, seconds, &block
-end

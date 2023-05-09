@@ -5,16 +5,15 @@ class Klondike < Scene
 
   def initialize()
     super
-    @places  = [deck, nexts, *marks, *columns]
     @sprites = [*cards, *places].map &:sprite
     updateLayout
     start
   end
 
-  attr_reader :places, :sprites
+  attr_reader :sprites
 
   def start()
-    cards.shuffle.each {|card| deck.add card.close}
+    cards.shuffle.each {|card| card.addTo deck}
     startTimer 0.5 do
       placeToColumns do
         startTimer(0.5) {openNexts}
@@ -35,10 +34,9 @@ class Klondike < Scene
   end
 
   def mouseReleased(x, y, mouseButton)
-    if @picked && @placePickedFrom
-      @placePickedFrom.add @picked
-      @picked = @placePickedFrom = nil
-    end
+    place = getPlaceAccepts(x, y, @picked) || @placePickedFrom
+    @picked&.addTo place, 0.2 if place
+    @picked = @placePickedFrom = nil
   end
 
   def mouseDragged(x, y, dx, dy)
@@ -50,20 +48,44 @@ class Klondike < Scene
     @picked.pos += createVector(dx, dy)
   end
 
+  def deckClicked()
+    deck.cards.empty? ? refillDeck : openNexts
+  end
+
+  def nextsClicked()
+    openNexts if nexts.cards.empty?
+  end
+
+  def cardClicked(card)
+    card.open if
+      card.closed? &&
+      card.place&.is_a?(ColumnPlace) &&
+      card == card.place&.cards.last
+  end
+
   private
+
+  def places()
+    @places ||= [deck, nexts, *marks, *columns]
+  end
 
   def cards()
     @cards ||= Card::MARKS
       .product((1..13).to_a)
       .map {|m, n| Card.new self, m, n}
+      .each {|card| card.sprite.mouseClicked {cardClicked card}}
   end
 
   def deck()
-    @deck ||= CardPlace.new
+    @deck ||= CardPlace.new.tap do |deck|
+      deck.sprite.mouseClicked {deckClicked}
+    end
   end
 
   def nexts()
-    @nexts ||= CardPlace.new
+    @nexts ||= CardPlace.new.tap do |nexts|
+      nexts.sprite.mouseClicked {nextsClicked}
+    end
   end
 
   def marks()
@@ -99,7 +121,7 @@ class Klondike < Scene
         startTimer index / 50.0 do
           card = deck.pop
           card.open if col == row
-          moveCard card, columns[col], 0.5 do
+          card.addTo columns[col], 0.5 do
             block&.call if [col, row] == positions.last
           end
         end
@@ -113,30 +135,16 @@ class Klondike < Scene
   end
 
   def openNexts(count = 1)
-    moveCard deck.pop.open, nexts, 0.3
+    deck.pop.open.addTo nexts, 0.3
   end
-=begin
+
   def refillDeck()
-    @nexts.cards.shuffle!
-    until @nexts.empty?
-      moveCard @nexts.pop.close, @deck, 0.3
-    end
+    nexts.pop.close.addTo deck, 0.3 until nexts.cards.empty?
   end
 
-  def pickCard(x, y)
-    draggableCards.find { _1.hit? x, y }
+  def getPlaceAccepts(x, y, card)
+    return nil unless card
+    (columns + marks).find {|place| place.accept? x, y, card}
   end
-
-  def draggableCards()
-    [
-      @columns.map { _1.cards.select &:opened? },
-      @nexts.cards.last,
-    ].flatten.compact.reverse
-  end
-
-  def droppablePlace(x, y, card)
-    (@columns + @marks).find { _1.canAdd? x, y, card }
-  end
-=end
 
 end# Klondike
