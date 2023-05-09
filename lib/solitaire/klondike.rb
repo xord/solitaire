@@ -73,7 +73,8 @@ class Klondike < Scene
   end
 
   def cardDoubleClicked(card)
-    p card
+    mark = marks.find {|place| place.accept? place.x, place.y, card}
+    card.addTo mark, 0.3 if mark
   end
 
   private

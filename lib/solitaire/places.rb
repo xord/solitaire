@@ -8,9 +8,6 @@ class CardPlace
 
   def initialize()
     @card = nil
-    sprite.mouseClicked do
-      puts to_a.map &:z
-    end
   end
 
   def add(card)
