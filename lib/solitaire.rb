@@ -5,7 +5,6 @@ require 'timer'
 require 'animation'
 require 'shake'
 require 'scene'
-require 'object'
 
 require 'solitaire/card'
 require 'solitaire/places'
