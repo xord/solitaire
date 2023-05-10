@@ -20,6 +20,7 @@ end
 
 draw do
   fireTimers
+  drawShake
   push { $root.draw }
 end
 

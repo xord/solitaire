@@ -3,6 +3,7 @@ require 'forwardable'
 require 'utils'
 require 'timer'
 require 'animation'
+require 'shake'
 require 'scene'
 require 'object'
 

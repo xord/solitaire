@@ -42,8 +42,14 @@ class Klondike < Scene
   end
 
   def mouseReleased(x, y, mouseButton)
-    place = getPlaceAccepts(x, y, @picked) || @placePickedFrom
-    @picked&.addTo place, 0.2 if place
+    card = @picked
+    if place = getPlaceAccepts(x, y, card)
+      card.addTo place, 0.2
+    elsif @placePickedFrom
+      card&.addTo @placePickedFrom, 0.2, ease: :quadIn do |vec|
+        shake vector: vec * 0.1 * card.size
+      end
+    end
     @picked = @placePickedFrom = nil
   end
 

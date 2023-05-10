@@ -29,10 +29,10 @@ class Card
     self
   end
 
-  def addTo(place, seconds = 0, &block)
+  def addTo(place, seconds = 0, **kwargs, &block)
     pos = place.posFor self
     place.add self
-    move self, pos, seconds, &block
+    move self, pos, seconds, **kwargs, &block
   end
 
   def place=(place)
@@ -83,6 +83,10 @@ class Card
 
   def color()
     MARKS[0, 2].include?(mark) ? :red : :black
+  end
+
+  def size()
+    reduce(0) {|n| n + 1}
   end
 
   def last?()
