@@ -10,7 +10,9 @@ class Klondike < Scene
     start
   end
 
-  attr_reader :sprites
+  def sprites()
+    @sprites + particle.sprites
+  end
 
   def start()
     cards.shuffle.each {|card| card.addTo deck}
@@ -26,6 +28,7 @@ class Klondike < Scene
     cards
       .sort {|a, b| a.drawPriority <=> b.drawPriority}
       .each {|card| sprite card.sprite}
+    particle.draw
   end
 
   def picked(card)
@@ -39,15 +42,27 @@ class Klondike < Scene
         .sort {|a, b| a.drawPriority <=> b.drawPriority}
         .last&.then {|card| cardDoubleClicked card}
     end
+    10.times {emitParticle x, y}
+  end
+
+  def emitParticle(x, y)
+    par = particle.new x, y, rand(5..10), rand(5..10)
+    pos = createVector(x, y) + Vector.random2D * rand(32..64)
+    move par, pos, 1 do |t, finished|
+      par.alpha = (1.0 - t) * 255
+      par.delete if finished
+    end
   end
 
   def mouseReleased(x, y, mouseButton)
     card = @picked
     if place = getPlaceAccepts(x, y, card)
       card.addTo place, 0.2
-    elsif @placePickedFrom
-      card&.addTo @placePickedFrom, 0.2, ease: :quadIn do |vec|
-        shake vector: vec * 0.1 * card.size
+    elsif card && @placePickedFrom
+      prevPos = card.pos
+      card.addTo @placePickedFrom, 0.2, ease: :quadIn do |t, finished|
+        shake vector: (card.pos - prevPos) * 0.1 * card.size if finished
+        prevPos = card.pos.dup
       end
     end
     @picked = @placePickedFrom = nil
@@ -116,6 +131,10 @@ class Klondike < Scene
     @culumns ||= 7.times.map {ColumnPlace.new}
   end
 
+  def particle()
+    @particle ||= Particle.new
+  end
+
   def updateLayout()
     card      = cards.first
     w, h      = width, height
@@ -141,8 +160,8 @@ class Klondike < Scene
         startTimer index / 50.0 do
           card = deck.pop
           card.open if col == row
-          card.addTo columns[col], 0.5 do
-            block&.call if [col, row] == positions.last
+          card.addTo columns[col], 0.5 do |t, finished|
+            block&.call if finished && [col, row] == positions.last
           end
         end
       end

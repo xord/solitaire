@@ -13,9 +13,9 @@ def animate(name = unique, seconds, ease: :expoOut, &block)
   eachDrawBlock = lambda do
     t = (now - start) / seconds
     if t >= 1.0
-      block.call fun.call(1.0), true
+      block.call fun.call(1.0), true, 1.0
     else
-      block.call fun.call(t), false
+      block.call fun.call(t), false, t
       startTimer name, 0, &eachDrawBlock
     end
   end
@@ -23,12 +23,10 @@ def animate(name = unique, seconds, ease: :expoOut, &block)
 end
 
 def move(obj, toPos, seconds, **kwargs, &block)
-  from    = createVector obj.x, obj.y
-  to      = createVector *toPos.to_a[0, 2]
-  prevPos = from
-  animate seconds, **kwargs do |t, finished|
-    obj.pos = Vector.lerp(from, to, t).then {|v| [v.x, v.y]}
-    block&.call obj.pos - prevPos if finished
-    prevPos = obj.pos.dup
+  from = createVector obj.x, obj.y
+  to   = createVector *toPos.to_a[0, 2]
+  animate seconds, **kwargs do |t, *args|
+    obj.pos = Vector.lerp(from, to, t)
+    block&.call t, *args
   end
 end
