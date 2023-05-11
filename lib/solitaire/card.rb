@@ -84,7 +84,7 @@ class Card
     MARKS[0, 2].include?(mark) ? :red : :black
   end
 
-  def size()
+  def count()
     reduce(0) {|n| n + 1}
   end
 

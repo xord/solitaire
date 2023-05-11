@@ -42,16 +42,6 @@ class Klondike < Scene
         .sort {|a, b| a.drawPriority <=> b.drawPriority}
         .last&.then {|card| cardDoubleClicked card}
     end
-    10.times {emitParticle x, y}
-  end
-
-  def emitParticle(x, y)
-    par = particle.new x, y, rand(5..10), rand(5..10)
-    pos = createVector(x, y) + Vector.random2D * rand(32..64)
-    move par, pos, 1 do |t, finished|
-      par.alpha = (1.0 - t) * 255
-      par.delete if finished
-    end
   end
 
   def mouseReleased(x, y, mouseButton)
@@ -61,7 +51,7 @@ class Klondike < Scene
     elsif card && @placePickedFrom
       prevPos = card.pos
       card.addTo @placePickedFrom, 0.2, ease: :quadIn do |t, finished|
-        shake vector: (card.pos - prevPos) * 0.1 * card.size if finished
+        backToPlace card, prevPos if finished
         prevPos = card.pos.dup
       end
     end
@@ -184,6 +174,64 @@ class Klondike < Scene
   def getPlaceAccepts(x, y, card)
     return nil unless card
     (columns + marks).find {|place| place.accept? x, y, card}
+  end
+
+  def backToPlace(card, prevPos)
+    vel = card.pos - prevPos
+    return if vel.mag < 3
+    shake vector: vel * 0.1 * card.count
+    32.times {
+      x, y, w, h = randomEdge card
+      pos        = createVector x, y
+      vec        = (pos - card.center).normalize * vel.mag
+      emitParticle pos, w, h, vec
+    }
+  end
+
+  def emitParticle(pos, w, h, vec)
+    par   = particle.new pos.x, pos.y, w, h
+    toPos = pos + vec * rand(0.5...1.0)
+    sec   = [vec.mag / 10, 2].min
+    move par, toPos, sec do |t, finished|
+      par.alpha = (1.0 - t) * 255
+      par.delete if finished
+    end
+  end
+
+  def randomEdge(card)
+    if rand < card.w / (card.w + card.h)
+      [
+        card.x + rand(card.w),
+        card.y + (rand < 0.5 ? 0 : card.h),
+        rand(3.0..5.0),
+        2
+      ]
+    else
+      [
+        card.x + (rand < 0.5 ? 0 : card.w),
+        card.y + rand(card.h),
+        2,
+        rand(3.0..5.0)
+      ]
+    end
+  end
+
+  def randomEdge2(card)
+    (cw, ch), v        = card.size.to_a, Vector.random2D
+    cardGrad, vecGrad  = ch / cw, v.y / v.x
+    edgePos =
+      if 0 <= v.x
+        if   cardGrad <  vecGrad  then [0, 0]#[cw / 2 + ch / 2 / vecGrad, 0]
+        elsif vecGrad < -cardGrad then [0, 0]#[cw / 2 - ch / 2 / vecGrad, ch]
+        else                           [cw, ch / 2 + cw / 2 * vecGrad]
+        end
+      else
+        if   cardGrad <  vecGrad  then [0, 0]#[cw / 2 - ch / 2 / vecGrad, ch]
+        elsif vecGrad < -cardGrad then [0, 0]#[cw / 2 + ch / 2 / vecGrad, 0]
+        else                           [0, ch / 2 + -cw / 2 * vecGrad]
+        end
+      end
+    card.pos + edgePos
   end
 
 end# Klondike

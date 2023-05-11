@@ -3,7 +3,8 @@ using RubySketch
 
 EASINGS = {
   quadIn:  lambda { |x| x * x },
-  expoOut: lambda { |x| 1.0 - 2 ** (-10 * x.clamp(0.0, 1.0)) }
+  quadOut: lambda { |x| 1.0 - (1.0 - x) * (1.0 - x)},
+  expoOut: lambda { |x| 1.0 - 2.0 ** (-10.0 * x.clamp(0.0, 1.0)) }
 }
 
 

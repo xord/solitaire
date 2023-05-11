@@ -121,7 +121,7 @@ class ColumnPlace < CardPlace
   def posFor(card)
     super.tap do |pos|
       cards = to_a
-      pos.y += self.h * 0.3 * (cards.index(card) || cards.size)
+      pos.y += self.h * 0.3 * (cards.index(card) || cards.count)
     end
   end
 
