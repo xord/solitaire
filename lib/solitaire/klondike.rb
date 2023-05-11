@@ -180,7 +180,7 @@ class Klondike < Scene
     vel = card.pos - prevPos
     return if vel.mag < 3
     shake vector: vel * 0.1 * card.count
-    32.times {
+    10.times {
       x, y, w, h = randomEdge card
       pos        = createVector x, y
       vec        = (pos - card.center).normalize * vel.mag
