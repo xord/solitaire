@@ -12,16 +12,18 @@ class GameViewController : ReflexViewController {
             Warning[:experimental]    = false
 
             %w[
-                ruby/lib
+                lib
             ].each do |lib|
                 $LOAD_PATH.unshift File.join '\(mainBundleDir)', lib
             end
+
+            Dir.chdir '\(mainBundleDir)'
         """)
 
         RubySketch.setup()
         RubySketch.setActiveReflexViewController(self)
 
-        RubySketch.start("\(mainBundleDir)/lib/solitaire.rb");
+        RubySketch.start("\(mainBundleDir)/main.rb");
     }
 }
 

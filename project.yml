@@ -33,7 +33,10 @@ targets:
         embed: false
     sources:
       - RubySolitaire
+      - main.rb
       - path: lib
+        type: folder
+      - path: data
         type: folder
     settings:
       groups: [all, app]
