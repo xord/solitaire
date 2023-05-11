@@ -216,22 +216,4 @@ class Klondike < Scene
     end
   end
 
-  def randomEdge2(card)
-    (cw, ch), v        = card.size.to_a, Vector.random2D
-    cardGrad, vecGrad  = ch / cw, v.y / v.x
-    edgePos =
-      if 0 <= v.x
-        if   cardGrad <  vecGrad  then [0, 0]#[cw / 2 + ch / 2 / vecGrad, 0]
-        elsif vecGrad < -cardGrad then [0, 0]#[cw / 2 - ch / 2 / vecGrad, ch]
-        else                           [cw, ch / 2 + cw / 2 * vecGrad]
-        end
-      else
-        if   cardGrad <  vecGrad  then [0, 0]#[cw / 2 - ch / 2 / vecGrad, ch]
-        elsif vecGrad < -cardGrad then [0, 0]#[cw / 2 + ch / 2 / vecGrad, 0]
-        else                           [0, ch / 2 + -cw / 2 * vecGrad]
-        end
-      end
-    card.pos + edgePos
-  end
-
 end# Klondike
