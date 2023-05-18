@@ -9,7 +9,7 @@ class Card
   MARKS = %i[heart diamond clover spade]
 
   def initialize(game, mark, number)
-    @game, @mark, @number, @state = game, mark, number, :close
+    @game, @mark, @number, @state, @open = game, mark, number, :close, 0
     @place = @next = nil
   end
 
@@ -62,8 +62,9 @@ class Card
     self.z
   end
 
-  def open()
+  def open(sec = 0.3)
     @state = :open
+    animate(sec) {|t| @open = 180 * t}
     self
   end
 
@@ -71,8 +72,9 @@ class Card
     @state == :open
   end
 
-  def close()
+  def close(sec = 0)
     @state = :close
+    animate(sec) {|t| @open = 180 * (1.0 - t)}
     self
   end
 
@@ -97,7 +99,7 @@ class Card
       sp.pivot = [0.5, 0.5]
       sp.angle = rand -2.0..2.0
       sp.update do
-        sp.image = opened? ? openedImage : closedImage
+        sp.image = @open > 90 ? openedImage : closedImage
       end
       sp.draw do |&draw|
         push do
@@ -106,6 +108,9 @@ class Card
           translate 2, 5
           draw.call
         end
+        translate  sp.w / 2,  sp.h / 2
+        rotate @open
+        translate -sp.w / 2, -sp.h / 2
         draw.call
       end
       sp.mousePressed do
