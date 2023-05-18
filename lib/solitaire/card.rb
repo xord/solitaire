@@ -104,7 +104,7 @@ class Card
           blendMode SUBTRACT
           tint 100
           translate 2, 5
-          #draw.call
+          draw.call
         end
         draw.call
       end
