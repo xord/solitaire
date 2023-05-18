@@ -10,17 +10,17 @@ class CardPlace
     @card = nil
   end
 
-  def add(card)
-    card.place&.pop card
-    if !@card
-      @card  = card
-      card.z = 1
-    else
-      last_      = last
-      last_.next = card
-      card.z     = last_.z + 1
+  def add(*cards, updatePos: true)
+    cards.flatten.each do |card|
+      card.place&.pop card
+      card.pos = posFor card if updatePos
+      unless @card
+        @card     = card
+      else
+        last.next = card
+      end
+      card.place = self
     end
-    card.place = self
   end
 
   def pop(card = nil)
@@ -65,7 +65,8 @@ class CardPlace
   end
 
   def posFor(card)
-    pos.dup
+    x, y = pos.to_a
+    createVector x, y, (last&.z || 0) + 1
   end
 
   def sprite()
@@ -75,7 +76,7 @@ class CardPlace
   private
 
   def spriteImage()
-    @spriteImage ||= createGraphics(CW, CH).tap do |g|
+    @spriteImage ||= createGraphics(*Card.spriteSize).tap do |g|
       g.beginDraw
       g.noStroke
       g.fill 100, 32
@@ -98,6 +99,7 @@ class MarkPlace < CardPlace
 
   def accept?(x, y, card)
     hit?(x, y) &&
+      card.opened? &&
       card.mark   == mark &&
       card.number == last&.number.then {|n| n ? n + 1 : 1}
   end
@@ -108,13 +110,14 @@ end# MarkPlace
 class ColumnPlace < CardPlace
 
   def accept?(x, y, card)
+    return false if card.closed?
     if empty?
-      hit?(x, y) && card.number == 13
+      hit?(x, y) &&
+        card.number == 13
     else
-      last_ = last
-      any? {|c| c.hit?(x, y)}           &&
-        card.number == last_.number - 1 &&
-        true#card.color  != last_.color
+      any? {|card| card.hit?(x, y)} &&
+        card.number == last.number - 1 &&
+        card.color  != last.color
     end
   end
 

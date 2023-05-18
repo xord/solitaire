@@ -35,7 +35,7 @@ class Title < Scene
   def tapToStart()
     @tapToStart ||= Sprite.new(0, 0, width, 20).tap do |sp|
       sp.draw do
-        next if frameCount % 120 < 60
+        next if frameCount % 120 > 60
         textAlign CENTER, CENTER
         textSize 20
         text 'Tap to Start!', 0, 0, sp.w, sp.h

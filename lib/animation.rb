@@ -24,8 +24,7 @@ def animate(name = unique, seconds, ease: :expoOut, &block)
 end
 
 def move(obj, toPos, seconds, **kwargs, &block)
-  from = createVector obj.x, obj.y
-  to   = createVector *toPos.to_a[0, 2]
+  from, to = obj.pos.dup, toPos.dup
   animate seconds, **kwargs do |t, *args|
     obj.pos = Vector.lerp(from, to, t)
     block&.call t, *args

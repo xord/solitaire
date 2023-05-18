@@ -9,13 +9,13 @@ class Card
   MARKS = %i[heart diamond clover spade]
 
   def initialize(game, mark, number)
-    @game, @mark, @number, @state, @z = game, mark, number, :close, 0
+    @game, @mark, @number, @state = game, mark, number, :close
     @place = @next = nil
   end
 
   attr_reader :mark, :number, :place
 
-  attr_accessor :next, :z
+  attr_accessor :next
 
   def each(&block)
     return to_enum :each unless block
@@ -28,9 +28,10 @@ class Card
     self
   end
 
-  def addTo(place, seconds = 0, **kwargs, &block)
-    pos = place.posFor self
-    place.add self
+  def addTo(place, seconds = 0, hover: true, **kwargs, &block)
+    pos    = place.posFor self
+    self.z = pos.z + (hover ? 100 : 0)
+    place.add self, updatePos: false
     move self, pos, seconds, **kwargs, &block
   end
 
@@ -47,18 +48,17 @@ class Card
   end
 
   def x=(x)
-    self.pos = createVector(x, self.y)
+    self.pos = createVector x, self.y, self.z
     self.x
   end
 
   def y=(y)
-    self.pos = createVector(self.x, y)
+    self.pos = createVector self.x, y, self.z
     self.y
   end
 
   def z=(z)
-    old, @z       = self.z, z
-    self.next&.z += @z - old
+    self.pos = createVector self.x, self.y, z
     self.z
   end
 
@@ -92,20 +92,34 @@ class Card
     self.next == nil
   end
 
-  def drawPriority()
-    z + (pos != @prevPos ? 100 : 0)
-  end
-
   def sprite()
-    @sprite ||= Sprite.new(image: closedImage).tap do |sp|
-      sp.pivot = [0.5, 0.5]
-      sp.angle = rand -2.0..2.0
+    @sprite ||= Sprite.new(0, 0, *spriteSize, image: closedImage).tap do |sp|
+      #sp.pivot = [0.5, 0.5]
+      #sp.angle = rand -2.0..2.0
       sp.update do
         sp.image = opened? ? openedImage : closedImage
-        @prevPos = sp.pos
+      end
+      sp.draw do |&draw|
+        push do
+          blendMode SUBTRACT
+          tint 100
+          translate 2, 5
+          #draw.call
+        end
+        draw.call
       end
       sp.mousePressed do
-        @game.picked self if opened?
+        mousePressed sp.mouseX, sp.mouseY
+      end
+      sp.mouseReleased do |clickCount|
+        mouseReleased sp.mouseX, sp.mouseY, clickCount
+      end
+      sp.mouseDragged do
+        x, y = sp.mouseX, sp.mouseY
+        mouseDragged x, y, x - sp.pmouseX, y - sp.pmouseY
+      end
+      sp.mouseClicked do
+        @game.cardClicked self
       end
     end
   end
@@ -116,17 +130,34 @@ class Card
 
   private
 
+  def mousePressed(x, y)
+    @prevPlace = place
+    @startPos  = createVector x, y, self.z
+    self.z    += 100
+  end
+
+  def mouseReleased(x, y, clickCount)
+    self.z = @startPos.z if @startPos
+    pos    = sprite.to_screen createVector x, y
+    @game.cardDropped pos.x, pos.y, self, @prevPlace if
+      @prevPlace && clickCount == 0
+  end
+
+  def mouseDragged(x, y, dx, dy)
+    self.pos += createVector x - @startPos.x, y - @startPos.y if @startPos
+  end
+
+  def spriteSize()
+    self.class.spriteSize
+  end
+
   def openedImage()
-    @openedImage ||= createGraphics(CW, CH).tap do |g|
-      c         = self.class
-      s         = c.marksImage.height # size
-      m         = 4 # margin
-      markIndex = Card::MARKS.index self.mark
-      number    = (self.number - 1)
+    @openedImage ||= createGraphics(*self.class.spriteSize).tap do |g|
+      cw, ch = self.class.eachCardSize
+      x      = ([nil] + (2..13).to_a + [1])  .index(number) * cw
+      y      = %i[heart clover diamond spade].index(mark)   * ch
       g.beginDraw
-      g.image c.cardImage, 0, 0
-      g.copy c.marksImage, markIndex * s, 0, s, s,               m, m, s, s
-      g.copy c.numbersImage,  number * s, 0, s, s, g.width - s - m, m, s, s
+      g.copy self.class.cardsImage, x, y, cw, ch, 0, 0, g.width, g.height
       g.endDraw
     end
   end
@@ -135,24 +166,27 @@ class Card
     self.class.closedImage
   end
 
+  def self.spriteSize()
+    cw, ch, margin, ncolumns = *eachCardSize, 4, 7
+    spriteWidth = (width - margin * (ncolumns + 1)) / ncolumns
+    @size ||= [spriteWidth, spriteWidth * (ch.to_f / cw)].map &:to_i
+  end
+
+  def self.eachCardSize()
+    [35, 47]
+  end
+
   def self.closedImage()
-    @closedImage ||= createGraphics(CW, CH).tap do |g|
+    cw, ch = eachCardSize
+    @closedImage ||= createGraphics(*spriteSize).tap do |g|
       g.beginDraw
-      g.copy cardImage, CW, 0, CW, CH, 0, 0, CW, CH
+      g.copy cardsImage, 0, ch, cw, ch, 0, 0, g.width, g.height
       g.endDraw
     end
   end
 
-  def self.cardImage()
-    @cardImage ||= loadImage 'data/card.png'
-  end
-
-  def self.marksImage()
-    @marksImage ||= loadImage 'data/marks.png'
-  end
-
-  def self.numbersImage()
-    @numbersImage ||= loadImage 'data/numbers.png'
+  def self.cardsImage()
+    @cardsImage ||= loadImage 'data/cards.png'
   end
 
   def __find_or_last_and_prev(card = nil)

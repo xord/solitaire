@@ -11,11 +11,11 @@ class Klondike < Scene
   end
 
   def sprites()
-    @sprites + particle.sprites
+    super + @sprites
   end
 
   def start()
-    cards.shuffle.each {|card| card.addTo deck}
+    deck.add *cards.shuffle
     startTimer 0.5 do
       placeToColumns do
         startTimer(0.5) {openNexts}
@@ -26,46 +26,18 @@ class Klondike < Scene
   def draw()
     places.each {|place| sprite place.sprite}
     cards
-      .sort {|a, b| a.drawPriority <=> b.drawPriority}
+      .sort {|a, b| a.z <=> b.z}
       .each {|card| sprite card.sprite}
+    blendMode ADD
     particle.draw
   end
 
-  def picked(card)
-    @picked = card if card.z >= (@picked&.z || 0)
-  end
-
-  def mousePressed(x, y, mouseButton, clickCount)
-    if clickCount == 2
-      cards
-        .select {|card| card.hit? x, y}
-        .sort {|a, b| a.drawPriority <=> b.drawPriority}
-        .last&.then {|card| cardDoubleClicked card}
+  def cardClicked(card)
+    case place = card.place
+    when deck     then deckClicked
+    when nexts    then nextsClicked
+    when *columns then card.closed? ? closedCardClicked(card) : openedCardClicked(card)
     end
-  end
-
-  def mouseReleased(x, y, mouseButton)
-    card = @picked
-    if place = getPlaceAccepts(x, y, card)
-      card.addTo place, 0.2
-    elsif card && @placePickedFrom
-      prevPos = card.pos
-      card.addTo @placePickedFrom, 0.2, ease: :quadIn do |t, finished|
-        backToPlace card, prevPos if finished
-        prevPos = card.pos.dup
-      end
-    end
-    @picked = @placePickedFrom = nil
-  end
-
-  def mouseDragged(x, y, dx, dy)
-    return unless @picked
-    unless @placePickedFrom
-      @placePickedFrom = @picked.place
-      @placePickedFrom.pop @picked
-    end
-    @picked.z    = 100
-    @picked.pos += createVector(dx, dy)
   end
 
   def deckClicked()
@@ -76,16 +48,25 @@ class Klondike < Scene
     openNexts if nexts.empty?
   end
 
-  def cardClicked(card)
-    card.open if
-      card.closed? &&
-      card.place&.is_a?(ColumnPlace) &&
-      card.last?
+  def closedCardClicked(card)
+    card.open if card.last?
   end
 
-  def cardDoubleClicked(card)
+  def openedCardClicked(card)
     mark = marks.find {|place| place.accept? place.x, place.y, card}
     card.addTo mark, 0.3 if mark
+  end
+
+  def cardDropped(x, y, card, prevPlace)
+    if place = getPlaceAccepts(x, y, card)
+      card.addTo place, 0.2
+    elsif prevPlace
+      prevPos = card.pos
+      card.addTo prevPlace, 0.15, ease: :quadIn do |t, finished|
+        backToPlace card, prevPos if finished
+        prevPos = card.pos.dup
+      end
+    end
   end
 
   private
@@ -95,10 +76,8 @@ class Klondike < Scene
   end
 
   def cards()
-    @cards ||= Card::MARKS
-      .product((1..13).to_a)
+    @cards ||= Card::MARKS.product((1..13).to_a)
       .map {|m, n| Card.new self, m, n}
-      .each {|card| card.sprite.mouseClicked {cardClicked card}}
   end
 
   def deck()
@@ -119,10 +98,6 @@ class Klondike < Scene
 
   def columns()
     @culumns ||= 7.times.map {ColumnPlace.new}
-  end
-
-  def particle()
-    @particle ||= Particle.new
   end
 
   def updateLayout()
@@ -150,7 +125,7 @@ class Klondike < Scene
         startTimer index / 50.0 do
           card = deck.pop
           card.open if col == row
-          card.addTo columns[col], 0.5 do |t, finished|
+          card.addTo columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
           end
         end
@@ -179,39 +154,31 @@ class Klondike < Scene
   def backToPlace(card, prevPos)
     vel = card.pos - prevPos
     return if vel.mag < 3
-    shake vector: vel * 0.1 * card.count
+    shake vector: vel / 10 * card.count
     10.times {
-      x, y, w, h = randomEdge card
-      pos        = createVector x, y
-      vec        = (pos - card.center).normalize * vel.mag
-      emitParticle pos, w, h, vec
+      x, y = randomEdge card
+      size = rand(2.0..10.0)
+      pos  = createVector x, y
+      vec  = (pos - card.center).normalize * 10
+      sec  = 0.5
+      par  = emitParticle x, y, size, size, sec
+      animate sec do |t|
+        par.pos   = pos + vec * t
+        par.alpha = (1.0 - t) * 255
+      end
     }
-  end
-
-  def emitParticle(pos, w, h, vec)
-    par   = particle.new pos.x, pos.y, w, h
-    toPos = pos + vec * rand(0.5...1.0)
-    sec   = [vec.mag / 10, 2].min
-    move par, toPos, sec do |t, finished|
-      par.alpha = (1.0 - t) * 255
-      par.delete if finished
-    end
   end
 
   def randomEdge(card)
     if rand < card.w / (card.w + card.h)
       [
         card.x + rand(card.w),
-        card.y + (rand < 0.5 ? 0 : card.h),
-        rand(3.0..5.0),
-        2
+        card.y + (rand < 0.5 ? 0 : card.h)
       ]
     else
       [
         card.x + (rand < 0.5 ? 0 : card.w),
-        card.y + rand(card.h),
-        2,
-        rand(3.0..5.0)
+        card.y + rand(card.h)
       ]
     end
   end

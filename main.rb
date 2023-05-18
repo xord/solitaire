@@ -2,10 +2,8 @@ require 'solitaire'
 using RubySketch
 
 
-SW = 240 # screen width
-SH = 320
-CW = 32 # card width
-CH = 46 # CW * 89 / 58
+SW = 375 # screen width
+SH = 667
 
 
 setup do
@@ -14,7 +12,6 @@ setup do
   angleMode DEGREES
   noStroke
 
-  $clickCount = $clickPrevTime = 0
   $root = Scene.new 'Root', Background.new, Title.new
 end
 
@@ -25,9 +22,7 @@ draw do
 end
 
 mousePressed do
-  $clickCount    = (now - $clickPrevTime) < 0.3 ? $clickCount + 1 : 1
-  $clickPrevTime = now
-  $root.mousePressed mouseX, mouseY, mouseButton, $clickCount
+  $root.mousePressed mouseX, mouseY, mouseButton
 end
 
 mouseReleased do

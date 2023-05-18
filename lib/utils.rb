@@ -12,8 +12,8 @@ module HasSprite
   extend Forwardable
 
   def_delegators :sprite,
-    :pos, :pos=, :x, :x=, :y, :y=, :center, :center=,
-    :size, :width, :height, :w, :h,
+    :pos, :pos=, :x, :x=, :y, :y=, :z, :z=, :center, :center=,
+    :size, :width, :height, :depth, :w, :h, :d,
     :angle, :angle=
 
   def hit?(x, y)

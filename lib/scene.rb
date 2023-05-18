@@ -31,14 +31,34 @@ class Scene
     parent.remove self
   end
 
+  def emitParticle(x, y, w, h, sec = nil, &block)
+    par   = particle.new x, y, w, h
+    start = now
+    par.update do
+      time   = now - start
+      t      = sec ? time / sec : nil
+      result = block&.call time, t
+      if result == false || (t || 1) >= 1
+        par.update {}
+        par.delete
+      end
+    end
+    par
+  end
+
   def sprites()
-    []
+    particle.sprites
+  end
+
+  def particle()
+    @particle ||= Particle.new
   end
 
   def draw()
     @scenes.each do |scene|
       push {scene.draw}
     end
+    particle.draw
   end
 
   def activated()
@@ -49,8 +69,8 @@ class Scene
     sprites.each {|sprite| removeSprite sprite}
   end
 
-  def mousePressed(x, y, button, clickCount)
-    @scenes.each {|scene| scene.mousePressed x, y, button, clickCount}
+  def mousePressed(x, y, button)
+    @scenes.each {|scene| scene.mousePressed x, y, button}
   end
 
   def mouseReleased(x, y, button)
