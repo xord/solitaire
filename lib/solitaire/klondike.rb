@@ -78,6 +78,7 @@ class Klondike < Scene
   def cards()
     @cards ||= Card::MARKS.product((1..13).to_a)
       .map {|m, n| Card.new self, m, n}
+      .each {|card| card.sprite.mouseClicked {cardClicked card}}
   end
 
   def deck()

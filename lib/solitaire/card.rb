@@ -123,9 +123,6 @@ class Card
         x, y = sp.mouseX, sp.mouseY
         mouseDragged x, y, x - sp.pmouseX, y - sp.pmouseY
       end
-      sp.mouseClicked do
-        @game.cardClicked self
-      end
     end
   end
 
