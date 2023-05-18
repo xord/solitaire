@@ -94,8 +94,8 @@ class Card
 
   def sprite()
     @sprite ||= Sprite.new(0, 0, *spriteSize, image: closedImage).tap do |sp|
-      #sp.pivot = [0.5, 0.5]
-      #sp.angle = rand -2.0..2.0
+      sp.pivot = [0.5, 0.5]
+      sp.angle = rand -2.0..2.0
       sp.update do
         sp.image = opened? ? openedImage : closedImage
       end
