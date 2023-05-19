@@ -98,6 +98,7 @@ class MarkPlace < CardPlace
   attr_reader :mark
 
   def accept?(x, y, card)
+    return false if !card || card.closed?
     hit?(x, y) &&
       card.opened? &&
       card.mark   == mark &&
@@ -110,7 +111,7 @@ end# MarkPlace
 class ColumnPlace < CardPlace
 
   def accept?(x, y, card)
-    return false if card.closed?
+    return false if !card || card.closed?
     if empty?
       hit?(x, y) &&
         card.number == 13

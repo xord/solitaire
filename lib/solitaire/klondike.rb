@@ -33,10 +33,14 @@ class Klondike < Scene
   end
 
   def cardClicked(card)
-    case place = card.place
-    when deck     then deckClicked
-    when nexts    then nextsClicked
-    when *columns then card.closed? ? closedCardClicked(card) : openedCardClicked(card)
+    if newPlace = getPlaceToGo(card)
+      card.addTo newPlace, 0.3
+    else
+      case place = card.place
+      when deck     then deckClicked
+      when nexts    then nextsClicked
+      when *columns then closedCardClicked(card) if card.closed?
+      end
     end
   end
 
@@ -50,11 +54,6 @@ class Klondike < Scene
 
   def closedCardClicked(card)
     card.open if card.last?
-  end
-
-  def openedCardClicked(card)
-    mark = marks.find {|place| place.accept? place.x, place.y, card}
-    card.addTo mark, 0.3 if mark
   end
 
   def cardDropped(x, y, card, prevPlace)
@@ -148,8 +147,12 @@ class Klondike < Scene
   end
 
   def getPlaceAccepts(x, y, card)
-    return nil unless card
     (columns + marks).find {|place| place.accept? x, y, card}
+  end
+
+  def getPlaceToGo(card)
+    marks.find {|place| place.accept? *place.center.to_a(2), card} ||
+      columns.shuffle.find {|place| place.accept? *place.center.to_a(2), card}
   end
 
   def backToPlace(card, prevPos)
