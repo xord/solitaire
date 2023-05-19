@@ -6,9 +6,11 @@ class CardPlace
   include HasSprite
   include Enumerable
 
-  def initialize()
-    @card = nil
+  def initialize(name)
+    @name, @card = name.intern, nil
   end
+
+  attr_reader :name
 
   def add(*cards, updatePos: true)
     cards.flatten.each do |card|
@@ -25,19 +27,21 @@ class CardPlace
 
   def pop(card = nil)
     return nil unless @card
-    if card ? @card == card : @card.last?
-      it    = @card
-      @card = nil
-      return it
-    else
-      each_cons 2 do |prev, it|
-        if card ? it == card : it.last?
-          prev.next = nil
-          return it
+    popped =
+      if card ? @card == card : @card.last?
+        it    = @card
+        @card = nil
+        it
+      else
+        each_cons 2 do |prev, it|
+          if card ? it == card : it.last?
+            prev.next = nil
+            break it
+          end
         end
       end
-    end
-    nil
+    popped.place = nil
+    popped
   end
 
   def each(&block)
@@ -90,8 +94,8 @@ end# CardPlace
 
 class MarkPlace < CardPlace
 
-  def initialize(mark)
-    super()
+  def initialize(name, mark)
+    super name
     @mark = mark
   end
 

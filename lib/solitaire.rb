@@ -2,6 +2,7 @@ require 'forwardable'
 
 require 'utils'
 require 'timer'
+require 'history'
 require 'animation'
 require 'particle'
 require 'shake'

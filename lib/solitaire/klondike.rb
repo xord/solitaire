@@ -15,10 +15,14 @@ class Klondike < Scene
   end
 
   def start()
+    history.disable
     deck.add *cards.shuffle
     startTimer 0.5 do
       placeToColumns do
-        startTimer(0.5) {openNexts}
+        startTimer 0.5 do
+          openNexts
+          history.enable
+        end
       end
     end
   end
@@ -34,12 +38,12 @@ class Klondike < Scene
 
   def cardClicked(card)
     if newPlace = getPlaceToGo(card)
-      card.addTo newPlace, 0.3
+      moveCard card, newPlace, 0.3
     else
-      case place = card.place
+      case card.place
       when deck     then deckClicked
       when nexts    then nextsClicked
-      when *columns then closedCardClicked(card) if card.closed?
+      when *columns then openCard card if card.closed? && card.last?
       end
     end
   end
@@ -52,26 +56,24 @@ class Klondike < Scene
     openNexts if nexts.empty?
   end
 
-  def closedCardClicked(card)
-    card.open if card.last?
-  end
-
   def cardDropped(x, y, card, prevPlace)
     if place = getPlaceAccepts(x, y, card)
-      card.addTo place, 0.2
+      moveCard card, place, 0.2
     elsif prevPlace
       prevPos = card.pos
-      card.addTo prevPlace, 0.15, ease: :quadIn do |t, finished|
-        backToPlace card, prevPos if finished
-        prevPos = card.pos.dup
+      history.disable do
+        moveCard card, prevPlace, 0.15, ease: :quadIn do |t, finished|
+          backToPlace card, prevPos if finished
+          prevPos = card.pos.dup
+        end
       end
     end
   end
 
   private
 
-  def places()
-    @places ||= [deck, nexts, *marks, *columns]
+  def history()
+    @history ||= History.new
   end
 
   def cards()
@@ -80,24 +82,28 @@ class Klondike < Scene
       .each {|card| card.sprite.mouseClicked {cardClicked card}}
   end
 
+  def places()
+    @places ||= [deck, nexts, *marks, *columns]
+  end
+
   def deck()
-    @deck ||= CardPlace.new.tap do |deck|
+    @deck ||= CardPlace.new(:deck).tap do |deck|
       deck.sprite.mouseClicked {deckClicked}
     end
   end
 
   def nexts()
-    @nexts ||= CardPlace.new.tap do |nexts|
+    @nexts ||= CardPlace.new(:nexts).tap do |nexts|
       nexts.sprite.mouseClicked {nextsClicked}
     end
   end
 
   def marks()
-    @marks ||= Card::MARKS.map {|mark| MarkPlace.new mark}
+    @marks ||= Card::MARKS.map {|mark| MarkPlace.new "mark_#{mark}", mark}
   end
 
   def columns()
-    @culumns ||= 7.times.map {ColumnPlace.new}
+    @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new "column_#{i + 1}"}
   end
 
   def updateLayout()
@@ -123,9 +129,9 @@ class Klondike < Scene
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
         startTimer index / 50.0 do
-          card = deck.pop
-          card.open if col == row
-          card.addTo columns[col], 0.5, hover: false do |t, finished|
+          card = deck.last
+          openCard card if col == row
+          moveCard card, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
           end
         end
@@ -138,12 +144,49 @@ class Klondike < Scene
     (0...n).map { |row| (row...n).map { |col| [col, row] } }.flatten(1)
   end
 
+  def openCard(card)
+    return if card.opened?
+    card.open
+    history.push [:open, card]
+  end
+
+  def closeCard(card)
+    return if card.closed?
+    card.close
+    history.push [:close, card]
+  end
+
+  def moveCard(
+    card, toPlace, seconds = 0, from: card.place, hover: true,
+    **kwargs, &block)
+
+    card.place&.pop card if card.place
+
+    pos    = toPlace.posFor card
+    card.z = pos.z + (hover ? 100 : 0)
+    toPlace.add card, updatePos: false
+    move card, pos, seconds, **kwargs, &block
+
+    history.push [:move, card, from, toPlace]
+  end
+
   def openNexts(count = 1)
-    deck.pop.open.addTo nexts, 0.3 unless deck.empty?
+    return if deck.empty?
+    history.record do
+      card = deck.last
+      openCard card
+      moveCard card, nexts, 0.3
+    end
   end
 
   def refillDeck()
-    nexts.pop.close.addTo deck, 0.3 until nexts.empty?
+    history.record do
+      until nexts.empty?
+        card = nexts.last
+        closeCard card
+        moveCard card, deck, 0.3
+      end
+    end
   end
 
   def getPlaceAccepts(x, y, card)
@@ -184,6 +227,26 @@ class Klondike < Scene
         card.x + (rand < 0.5 ? 0 : card.w),
         card.y + rand(card.h)
       ]
+    end
+  end
+
+  def undo(action)
+    history.disable do
+      case action
+      in [:open,  card]           then closeCard card
+      in [:close, card]           then  openCard card
+      in [:move,  card, from, to] then moveCard card, from, 0.2, from: to
+      end
+    end
+  end
+
+  def redo(action)
+    history.disable do
+      case action
+      in [:open,  card]           then  openCard card
+      in [:close, card]           then closeCard card
+      in [:move,  card, from, to] then moveCard card, to, 0.2, from: from
+      end
     end
   end
 

@@ -28,13 +28,6 @@ class Card
     self
   end
 
-  def addTo(place, seconds = 0, hover: true, **kwargs, &block)
-    pos    = place.posFor self
-    self.z = pos.z + (hover ? 100 : 0)
-    place.add self, updatePos: false
-    move self, pos, seconds, **kwargs, &block
-  end
-
   def place=(place)
     @place           = place
     self.next&.place = place
@@ -72,7 +65,7 @@ class Card
     @state == :open
   end
 
-  def close(sec = 0)
+  def close(sec = 0.3)
     @state = :close
     animate(sec) {|t| @open = 180 * (1.0 - t)}
     self
