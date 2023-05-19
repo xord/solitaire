@@ -109,8 +109,8 @@ class Card
       sp.mousePressed do
         mousePressed sp.mouseX, sp.mouseY
       end
-      sp.mouseReleased do |clickCount|
-        mouseReleased sp.mouseX, sp.mouseY, clickCount
+      sp.mouseReleased do
+        mouseReleased sp.mouseX, sp.mouseY, sp.clickCount
       end
       sp.mouseDragged do
         x, y = sp.mouseX, sp.mouseY
