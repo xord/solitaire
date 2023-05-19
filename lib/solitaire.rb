@@ -7,6 +7,7 @@ require 'animation'
 require 'particle'
 require 'shake'
 require 'scene'
+require 'button'
 
 require 'solitaire/card'
 require 'solitaire/places'

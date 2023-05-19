@@ -11,7 +11,7 @@ class Klondike < Scene
   end
 
   def sprites()
-    super + @sprites
+    super + @sprites + buttons
   end
 
   def start()
@@ -28,10 +28,10 @@ class Klondike < Scene
   end
 
   def draw()
-    places.each {|place| sprite place.sprite}
-    cards
-      .sort {|a, b| a.z <=> b.z}
-      .each {|card| sprite card.sprite}
+    sprite *places.map(&:sprite)
+    sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
+    sprite *buttons
+
     blendMode ADD
     particle.draw
   end
@@ -106,22 +106,49 @@ class Klondike < Scene
     @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new "column_#{i + 1}"}
   end
 
+  def buttons()
+    [undoButton, redoButton]
+  end
+
+  def undoButton()
+    @undoButton ||= Button.new(:UNDO, [120, 140, 160], 0, 0, 60, 40).tap do |b|
+      b.update  {b.enable history.canUndo?}
+      b.clicked {history.undo {|action| undo action}}
+    end
+  end
+
+  def redoButton()
+    @redoButton ||= Button.new(:REDO, [160, 140, 120], 0, 0, 60, 40).tap do |b|
+      b.update  {b.enable history.canRedo?}
+      b.clicked {history.redo {|action| self.redo action}}
+    end
+  end
+
   def updateLayout()
     card      = cards.first
-    w, h      = width, height
+    y, w, h   = 0, width, height
     cw, ch    = card.then {|c| [c.w, c.h]}
     margin    = cw * 0.2
 
-    deck.pos  = [w - (cw + margin), margin]
+    y = margin
+    undoButton.pos = [margin, y]
+    redoButton.pos = [undoButton.x + undoButton.w + margin, y]
+
+    y = undoButton.y + undoButton.h + margin
+
+    deck.pos  = [w - (cw + margin), y]
     nexts.pos = [deck.x - (cw + margin), deck.y]
     marks.each do |mark|
       index    = Card::MARKS.index mark.mark
       mark.pos = [margin + (cw + margin) * index, deck.y]
     end
+
+    y = deck.y + deck.h + margin
+
     columns.each.with_index do |column, index|
       s = columns.size
       m = (w - cw * s) / (s + 1) # margin
-      column.pos = [m + (cw + m) * index, deck.y + deck.h + margin]
+      column.pos = [m + (cw + m) * index, y]
     end
   end
 
