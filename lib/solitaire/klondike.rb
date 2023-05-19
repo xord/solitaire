@@ -3,11 +3,11 @@ using RubySketch
 
 class Klondike < Scene
 
-  def initialize()
-    super
+  def initialize(hash = nil)
+    super()
     @sprites = [*cards, *places].map &:sprite
     updateLayout
-    start
+    hash ? load(hash) : start
   end
 
   def sprites()
@@ -22,6 +22,7 @@ class Klondike < Scene
         startTimer 0.5 do
           openNexts
           history.enable
+          save
         end
       end
     end
@@ -70,6 +71,43 @@ class Klondike < Scene
     end
   end
 
+  def save(path = 'state.json')
+    File.write path, {
+      version: 1,
+      game: self.class.name,
+      history: history.to_h {|o| o.id if o.respond_to? :id},
+      places: places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
+      openeds: cards.select {|card| card.opened?}.map(&:id)
+    }.to_json
+  end
+
+  def self.load(path = 'state.json')
+    self.new JSON.parse File.read path
+  end
+
+  def load(hash)
+    raise 'Unknown state version' unless hash['version'] == 1
+
+    all      = places + cards
+    findAll  = -> id {  all.find {|obj|  obj .id == id} or raise "No object '#{id}'"}
+    findCard = -> id {cards.find {|card| card.id == id} or raise "No card '#{id}'"}
+
+    self.history = History.load hash['history'] do |id|
+      (id =~ /^id:/) ? findAll[id] : nil
+    end
+    places.each do |place|
+      place.clear
+      ids = hash['places'][place.name.to_s] or raise "No place '#{place.name}'"
+      place.add *ids.map {|id| findCard[id]}
+    end
+    hash['openeds'].each do |id|
+      findCard[id].open
+    end
+
+    raise "Failed to restore state" unless
+      places.reduce([]) {|a, place| a + place.cards}.size == 52
+  end
+
   def inspect()
     "#<Klondike:#{object_id}>"
   end
@@ -77,7 +115,14 @@ class Klondike < Scene
   private
 
   def history()
-    @history ||= History.new
+    self.history = History.new unless @history
+    @history
+  end
+
+  def history=(history)
+    @history = history.tap do |h|
+      h.updated {save}
+    end
   end
 
   def cards()
@@ -192,13 +237,13 @@ class Klondike < Scene
 
   def openCard(card)
     return if card.opened?
-    card.open
+    card.open 0.3
     history.push [:open, card]
   end
 
   def closeCard(card)
     return if card.closed?
-    card.close
+    card.close 0.3
     history.push [:close, card]
   end
 

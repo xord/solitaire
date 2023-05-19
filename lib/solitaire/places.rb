@@ -44,6 +44,11 @@ class CardPlace
     popped
   end
 
+  def clear()
+    @card = nil
+    self
+  end
+
   def each(&block)
     card = @card
     while card
@@ -52,6 +57,14 @@ class CardPlace
       card  = next_
     end
     self
+  end
+
+  def id()
+    @id ||= "id:#{name}"
+  end
+
+  def cards()
+    to_a
   end
 
   def empty?()
@@ -132,8 +145,8 @@ class ColumnPlace < CardPlace
 
   def posFor(card)
     super.tap do |pos|
-      cards = to_a
-      pos.y += self.h * 0.3 * (cards.index(card) || cards.count)
+      cards_ = cards
+      pos.y += self.h * 0.3 * (cards_.index(card) || cards_.count)
     end
   end
 

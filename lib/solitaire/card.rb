@@ -29,6 +29,14 @@ class Card
     self
   end
 
+  def name()
+    @name ||= "#{mark}_#{number}"
+  end
+
+  def id()
+    @id ||= "id:#{name}"
+  end
+
   def place=(place)
     @place           = place
     self.next&.place = place
@@ -56,7 +64,7 @@ class Card
     self.z
   end
 
-  def open(sec = 0.3)
+  def open(sec = 0)
     @state = :open
     animate(sec) {|t| @open = 180 * t}
     self
@@ -66,7 +74,7 @@ class Card
     @state == :open
   end
 
-  def close(sec = 0.3)
+  def close(sec = 0)
     @state = :close
     animate(sec) {|t| @open = 180 * (1.0 - t)}
     self
@@ -121,7 +129,7 @@ class Card
   end
 
   def inspect()
-    "#<Card #{mark} #{number}>"
+    "#<Card #{name}>"
   end
 
   private

@@ -1,4 +1,5 @@
 require 'forwardable'
+require 'json'
 
 require 'utils'
 require 'timer'
