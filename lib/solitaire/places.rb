@@ -77,6 +77,10 @@ class CardPlace
     @sprite ||= Sprite.new image: spriteImage
   end
 
+  def inspect()
+    "#<CardPlace #{name}>"
+  end
+
   private
 
   def spriteImage()

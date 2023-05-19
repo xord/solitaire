@@ -70,6 +70,10 @@ class Klondike < Scene
     end
   end
 
+  def inspect()
+    "#<Klondike:#{object_id}>"
+  end
+
   private
 
   def history()
