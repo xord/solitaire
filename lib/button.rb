@@ -3,8 +3,8 @@ using RubySketch
 
 class Button < Sprite
 
-  def initialize(label, rgb, *args, **kwargs, &block)
-    super *args, **kwargs, &block
+  def initialize(label, rgb, width, *args, **kwargs, &block)
+    super 0, 0, 44 * width, 44, *args, **kwargs, &block
     @label, @rgb     = label, rgb
     @click, @enabled = nil, true
     setup

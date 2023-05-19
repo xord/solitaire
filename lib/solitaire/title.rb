@@ -5,9 +5,16 @@ class Title < Scene
 
   def initialize()
     super
-    @sprites = [title, tapToStart]
-    title.y      = 100
-    tapToStart.y = 170
+    @sprites =
+      if @suspended = Klondike.load rescue nil
+        resumeButton.y = 400
+        startButton.y  = 460
+        [title, resumeButton, startButton]
+      else
+        startButton.y  = 400
+        [title, startButton]
+      end
+    title.y = 200
   end
 
   attr_reader :sprites
@@ -16,29 +23,36 @@ class Title < Scene
     sprite sprites
   end
 
-  def mousePressed(*args)
-    transition Klondike.new
-  end
-
   private
 
   def title()
     @title ||= Sprite.new(0, 0, width, 50).tap do |sp|
       sp.draw do
         textAlign CENTER, CENTER
-        textSize 50
+        textSize 80
         text 'Solitaire', 0, 0, sp.w, sp.h
       end
     end
   end
 
-  def tapToStart()
-    @tapToStart ||= Sprite.new(0, 0, width, 20).tap do |sp|
-      sp.draw do
-        next if frameCount % 120 > 60
-        textAlign CENTER, CENTER
-        textSize 20
-        text 'Tap to Start!', 0, 0, sp.w, sp.h
+  def startButton()
+    @startButton ||= Button.new('NEW GAME', [140, 180, 160], 4).tap do |sp|
+      sp.update do
+        sp.x = (width - sp.w) / 2
+      end
+      sp.clicked do
+        startTimer(0) {transition Klondike.new}
+      end
+    end
+  end
+
+  def resumeButton()
+    @resumeButton ||= Button.new('RESUME GAME', [140, 180, 160], 4).tap do |sp|
+      sp.update do
+        sp.x = (width - sp.w) / 2
+      end
+      sp.clicked do
+        startTimer(0) {transition (Klondike.load rescue Klondike.new)}
       end
     end
   end

@@ -111,20 +111,32 @@ class Klondike < Scene
   end
 
   def buttons()
-    [undoButton, redoButton]
+    [undoButton, redoButton, restartButton, debugButton]
   end
 
   def undoButton()
-    @undoButton ||= Button.new(:UNDO, [120, 140, 160], 0, 0, 60, 40).tap do |b|
+    @undoButton ||= Button.new(:UNDO, [120, 140, 160], 1.5).tap do |b|
       b.update  {b.enable history.canUndo?}
       b.clicked {history.undo {|action| undo action}}
     end
   end
 
   def redoButton()
-    @redoButton ||= Button.new(:REDO, [160, 140, 120], 0, 0, 60, 40).tap do |b|
+    @redoButton ||= Button.new(:REDO, [160, 140, 120], 1.5).tap do |b|
       b.update  {b.enable history.canRedo?}
       b.clicked {history.redo {|action| self.redo action}}
+    end
+  end
+
+  def restartButton()
+    @restartButton ||= Button.new(:RESTART, [140, 160, 120], 2).tap do |b|
+      b.clicked {startTimer(0) {transition self.class.new}}
+    end
+  end
+
+  def debugButton()
+    @debugButton ||= Button.new(:DEBUG, [100, 100, 100], 2).tap do |b|
+      b.clicked {save}
     end
   end
 
@@ -135,8 +147,9 @@ class Klondike < Scene
     margin    = cw * 0.2
 
     y = margin
-    undoButton.pos = [margin, y]
-    redoButton.pos = [undoButton.x + undoButton.w + margin, y]
+    undoButton   .pos = [margin, y]
+    redoButton   .pos = [undoButton.x + undoButton.w + margin, y]
+    restartButton.pos = [width - (restartButton.w + margin), y]
 
     y = undoButton.y + undoButton.h + margin
 
@@ -154,6 +167,8 @@ class Klondike < Scene
       m = (w - cw * s) / (s + 1) # margin
       column.pos = [m + (cw + m) * index, y]
     end
+
+    debugButton.pos = [margin, height - (debugButton.h + margin)]
   end
 
   def placeToColumns(&block)
