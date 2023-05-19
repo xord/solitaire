@@ -9,7 +9,8 @@ class Card
   MARKS = %i[heart diamond clover spade]
 
   def initialize(game, mark, number)
-    @game, @mark, @number, @state, @open = game, mark, number, :close, 0
+    @game, @mark, @number = game, mark, number
+    @state, @open         = :close, 0
     @place = @next = nil
   end
 

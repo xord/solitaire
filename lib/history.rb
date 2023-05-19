@@ -1,8 +1,8 @@
 class History
 
-  def initialize()
-    @undos, @redos       = [], []
-    @recording, @disable = nil, false
+  def initialize(undos = [], redos = [])
+    @undos, @redos       = undos, redos
+    @recording, @enabled = nil, true
   end
 
   def push(*actions)
@@ -43,20 +43,24 @@ class History
     !@redos.empty?
   end
 
-  def enable()
-    @disable = false
+  def enable(state = true)
+    @enabled = state
   end
 
   def disable(&block)
-    @disable = true
+    old, @enabled = @enabled, false
     if block
       block.call
-      @disable = false
+      @enabled = old
     end
   end
 
+  def enabled?()
+    @enabled
+  end
+
   def disabled?()
-    @disable
+    !enabled?
   end
 
 end# History

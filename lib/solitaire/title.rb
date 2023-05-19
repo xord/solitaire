@@ -52,7 +52,7 @@ class Title < Scene
         sp.x = (width - sp.w) / 2
       end
       sp.clicked do
-        startTimer(0) {transition (Klondike.load rescue Klondike.new)}
+        startTimer(0) {transition @suspended}
       end
     end
   end
