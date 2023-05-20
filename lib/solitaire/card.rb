@@ -151,10 +151,6 @@ class Card
     self.pos += createVector x - @startPos.x, y - @startPos.y if @startPos
   end
 
-  def spriteSize()
-    self.class.spriteSize
-  end
-
   def openedImage()
     @openedImage ||= createGraphics(*self.class.cardSize).tap do |g|
       c, w, h, m     = self.class, g.width, g.height, 16# margin
@@ -180,18 +176,8 @@ class Card
     self.class.closedImage
   end
 
-  def self.spriteSize()
-    @spriteSize ||= cardSize.then do |cw, ch|
-      ncolumns   = 7
-      size       = [width, height].min
-      margin     = size * 0.01
-      cardWidth  = (size - margin * (ncolumns + 1)) / ncolumns
-      [cardWidth, cardWidth * (ch.to_f / cw.to_f)]
-    end
-  end
-
-  def self.cardSize()
-    [164, 252]
+  def spriteSize()
+    self.class.spriteSize
   end
 
   def self.closedImage()
@@ -205,6 +191,20 @@ class Card
 
   def self.cardImage()
     @cardImage ||= loadImage 'data/card.png'
+  end
+
+  def self.cardSize()
+    [164, 252]
+  end
+
+  def self.spriteSize()
+    @spriteSize ||= cardSize.then do |cw, ch|
+      ncolumns   = 7
+      size       = [width, height].min
+      margin     = size * 0.01
+      cardWidth  = (size - margin * (ncolumns + 1)) / ncolumns
+      [cardWidth, cardWidth * (ch.to_f / cw.to_f)]
+    end
   end
 
   def self.markRect(mark)
