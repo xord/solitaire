@@ -85,7 +85,7 @@ class Card
   end
 
   def color()
-    MARKS[0, 2].include?(mark) ? :red : :black
+    self.class.markColor mark
   end
 
   def count()
@@ -99,7 +99,7 @@ class Card
   def sprite()
     @sprite ||= Sprite.new(0, 0, *spriteSize, image: closedImage).tap do |sp|
       sp.pivot = [rand, rand]
-      sp.angle = rand -10.0..10.0
+      sp.angle = rand -5.0..5.0
       sp.update do
         sp.image = @open > 90 ? openedImage : closedImage
       end
@@ -108,12 +108,12 @@ class Card
           blendMode SUBTRACT
           tint 100
           translate 2, 5
-          draw.call
+          image sp.image, 0, 0, w, h
         end
         translate  sp.w / 2,  sp.h / 2
         rotate @open
         translate -sp.w / 2, -sp.h / 2
-        draw.call
+        image sp.image, 0, 0, w, h
       end
       sp.mousePressed do
         mousePressed sp.mouseX, sp.mouseY
@@ -156,12 +156,22 @@ class Card
   end
 
   def openedImage()
-    @openedImage ||= createGraphics(*self.class.spriteSize).tap do |g|
-      cw, ch = self.class.eachCardSize
-      x      = ([nil] + (2..13).to_a + [1])  .index(number) * cw
-      y      = %i[heart clover diamond spade].index(mark)   * ch
+    @openedImage ||= createGraphics(*self.class.cardSize).tap do |g|
+      c, w, h, m     = self.class, g.width, g.height, 16# margin
+      image          = c.cardImage
+      nx, ny, nw, nh = c.numberRect number
+      mx, my, mw, mh = c.markRect mark
+      mnh            = m + nh
+      mxx, myy       = (w - mw) / 2, mnh + ((h - mnh) - mh) / 2
       g.beginDraw
-      g.copy self.class.cardsImage, x, y, cw, ch, 0, 0, g.width, g.height
+      g.angleMode DEGREES
+      g.translate  w / 2,  h / 2
+      g.rotate 180
+      g.translate -w / 2, -h / 2
+      g.copy image, 0,  192, w,  h,  0,   0,   w,  h
+      g.tint *c.markColor(mark)
+      g.copy image, nx, ny,  nw, nh, m,   m,   nw, nh
+      g.copy image, mx, my,  mw, mh, mxx, myy, mw, mh
       g.endDraw
     end
   end
@@ -171,26 +181,44 @@ class Card
   end
 
   def self.spriteSize()
-    cw, ch, margin, ncolumns = *eachCardSize, 4, 7
-    spriteWidth = (width - margin * (ncolumns + 1)) / ncolumns
-    @size ||= [spriteWidth, spriteWidth * (ch.to_f / cw)].map &:to_i
+    @spriteSize ||= cardSize.then do |cw, ch|
+      ncolumns   = 7
+      size       = [width, height].min
+      margin     = size * 0.01
+      cardWidth  = (size - margin * (ncolumns + 1)) / ncolumns
+      [cardWidth, cardWidth * (ch.to_f / cw.to_f)]
+    end
   end
 
-  def self.eachCardSize()
-    [35, 47]
+  def self.cardSize()
+    [164, 252]
   end
 
   def self.closedImage()
-    cw, ch = eachCardSize
-    @closedImage ||= createGraphics(*spriteSize).tap do |g|
+    @closedImage ||= createGraphics(*cardSize).tap do |g|
+      w, h = g.width, g.height
       g.beginDraw
-      g.copy cardsImage, 0, ch, cw, ch, 0, 0, g.width, g.height
+      g.copy cardImage, 256, 192, w, h, 0, 0, w, h
       g.endDraw
     end
   end
 
-  def self.cardsImage()
-    @cardsImage ||= loadImage 'data/cards.png'
+  def self.cardImage()
+    @cardImage ||= loadImage 'data/card.png'
+  end
+
+  def self.markRect(mark)
+    w = h = 128
+    [MARKS.index(mark) * w, 0, w, h]
+  end
+
+  def self.numberRect(number)
+    w = h = 64
+    [(number - 1) * w, 128, w, h]
+  end
+
+  def self.markColor(mark)
+    MARKS[0, 2].include?(mark) ? [255, 111, 61] : [62, 79, 60]
   end
 
   def __find_or_last_and_prev(card = nil)
