@@ -11,7 +11,7 @@ class Menu < Dialog
     end
 
     addButton 'NEW GAME', width: 5 do
-      parent.transition Klondike.new, Fade
+      parent.transition Klondike.new, [Fade, Curtain, Pixelate].sample
     end
   end
 
