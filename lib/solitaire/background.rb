@@ -5,8 +5,21 @@ class Background < Scene
 
   def initialize()
     super
-    @start  = now
-    @shader = createShader nil, <<~END
+    @start = now
+  end
+
+  def draw()
+    pushStyle do
+      checker.set :time, now - @start
+      shader checker
+      rect 0, 0, width, height
+    end
+  end
+
+  private
+
+  def checker()
+    @checker ||= createShader nil, <<~END
       varying vec4 vertTexCoord;
       uniform float time;
       void main() {
@@ -16,14 +29,6 @@ class Background < Scene
         gl_FragColor = x != y ? vec4(0.6, 0.9, 0.7, 1) : vec4(0.7, 0.9, 0.6, 1);
       }
     END
-  end
-
-  def draw()
-    pushStyle do
-      @shader.set :time, now - @start
-      shader @shader
-      rect 0, 0, width, height
-    end
   end
 
 end# Background

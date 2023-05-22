@@ -2,6 +2,7 @@ $timers = {}
 
 def startTimer(name = unique, seconds, &block)
   $timers[name] = [now + seconds, block]
+  name
 end
 
 def stopTimer(name)
@@ -10,6 +11,10 @@ end
 
 def getTimer(name)
   $timers[name]
+end
+
+def delay(&block)
+  startTimer 0, &block
 end
 
 def fireTimers()

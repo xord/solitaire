@@ -3,10 +3,12 @@ using RubySketch
 
 class Button < Sprite
 
-  def initialize(label, rgb, width, *args, **kwargs, &block)
+  def initialize(
+    label, *args, rgb: 200, width: 1, fontSize: 24, round: 5, **kwargs, &block)
+
     super 0, 0, 44 * width, 44, *args, **kwargs, &block
-    @label, @rgb     = label, rgb
-    @click, @enabled = nil, true
+    @label, @rgb, @fontSize, @round = label, [rgb].flatten, fontSize, round
+    @click, @enabled                = nil, true
     setup
   end
 
@@ -39,16 +41,17 @@ class Button < Sprite
     mouseReleased {pressing = false}
 
     draw do
-      offset, round = 5, 5
-      y       = pressing ? (offset - 2) : 0
+      offset  = 5
+      y       = pressing ? (offset - (enabled? ? 2 : 3.5)) : 0
       h       = self.h - y
       offset -= y
       fill *@rgb.map {|n| n - 20}
-      rect 0, y, w, h, round
+      rect 0, y, w, h, *@round
       fill *@rgb
-      rect 0, y, w, h - offset, round
+      rect 0, y, w, h - offset, *@round
       fill enabled? ? 255 : 180
       textAlign CENTER, CENTER
+      textSize @fontSize
       text @label, 0, y, w, h - offset
     end
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 using RubySketch
 
 
@@ -6,20 +7,41 @@ class Klondike < Scene
   def initialize(hash = nil)
     super()
     @sprites = [*cards, *places].map &:sprite
-    updateLayout
-    hash ? load(hash) : start
+    hash ? load(hash) : ready
   end
 
   def sprites()
     super + @sprites + buttons
   end
 
-  def start()
+  def ready()
+    add Dialog.new(alpha: 50).tap {|d|
+      d.addButton 'EASY', width: 5 do
+        start 1
+        d.close
+      end
+      d.addButton 'HARD', width: 5 do
+        start 3
+        d.close
+      end
+    }
+
     history.disable
     deck.add *cards.shuffle
-    startTimer 0.5 do
+    startTimer 0.3 do
       placeToColumns do
-        startTimer 0.5 do
+        history.enable
+      end
+    end
+  end
+
+  def start(openCount = 1)
+    history.disable
+    lasts = columns.map(&:last).compact
+    lasts.each.with_index do |card, n|
+      startTimer 0.02 * n do
+        openCard card
+        if lasts.all? {|card| card.opened?}
           openNexts
           history.enable
           save
@@ -32,9 +54,12 @@ class Klondike < Scene
     sprite *places.map(&:sprite)
     sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
     sprite *buttons
+    super
+  end
 
-    blendMode ADD
-    particle.draw
+  def resized(w, h)
+    super
+    updateLayout w, h
   end
 
   def cardClicked(card)
@@ -79,6 +104,8 @@ class Klondike < Scene
       places: places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
       openeds: cards.select {|card| card.opened?}.map(&:id)
     }.to_json
+  rescue
+    nil
   end
 
   def self.load(path = 'state.json')
@@ -156,45 +183,50 @@ class Klondike < Scene
   end
 
   def buttons()
-    [undoButton, redoButton, restartButton, debugButton]
+    [undoButton, redoButton, menuButton, debugButton]
   end
 
   def undoButton()
-    @undoButton ||= Button.new(:UNDO, [120, 140, 160], 1.5).tap do |b|
+    @undoButton ||= Button.new(
+      '◀', rgb: [120, 140, 160], fontSize: 28, round: [20, 4, 4, 20]
+    ).tap do |b|
       b.update  {b.enable history.canUndo?}
       b.clicked {history.undo {|action| undo action}}
     end
   end
 
   def redoButton()
-    @redoButton ||= Button.new(:REDO, [160, 140, 120], 1.5).tap do |b|
+    @redoButton ||= Button.new(
+      '▶', rgb: [160, 140, 120], fontSize: 28, round: [4, 20, 20, 4]
+    ).tap do |b|
       b.update  {b.enable history.canRedo?}
       b.clicked {history.redo {|action| self.redo action}}
     end
   end
 
-  def restartButton()
-    @restartButton ||= Button.new(:RESTART, [140, 160, 120], 2).tap do |b|
-      b.clicked {startTimer(0) {transition self.class.new}}
+  def menuButton()
+    @menuButton ||= Button.new(
+      '≡', rgb: [140, 160, 120], fontSize: 36
+    ).tap do |b|
+      b.clicked {add Menu.new}
     end
   end
 
   def debugButton()
-    @debugButton ||= Button.new(:DEBUG, [100, 100, 100], 2).tap do |b|
-      b.clicked {save}
+    @debugButton ||= Button.new(:DEBUG, width: 3).tap do |b|
+      b.clicked {start}
     end
   end
 
-  def updateLayout()
+  def updateLayout(w, h)
     card      = cards.first
-    y, w, h   = 0, width, height
     cw, ch    = card.then {|c| [c.w, c.h]}
     margin    = cw * 0.2
+    y         = margin
 
-    y = margin
-    undoButton   .pos = [margin, y]
-    redoButton   .pos = [undoButton.x + undoButton.w + margin, y]
-    restartButton.pos = [width - (restartButton.w + margin), y]
+    undoButton.pos = [margin, y]
+    redoButton.pos = [undoButton.x + undoButton.w + 2, y]
+    menuButton.pos = [width - (menuButton.w + margin), y]
 
     y = undoButton.y + undoButton.h + margin
 
@@ -220,9 +252,7 @@ class Klondike < Scene
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
         startTimer index / 50.0 do
-          card = deck.last
-          openCard card if col == row
-          moveCard card, columns[col], 0.5, hover: false do |t, finished|
+          moveCard deck.last, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
           end
         end

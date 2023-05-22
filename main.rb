@@ -2,17 +2,19 @@ require 'solitaire'
 using RubySketch
 
 
-SW = 375 # screen width
-SH = 667
+SCREEN_WIDTH  = 375 # screen width
+SCREEN_HEIGHT = 667
+STATE_PATH    = 'state.json'
+
 
 
 setup do
   setTitle "Solitaire"
-  size SW, SH
+  size SCREEN_WIDTH, SCREEN_HEIGHT
   angleMode DEGREES
   noStroke
 
-  $root = Scene.new 'Root', Background.new, Title.new
+  $root = RootScene.new 'Root', Background.new, Start.new
 end
 
 draw do

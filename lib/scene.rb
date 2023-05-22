@@ -4,7 +4,11 @@ using RubySketch
 class Scene
 
   def initialize(name = self.class.name, *scenes)
-    @name, @scenes = name, []
+    @name     = name
+    @scenes   = []
+    @active   = self.class == RootScene
+    @prevSize = [width, height]
+    resized *@prevSize
     add *scenes unless scenes.empty?
   end
 
@@ -14,21 +18,28 @@ class Scene
     @scenes.push *scenes
     scenes.each do |scene|
       scene.parent = self
-      scene.activated
+      scene.activated if active?
     end
+    self
   end
 
   def remove(*scenes)
     @scenes.delete_if {|scene| scenes.include? scene}
     scenes.each do |scene|
-      scene.deactivated
+      scene.deactivated if active?
       scene.parent = nil
     end
+    self
   end
 
-  def transition(to)
-    parent.add to
-    parent.remove self
+  def transition(to, effect = nil, *args, **kwargs)
+    if effect
+      add effect.new(to, *args, **kwargs)
+    else
+      parent.add to
+      parent.remove self
+    end
+    to
   end
 
   def emitParticle(x, y, w, h, sec = nil, &block)
@@ -54,19 +65,42 @@ class Scene
     @particle ||= Particle.new
   end
 
+  def update()
+    size = [width, height]
+    if size != @prevSize
+      resized(*size)
+      @prevSize = size
+    end
+  end
+
   def draw()
+    update
     @scenes.each do |scene|
       push {scene.draw}
     end
-    particle.draw
+    push do
+      blendMode ADD
+      particle.draw
+    end
+  end
+
+  def resized(w, h)
   end
 
   def activated()
+    @active = true
+    @scenes.each {|scene| scene.activated}
     sprites.each {|sprite| addSprite sprite}
   end
 
   def deactivated()
     sprites.each {|sprite| removeSprite sprite}
+    @scenes.each {|scene| scene.deactivated}
+    @active = false
+  end
+
+  def active?()
+    @active
   end
 
   def mousePressed(x, y, button)
@@ -92,3 +126,7 @@ class Scene
   end
 
 end# Scene
+
+
+class RootScene < Scene
+end# RootScene
