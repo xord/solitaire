@@ -5,7 +5,7 @@ class Start < Scene
 
   def activated()
     super
-    transition (resume || Klondike.new), Fade, outSec: 0
+    transition (resume || Klondike.new), Fade, secOut: 0
   end
 
   private

@@ -14,42 +14,6 @@ class Klondike < Scene
     super + @sprites + buttons
   end
 
-  def ready()
-    add Dialog.new(alpha: 50).tap {|d|
-      d.addButton 'EASY', width: 5 do
-        start 1
-        d.close
-      end
-      d.addButton 'HARD', width: 5 do
-        start 3
-        d.close
-      end
-    }
-
-    history.disable
-    deck.add *cards.shuffle
-    startTimer 0.3 do
-      placeToColumns do
-        history.enable
-      end
-    end
-  end
-
-  def start(openCount = 1)
-    history.disable
-    lasts = columns.map(&:last).compact
-    lasts.each.with_index do |card, n|
-      startTimer 0.02 * n do
-        openCard card
-        if lasts.all? {|card| card.opened?}
-          openNexts
-          history.enable
-          save
-        end
-      end
-    end
-  end
-
   def draw()
     sprite *places.map(&:sprite)
     sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
@@ -246,6 +210,45 @@ class Klondike < Scene
     end
 
     debugButton.pos = [margin, height - (debugButton.h + margin)]
+  end
+
+  def ready()
+    showReadyDialog
+    history.disable
+    deck.add *cards.shuffle
+    startTimer 0.3 do
+      placeToColumns do
+        history.enable
+      end
+    end
+  end
+
+  def showReadyDialog()
+    add Dialog.new(alpha: 50).tap {|d|
+      d.addButton 'EASY', width: 5 do
+        start 1
+        d.close
+      end
+      d.addButton 'HARD', width: 5 do
+        start 3
+        d.close
+      end
+    }
+  end
+
+  def start(openCount = 1)
+    history.disable
+    lasts = columns.map(&:last).compact
+    lasts.each.with_index do |card, n|
+      startTimer 0.02 * n do
+        openCard card
+        if lasts.all? {|card| card.opened?}
+          openNexts
+          history.enable
+          save
+        end
+      end
+    end
   end
 
   def placeToColumns(&block)
