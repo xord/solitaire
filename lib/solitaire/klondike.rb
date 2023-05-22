@@ -139,7 +139,7 @@ class Klondike < Scene
   end
 
   def marks()
-    @marks ||= Card::MARKS.map {|mark| MarkPlace.new "mark_#{mark}", mark}
+    @marks ||= Card::MARKS.size.times.map {|i| MarkPlace.new "mark_#{i + 1}"}
   end
 
   def columns()
@@ -196,8 +196,7 @@ class Klondike < Scene
 
     deck.pos  = [w - (cw + margin), y]
     nexts.pos = [deck.x - (cw + margin), deck.y]
-    marks.each do |mark|
-      index    = Card::MARKS.index mark.mark
+    marks.each.with_index do |mark, index|
       mark.pos = [margin + (cw + margin) * index, deck.y]
     end
 

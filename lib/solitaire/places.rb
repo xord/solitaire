@@ -111,18 +111,15 @@ end# CardPlace
 
 class MarkPlace < CardPlace
 
-  def initialize(name, mark)
-    super name
-    @mark = mark
+  def mark()
+    last&.mark
   end
-
-  attr_reader :mark
 
   def accept?(x, y, card)
     return false if !card || card.closed?
     hit?(x, y) &&
       card.opened? &&
-      card.mark   == mark &&
+      (!mark || mark == card.mark) &&
       card.number == last&.number.then {|n| n ? n + 1 : 1}
   end
 
