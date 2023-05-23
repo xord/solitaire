@@ -157,7 +157,7 @@ class Klondike < Scene
   end
 
   def buttons()
-    [undoButton, redoButton, menuButton, debugButton]
+    [undoButton, redoButton, menuButton, finishButton, debugButton]
   end
 
   def undoButton()
@@ -183,6 +183,15 @@ class Klondike < Scene
       '≡', rgb: [140, 160, 120], fontSize: 36
     ).tap do |b|
       b.clicked {add Menu.new}
+    end
+  end
+
+  def finishButton()
+    @finishButton ||= Button.new(
+      'FINISH!', rgb: [100, 200, 150], fontSize: 28, width: 5
+    ).tap do |b|
+      b.hide
+      b.clicked {finish!}
     end
   end
 
@@ -302,6 +311,7 @@ class Klondike < Scene
     move card, pos, seconds, **kwargs do |t, finished|
       block.call t, finished if block
       openCard from.last if finished && columns.include?(from) && from.last&.closed?
+      afterMovingCard if finished
     end
 
     history.push [:move, card, from, toPlace]
@@ -337,6 +347,33 @@ class Klondike < Scene
   def getPlaceToGo(card)
     marks.find {|place| place.accept? *place.center.to_a(2), card} ||
       columns.shuffle.find {|place| place.accept? *place.center.to_a(2), card}
+  end
+
+  def afterMovingCard()
+    return if !finishButton.hidden? || !completable?
+    finishButton.tap do |b|
+      m   = Card.margin
+      b.x = marks.last.then {|mark| mark.x + mark.w} + m * 2
+      b.y = -deck.h
+      b.w = width - b.x - m
+      b.h = deck.h
+    end
+    pos = finishButton.pos.dup
+    pos.y = deck.y
+    move finishButton, pos, 1, ease: :bounceOut
+  end
+
+  def completable?()
+    deck.empty? && nexts.empty? && columns.all? {|col|
+      col.each_cons(2).all? {|a, b| a.number > b.number}
+    }
+  end
+
+  def finish!(cards = columns.map(&:cards).flatten.sort)
+    card  = cards.shift or return
+    place = marks.find {|mark| mark.accept? mark.x, mark.y, card} or return
+    moveCard card, place, 0.3
+    startTimer(0.05) {finish! cards}
   end
 
   def backToPlace(card, prevPos)

@@ -5,6 +5,7 @@ class Card
 
   include HasSprite
   include Enumerable
+  include Comparable
 
   MARKS = %i[heart diamond clover spade]
 
@@ -102,6 +103,11 @@ class Card
 
   def canDrop?()
     @game.canDrop? self
+  end
+
+  def <=>(o)
+    number != o.number ? number <=> o.number :
+                           mark <=> o.mark
   end
 
   def sprite()
