@@ -299,12 +299,16 @@ class Klondike < Scene
     pos = toPlace.posFor card
     card.hover base: pos.z if hover
     toPlace.add card, updatePos: false if add
-    move card, pos, seconds, **kwargs, &block
+    move card, pos, seconds, **kwargs do |t, finished|
+      block.call t, finished if block
+      openCard from.last if finished && columns.include?(from) && from.last&.closed?
+    end
 
     history.push [:move, card, from, toPlace]
   end
 
   def openNexts()
+    return if deck.empty?
     history.record do
       cards = nexts.openCount.times.map {deck.pop}.compact
       nexts.add *cards, updatePos: false
@@ -323,6 +327,7 @@ class Klondike < Scene
         moveCard card, deck, 0.3
       end
     end
+    startTimer(0.4) {openNexts}
   end
 
   def getPlaceAccepts(x, y, card)
