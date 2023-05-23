@@ -6,12 +6,16 @@ class CardPlace
   include HasSprite
   include Enumerable
 
+  extend Forwardable
+
   def initialize(name, linkCards: false)
     @name, @linkCards = name.intern, linkCards
     @cards = []
   end
 
   attr_reader :name, :cards
+
+  def_delegators :cards, :clear, :each, :last, :empty?
 
   def add(*cards, updatePos: true)
     cards.map(&:to_a).flatten.each do |card|
@@ -39,24 +43,8 @@ class CardPlace
     poppeds.first.tap {|first| first.place = nil}
   end
 
-  def clear()
-    @cards.clear
-  end
-
-  def each(&block)
-    @cards.each &block
-  end
-
   def id()
     @id ||= "id:#{name}"
-  end
-
-  def empty?()
-    cards.empty?
-  end
-
-  def last()
-    cards.last
   end
 
   def accept?(x, y, card)
