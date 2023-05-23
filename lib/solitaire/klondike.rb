@@ -26,6 +26,13 @@ class Klondike < Scene
     updateLayout w, h
   end
 
+  def canDrop?(card)
+    case card.place
+    when *columns then card.opened?
+    else               card.last?
+    end
+  end
+
   def cardClicked(card)
     if newPlace = getPlaceToGo(card)
       moveCard card, newPlace, 0.3
@@ -50,9 +57,9 @@ class Klondike < Scene
     if place = getPlaceAccepts(x, y, card)
       moveCard card, place, 0.2
     elsif prevPlace
-      prevPos = card.pos
       history.disable do
-        moveCard card, prevPlace, 0.15, ease: :quadIn do |t, finished|
+        prevPos = card.pos.dup
+        moveCard card, prevPlace, 0.15, add: false, ease: :quadIn do |t, finished|
           backToPlace card, prevPos if finished
           prevPos = card.pos.dup
         end
@@ -64,6 +71,7 @@ class Klondike < Scene
     File.write path, {
       version: 1,
       game: self.class.name,
+      openCount: nexts.openCount,
       history: history.to_h {|o| o.id if o.respond_to? :id},
       places: places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
       openeds: cards.select {|card| card.opened?}.map(&:id)
@@ -82,6 +90,8 @@ class Klondike < Scene
     all      = places + cards
     findAll  = -> id {  all.find {|obj|  obj .id == id} or raise "No object '#{id}'"}
     findCard = -> id {cards.find {|card| card.id == id} or raise "No card '#{id}'"}
+
+    nexts.openCount = hash['openCount']
 
     self.history = History.load hash['history'] do |id|
       (id =~ /^id:/) ? findAll[id] : nil
@@ -133,7 +143,7 @@ class Klondike < Scene
   end
 
   def nexts()
-    @nexts ||= CardPlace.new(:nexts).tap do |nexts|
+    @nexts ||= NextsPlace.new(:nexts).tap do |nexts|
       nexts.sprite.mouseClicked {nextsClicked}
     end
   end
@@ -183,24 +193,24 @@ class Klondike < Scene
   end
 
   def updateLayout(w, h)
-    card      = cards.first
-    cw, ch    = card.then {|c| [c.w, c.h]}
-    margin    = cw * 0.2
-    y         = margin
+    card   = cards.first
+    cw, ch = card.then {|c| [c.w, c.h]}
+    mx, my = Card.margin, cw * 0.2 # margin x, y
+    y      = my
 
-    undoButton.pos = [margin, y]
+    undoButton.pos = [mx, y]
     redoButton.pos = [undoButton.x + undoButton.w + 2, y]
-    menuButton.pos = [width - (menuButton.w + margin), y]
+    menuButton.pos = [width - (menuButton.w + mx), y]
 
-    y = undoButton.y + undoButton.h + margin
+    y = undoButton.y + undoButton.h + my
 
-    deck.pos  = [w - (cw + margin), y]
-    nexts.pos = [deck.x - (cw + margin), deck.y]
+    deck.pos  = [w - (deck.w + mx), y]
+    nexts.pos = [deck.x - (nexts.w + (nexts.overlap * 2)+ mx), deck.y]
     marks.each.with_index do |mark, index|
-      mark.pos = [margin + (cw + margin) * index, deck.y]
+      mark.pos = [mx + (mark.w + mx) * index, deck.y]
     end
 
-    y = deck.y + deck.h + margin
+    y = deck.y + deck.h + my
 
     columns.each.with_index do |column, index|
       s = columns.size
@@ -208,11 +218,12 @@ class Klondike < Scene
       column.pos = [m + (cw + m) * index, y]
     end
 
-    debugButton.pos = [margin, height - (debugButton.h + margin)]
+    debugButton.pos = [mx, height - (debugButton.h + my)]
   end
 
   def ready()
     showReadyDialog
+
     history.disable
     deck.add *cards.shuffle
     startTimer 0.3 do
@@ -236,6 +247,8 @@ class Klondike < Scene
   end
 
   def start(openCount = 1)
+    nexts.openCount = openCount
+
     history.disable
     lasts = columns.map(&:last).compact
     lasts.each.with_index do |card, n|
@@ -280,25 +293,25 @@ class Klondike < Scene
   end
 
   def moveCard(
-    card, toPlace, seconds = 0, from: card.place, hover: true,
+    card, toPlace, seconds = 0, from: card.place, add: true, hover: true,
     **kwargs, &block)
 
-    card.place&.pop card if card.place
-
-    pos    = toPlace.posFor card
-    card.z = pos.z + (hover ? 100 : 0)
-    toPlace.add card, updatePos: false
+    pos = toPlace.posFor card
+    card.hover base: pos.z if hover
+    toPlace.add card, updatePos: false if add
     move card, pos, seconds, **kwargs, &block
 
     history.push [:move, card, from, toPlace]
   end
 
-  def openNexts(count = 1)
-    return if deck.empty?
+  def openNexts()
     history.record do
-      card = deck.last
-      openCard card
-      moveCard card, nexts, 0.3
+      cards = nexts.openCount.times.map {deck.pop}.compact
+      nexts.add *cards, updatePos: false
+      cards.each do |card|
+        openCard card
+        moveCard card, nexts, 0.3, from: deck, add: false
+      end
     end
   end
 

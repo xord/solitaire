@@ -20,6 +20,7 @@ class History
     raise if @recording
     @recording = array = []
     block.call
+  ensure
     @recording = nil
     push *array
   end

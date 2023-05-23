@@ -29,6 +29,10 @@ class Card
     self
   end
 
+  def hover(rise = 100, base: self.z)
+    self.z = base + rise
+  end
+
   def name()
     @name ||= "#{mark}_#{number}"
   end
@@ -93,7 +97,11 @@ class Card
   end
 
   def last?()
-    self.next == nil
+    place.last == self
+  end
+
+  def canDrop?()
+    @game.canDrop? self
   end
 
   def sprite()
@@ -137,7 +145,7 @@ class Card
   def mousePressed(x, y)
     @prevPlace = place
     @startPos  = createVector x, y, self.z
-    self.z    += 100
+    hover
   end
 
   def mouseReleased(x, y, clickCount)
@@ -201,10 +209,13 @@ class Card
     @spriteSize ||= cardSize.then do |cw, ch|
       ncolumns   = 7
       size       = [width, height].min
-      margin     = size * 0.01
       cardWidth  = (size - margin * (ncolumns + 1)) / ncolumns
       [cardWidth, cardWidth * (ch.to_f / cw.to_f)]
     end
+  end
+
+  def self.margin()
+    @marin ||= [width, height].min * 0.02
   end
 
   def self.markRect(mark)

@@ -6,84 +6,66 @@ class CardPlace
   include HasSprite
   include Enumerable
 
-  def initialize(name)
-    @name, @card = name.intern, nil
+  def initialize(name, linkCards: false)
+    @name, @linkCards = name.intern, linkCards
+    @cards = []
   end
 
-  attr_reader :name
+  attr_reader :name, :cards
 
   def add(*cards, updatePos: true)
-    cards.flatten.each do |card|
+    cards.map(&:to_a).flatten.each do |card|
       card.place&.pop card
-      card.pos = posFor card if updatePos
-      unless @card
-        @card     = card
-      else
-        last.next = card
-      end
+      @cards.push card
+      card.next  = nil
+      card.pos   = posFor card if updatePos
       card.place = self
     end
+    @cards.each_cons(2) {|prev, it| prev.next = @linkCards ? it : nil}
   end
 
   def pop(card = nil)
-    return nil unless @card
-    popped =
-      if card ? @card == card : @card.last?
-        it    = @card
-        @card = nil
-        it
+    return nil if @cards.empty?
+    card  ||= @cards.last
+    index   = @cards.index card
+    poppeds =
+      if index
+        @cards[index..-1].tap {@cards[index..-1] = []}
       else
-        each_cons 2 do |prev, it|
-          if card ? it == card : it.last?
-            prev.next = nil
-            break it
-          end
-        end
+        [@cards.pop]
       end
-    popped.place = nil
-    popped
+    @cards.last&.next = nil
+    poppeds.each_cons(2) {|prev, it| prev.next = it}
+    poppeds.first.tap {|first| first.place = nil}
   end
 
   def clear()
-    @card = nil
-    self
+    @cards.clear
   end
 
   def each(&block)
-    card = @card
-    while card
-      next_ = card.next
-      block.call card
-      card  = next_
-    end
-    self
+    @cards.each &block
   end
 
   def id()
     @id ||= "id:#{name}"
   end
 
-  def cards()
-    to_a
-  end
-
   def empty?()
-    @card == nil
+    cards.empty?
   end
 
   def last()
-    c = @card
-    c = c.next while c&.next
-    c
+    cards.last
   end
 
   def accept?(x, y, card)
     false
   end
 
-  def posFor(card)
-    x, y = pos.to_a
-    createVector x, y, (last&.z || 0) + 1
+  def posFor(card, index = nil)
+    index ||= indexFor card
+    createVector *pos.to_a(2), self.z + index + 1
   end
 
   def sprite()
@@ -106,7 +88,48 @@ class CardPlace
     end
   end
 
+  def indexFor(card)
+    cards.index(card) || cards.size
+  end
+
 end# CardPlace
+
+
+class NextsPlace < CardPlace
+
+  def initialize(*a, **k, &b)
+    super
+    @openCount = 1
+  end
+
+  attr_accessor :openCount
+
+  def add(*cards, **kwargs)
+    super
+    updateCards excludes: cards
+  end
+
+  def updateCards(excludes: [])
+    cards.each.with_index do |card, index|
+      next if excludes.include? card
+      pos = posFor card, index
+      move card, pos, 0.2 if pos != card.pos
+    end
+  end
+
+  def posFor(card, index = nil)
+    index ||= indexFor card
+    super.tap do |pos|
+      rindex = cards.size - index
+      pos.x += overlap * [openCount - rindex, 0].max
+    end
+  end
+
+  def overlap()
+    w * 0.4
+  end
+
+end# NextsPlace
 
 
 class MarkPlace < CardPlace
@@ -116,7 +139,7 @@ class MarkPlace < CardPlace
   end
 
   def accept?(x, y, card)
-    return false if !card || card.closed?
+    return false if !card || card.closed? || !card.canDrop?
     hit?(x, y) &&
       card.opened? &&
       (!mark || mark == card.mark) &&
@@ -128,8 +151,12 @@ end# MarkPlace
 
 class ColumnPlace < CardPlace
 
+  def initialize(*args, **kwargs, &block)
+    super(*args, linkCards: true, **kwargs, &block)
+  end
+
   def accept?(x, y, card)
-    return false if !card || card.closed?
+    return false if !card || card.closed? || !card.canDrop?
     if empty?
       hit?(x, y) &&
         card.number == 13
@@ -140,10 +167,10 @@ class ColumnPlace < CardPlace
     end
   end
 
-  def posFor(card)
+  def posFor(card, index = nil)
+    index ||= indexFor card
     super.tap do |pos|
-      cards_ = cards
-      pos.y += self.h * 0.3 * (cards_.index(card) || cards_.count)
+      pos.y += self.h * 0.3 * index
     end
   end
 
