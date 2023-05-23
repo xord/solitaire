@@ -57,7 +57,13 @@ class CardPlace
   end
 
   def sprite()
-    @sprite ||= Sprite.new image: spriteImage
+    @sprite ||= Sprite.new(0, 0, *Card.spriteSize).tap do |sp|
+      sp.draw do
+        noStroke
+        fill 0, 20
+        rect 0, 0, sp.w, sp.h, 4
+      end
+    end
   end
 
   def inspect()
@@ -65,16 +71,6 @@ class CardPlace
   end
 
   private
-
-  def spriteImage()
-    @spriteImage ||= createGraphics(*Card.spriteSize).tap do |g|
-      g.beginDraw
-      g.noStroke
-      g.fill 100, 32
-      g.rect 0, 0, g.width, g.height, 4
-      g.endDraw
-    end
-  end
 
   def indexFor(card)
     cards.index(card) || cards.size
@@ -85,16 +81,21 @@ end# CardPlace
 
 class NextsPlace < CardPlace
 
-  def initialize(*a, **k, &b)
+  def initialize(*args, **kwargs, &block)
     super
     @openCount = 1
   end
 
-  attr_accessor :openCount
+  attr_reader :openCount
 
   def add(*cards, **kwargs)
     super
     updateCards excludes: cards
+  end
+
+  def pop(*args)
+    super
+    updateCards
   end
 
   def updateCards(excludes: [])
@@ -103,6 +104,14 @@ class NextsPlace < CardPlace
       pos = posFor card, index
       move card, pos, 0.2 if pos != card.pos
     end
+  end
+
+  def openCount=(count)
+    @openCount = count
+
+    w       = Card.spriteSize[0] + overlap * (count - 1)
+    self.x -= w - self.w
+    self.w  = w
   end
 
   def posFor(card, index = nil)
@@ -114,7 +123,7 @@ class NextsPlace < CardPlace
   end
 
   def overlap()
-    w * 0.4
+    Card.spriteSize[0] * 0.4
   end
 
 end# NextsPlace

@@ -205,7 +205,7 @@ class Klondike < Scene
     y = undoButton.y + undoButton.h + my
 
     deck.pos  = [w - (deck.w + mx), y]
-    nexts.pos = [deck.x - (nexts.w + (nexts.overlap * 2)+ mx), deck.y]
+    nexts.pos = [deck.x - (nexts.w + mx), deck.y]
     marks.each.with_index do |mark, index|
       mark.pos = [mx + (mark.w + mx) * index, deck.y]
     end

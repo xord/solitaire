@@ -13,7 +13,7 @@ module HasSprite
 
   def_delegators :sprite,
     :pos, :pos=, :x, :x=, :y, :y=, :z, :z=, :center, :center=,
-    :size, :width, :height, :depth, :w, :h, :d,
+    :size, :width, :width=, :height, :height=, :depth, :w, :w=, :h, :h=, :d,
     :angle, :angle=
 
   def hit?(x, y)
