@@ -33,14 +33,6 @@ class Button < Sprite
     !enabled?
   end
 
-  def hide()
-    self.x = 2000
-  end
-
-  def hidden?()
-    self.x >= 2000
-  end
-
   private
 
   def setup()

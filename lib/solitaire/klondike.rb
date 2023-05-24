@@ -350,7 +350,21 @@ class Klondike < Scene
   end
 
   def afterMovingCard()
-    return if !finishButton.hidden? || !completable?
+    case
+    when deck.empty? && nexts.empty? && columns.all?(&:empty?)
+      completed
+    when finishButton.hidden? && canFinish?
+      showFinishButton
+    end
+  end
+
+  def canFinish?()
+    deck.empty? && nexts.empty? &&
+      columns.any? {|col| !col.empty?} &&
+      columns.all? {|col| col.each_cons(2).all? {|a, b| a.number > b.number}}
+  end
+
+  def showFinishButton()
     finishButton.tap do |b|
       m   = Card.margin
       b.x = marks.last.then {|mark| mark.x + mark.w} + m * 2
@@ -360,13 +374,7 @@ class Klondike < Scene
     end
     pos = finishButton.pos.dup
     pos.y = deck.y
-    move finishButton, pos, 1, ease: :bounceOut
-  end
-
-  def completable?()
-    deck.empty? && nexts.empty? && columns.all? {|col|
-      col.each_cons(2).all? {|a, b| a.number > b.number}
-    }
+    move finishButton.show, pos, 1, ease: :bounceOut
   end
 
   def finish!(cards = columns.map(&:cards).flatten.sort)
@@ -374,6 +382,33 @@ class Klondike < Scene
     place = marks.find {|mark| mark.accept? mark.x, mark.y, card} or return
     moveCard card, place, 0.3
     startTimer(0.05) {finish! cards}
+  end
+
+  def completed()
+    history.disable
+
+    gravity 0, 1000
+    ground = createSprite(0, height + cards.first.height, width, 10).tap do |sp|
+      sp.dynamic = false
+    end
+
+    cards.group_by(&:number).values
+      .reverse
+      .map(&:shuffle)
+      .flatten
+      .each.with_index do |card, index|
+
+      startTimer 0.1 * index do
+        card.place&.pop
+        card.sprite.tap do |sp|
+          sp.contact? {|o| o == ground}
+          sp.dynamic     = true
+          sp.restitution = 0.5
+          sp.vx          = rand -100..100
+          sp.vy          = -300
+        end
+      end
+    end
   end
 
   def backToPlace(card, prevPos)
