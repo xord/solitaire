@@ -102,8 +102,8 @@ def animate(name = unique, seconds, ease: :expoOut, &block)
 end
 
 def animateValue(name = unique, seconds, from:, to:, **kwargs, &block)
-  animate name, seconds, **kwargs do |t, finished|
-    block.call lerp(from, to, t), finished
+  animate name, seconds, **kwargs do |t, finished, tt|
+    block.call lerp(from, to, t), finished, t, tt
   end
 end
 

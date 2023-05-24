@@ -58,10 +58,12 @@ class Klondike < Scene
       moveCard card, place, 0.2
     elsif prevPlace
       history.disable do
-        prevPos = card.pos.dup
+        prevPos, prevTime = card.pos.xy, now
         moveCard card, prevPlace, 0.15, add: false, ease: :quadIn do |t, finished|
-          backToPlace card, prevPos if finished
-          prevPos = card.pos.dup
+          pos, time         = card.pos.xy, now
+          vel               = (pos - prevPos) / (time - prevTime)
+          prevPos, prevTime = pos, time
+          backToPlace card, vel if finished
         end
       end
     end
@@ -388,7 +390,7 @@ class Klondike < Scene
     history.disable
 
     gravity 0, 1000
-    ground = createSprite(0, height + cards.first.height, width, 10).tap do |sp|
+    ground = createSprite(0, height + cards.first.height + 5, width, 10).tap do |sp|
       sp.dynamic = false
     end
 
@@ -402,31 +404,39 @@ class Klondike < Scene
         card.place&.pop
         card.sprite.tap do |sp|
           sp.contact? {|o| o == ground}
+          sp.contact {
+            vec = Vector.fromAngle(rand -135..-45) * rand(75..100)
+            emitDust sp.center, vec, size: 10..20
+          }
           sp.dynamic     = true
           sp.restitution = 0.5
-          sp.vx          = rand -100..100
+          sp.vx          = rand -20..100
           sp.vy          = -300
         end
       end
     end
   end
 
-  def backToPlace(card, prevPos)
-    vel = card.pos - prevPos
-    return if vel.mag < 3
-    shake vector: vel / 10 * card.count
-    10.times {
-      x, y = randomEdge card
-      size = rand(2.0..10.0)
-      pos  = createVector x, y
-      vec  = (pos - card.center).normalize * 10
-      sec  = 0.5
-      par  = emitParticle x, y, size, size, sec
-      animate sec do |t|
-        par.pos   = pos + vec * t
-        par.alpha = (1.0 - t) * 255
-      end
+  def backToPlace(card, vel)
+    vec = vel.dup.normalize * sqrt(vel.mag) / 10 * sqrt(card.count)
+    return if vec.mag < 3
+    shake vector: vec
+    emitDustOnEdges card, size: sqrt(vec.mag).then {|m| m..(m * 5)}
+  end
+
+  def emitDustOnEdges(card, amount = 10, speed: 10, **kwargs)
+    amount.times {
+      pos = createVector *randomEdge(card)
+      vec = (pos - card.center).normalize * speed
+      emitDust pos, vec, **kwargs
     }
+  end
+
+  def emitDust(pos, vec, sec = 0.5, size: 2.0..10.0)
+    size_ = rand size
+    par   = emitParticle pos.x, pos.y, size_, size_, sec
+    animateValue(sec, from: pos, to: pos + vec) {|p| par.pos   = p}
+    animateValue(sec, from: 255, to: 0)         {|a| par.alpha = a}
   end
 
   def randomEdge(card)

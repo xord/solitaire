@@ -7,6 +7,15 @@ def unique()
 end
 
 
+module Processing
+  class Vector
+    def xy()
+      self.class.new x, y
+    end
+  end
+end
+
+
 module HasSprite
 
   extend Forwardable
