@@ -119,10 +119,14 @@ class Card
       end
       sp.draw do |&draw|
         push do
-          blendMode SUBTRACT
-          tint 100
-          translate 2, 5
-          image sp.image, 0, 0, w, h
+          px, py = *sp.pivot
+          translate  px,  py
+          rotate    -sp.angle
+          translate  2,  5
+          rotate     sp.angle
+          translate -px, -py
+          fill 0, 50
+          rect 0, 0, w, h, 4
         end
         translate  sp.w / 2,  sp.h / 2
         rotate @open
