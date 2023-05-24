@@ -101,6 +101,12 @@ def animate(name = unique, seconds, ease: :expoOut, &block)
   startTimer name, 0, &eachDrawBlock
 end
 
+def animateValue(name = unique, seconds, from:, to:, **kwargs, &block)
+  animate name, seconds, **kwargs do |t, finished|
+    block.call lerp(from, to, t), finished
+  end
+end
+
 def move(obj, toPos, seconds, **kwargs, &block)
   from, to = obj.pos.dup, toPos.dup
   animate seconds, **kwargs do |t, *args|
