@@ -138,6 +138,7 @@ class MarkPlace < CardPlace
   def accept?(x, y, card)
     return false if !card || card.closed? || !card.canDrop?
     hit?(x, y) &&
+      card.last? &&
       card.opened? &&
       (!mark || mark == card.mark) &&
       card.number == last&.number.then {|n| n ? n + 1 : 1}
