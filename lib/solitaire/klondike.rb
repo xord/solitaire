@@ -336,8 +336,8 @@ class Klondike < Scene
         if lasts.all? {|card| card.opened?}
           openNexts
           history.enable
-          save
           @startTime = now
+          startInterval(:save, 1, now: true) {save}
         end
       end
     end
@@ -489,6 +489,7 @@ class Klondike < Scene
 
   def completed()
     history.disable
+    stopTimer :save
 
     gravity 0, 1000
     ground = createSprite(0, height + cards.first.height + 5, width, 10).tap do |sp|

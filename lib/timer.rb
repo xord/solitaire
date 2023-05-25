@@ -5,6 +5,14 @@ def startTimer(name = unique, seconds, &block)
   name
 end
 
+def startInterval(name = unique, seconds, now: false, &block)
+  block.call if now
+  startTimer name, seconds do
+    block.call
+    startInterval name, seconds, &block
+  end
+end
+
 def stopTimer(name)
   $timers.delete name
 end
