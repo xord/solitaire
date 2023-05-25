@@ -182,6 +182,17 @@ class Klondike < Scene
     @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new "column_#{i + 1}"}
   end
 
+  def dealSound()
+    @dealSounds ||= %w[deal1 deal2 deal3]
+      .map {|s| "data/#{s}.mp3"}
+      .map {|path| loadSound path}
+    @dealSounds.sample
+  end
+
+  def flipSound()
+    @flipSound ||= loadSound 'data/flip.mp3'
+  end
+
   def interfaces()
     [undoButton, redoButton, menuButton, finishButton, status, debugButton]
   end
@@ -332,7 +343,7 @@ class Klondike < Scene
     lasts = columns.map(&:last).compact
     lasts.each.with_index do |card, n|
       startTimer 0.02 * n do
-        openCard card
+        openCard card, gain: 0.2
         if lasts.all? {|card| card.opened?}
           openNexts
           history.enable
@@ -347,6 +358,7 @@ class Klondike < Scene
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
         startTimer index / 50.0 do
+          flipSound.play gain: 0.1
           moveCard deck.last, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
           end
@@ -360,13 +372,14 @@ class Klondike < Scene
     (0...n).map { |row| (row...n).map { |col| [col, row] } }.flatten(1)
   end
 
-  def openCard(card)
+  def openCard(card, gain: 0.5)
     return if card.opened?
     history.group do
       card.open 0.3
       history.push [:open, card]
       addScore :openCard if columns.include?(card.place)
     end
+    flipSound.play gain: gain
   end
 
   def closeCard(card)
@@ -387,6 +400,8 @@ class Klondike < Scene
       block.call t, finished if block
       cardMoved from if finished
     end
+
+    dealSound.play
 
     @moveCount ||= 0
     @moveCount  += 1 if history.enabled?
