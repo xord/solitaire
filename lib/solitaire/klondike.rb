@@ -6,18 +6,18 @@ class Klondike < Scene
 
   def initialize(hash = nil)
     super()
-    @sprites = [*cards, *places].map &:sprite
     hash ? load(hash) : ready
   end
 
   def sprites()
-    super + @sprites + buttons
+    super + [*cards, *places].map(&:sprite) + interfaces
   end
 
   def draw()
     sprite *places.map(&:sprite)
     sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
-    sprite *buttons
+    sprite *interfaces
+    drawStatus
     super
   end
 
@@ -38,9 +38,8 @@ class Klondike < Scene
       moveCard card, newPlace, 0.3
     else
       case card.place
-      when deck     then deckClicked
-      when nexts    then nextsClicked
-      when *columns then openCard card if card.closed? && card.last?
+      when deck  then deckClicked
+      when nexts then nextsClicked
       end
     end
   end
@@ -71,12 +70,13 @@ class Klondike < Scene
 
   def save(path = 'state.json')
     File.write path, {
-      version: 1,
-      game: self.class.name,
+      version:   1,
+      game:      self.class.name,
       openCount: nexts.openCount,
-      history: history.to_h {|o| o.id if o.respond_to? :id},
-      places: places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
-      openeds: cards.select {|card| card.opened?}.map(&:id)
+      history:   history.to_h {|o| o.id if o.respond_to? :id},
+      score:     score.to_h,
+      places:    places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
+      openeds:   cards.select {|card| card.opened?}.map(&:id)
     }.to_json
   rescue
     nil
@@ -98,6 +98,7 @@ class Klondike < Scene
     self.history = History.load hash['history'] do |id|
       (id =~ /^id:/) ? findAll[id] : nil
     end
+    self.score.from_h hash['score']
     places.each do |place|
       place.clear
       ids = hash['places'][place.name.to_s] or raise "No place '#{place.name}'"
@@ -126,6 +127,21 @@ class Klondike < Scene
     @history = history.tap do |h|
       h.updated {save}
     end
+  end
+
+  def score()
+    @score ||= Score.new **{
+      openCard:          5,
+      moveToColumn:      5,
+      moveToMark:        10,
+      backToColumn:      -15,
+      refillDeckOnDraw3: -20,
+      refillDeckOnDraw1: -100
+    }
+  end
+
+  def highScores()
+    @highScores = HighScores.load rescue HighScores.new
   end
 
   def cards()
@@ -158,7 +174,7 @@ class Klondike < Scene
     @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new "column_#{i + 1}"}
   end
 
-  def buttons()
+  def interfaces()
     [undoButton, redoButton, menuButton, finishButton, debugButton]
   end
 
@@ -232,14 +248,34 @@ class Klondike < Scene
     debugButton.pos = [mx, height - (debugButton.h + my)]
   end
 
+  def drawStatus()
+    m = Card.margin
+    x = redoButton.right + m
+    y = redoButton.y
+    w = (menuButton.left - redoButton.right - m * 2) / 2
+    h = redoButton.h
+    r = 10
+    push do
+      translate x, y
+      fill 0, 20
+      rect 0, 0, w, h, r
+      fill 255
+      textSize 20
+      textAlign CENTER, CENTER
+      text score.value, 0, 0, w, h
+    end
+  end
+
   def ready()
-    showReadyDialog
+    buttons = showReadyDialog.buttons
+    buttons.each &:hide
 
     history.disable
     deck.add *cards.shuffle
     startTimer 0.3 do
       placeToColumns do
         history.enable
+        buttons.each &:show
       end
     end
   end
@@ -293,8 +329,11 @@ class Klondike < Scene
 
   def openCard(card)
     return if card.opened?
-    card.open 0.3
-    history.push [:open, card]
+    history.group do
+      card.open 0.3
+      history.push [:open, card]
+      addScore :openCard if columns.include?(card.place)
+    end
   end
 
   def closeCard(card)
@@ -312,16 +351,44 @@ class Klondike < Scene
     toPlace.add card, updatePos: false if add
     move card, pos, seconds, **kwargs do |t, finished|
       block.call t, finished if block
-      openCard from.last if finished && columns.include?(from) && from.last&.closed?
-      afterMovingCard if finished
+      cardMoved from if finished
     end
 
-    history.push [:move, card, from, toPlace]
+    history.group do
+      history.push [:move, card, from, toPlace]
+
+      fromNexts  = from == nexts
+      fromColumn = columns.include? from
+        toColumn = columns.include? toPlace
+      fromMark   = marks.include? from
+        toMark   = marks.include? toPlace
+      addScore :moveToColumn if fromNexts && toColumn
+      addScore :backToColumn if fromMark  && toColumn
+      addScore :moveToMark   if !fromMark && toMark
+
+      openCard from.last if fromColumn && from.last&.closed?
+    end
+  end
+
+  def cardMoved(from)
+    openCard from.last if columns.include?(from) && from.last&.closed?
+    showFinishButton   if finishButton.hidden? && canFinish?
+    completed          if completed?
+  end
+
+  def canFinish?()
+    deck.empty? && nexts.empty? &&
+      columns.any? {|col| !col.empty?} &&
+      columns.all? {|col| col.each_cons(2).all? {|a, b| a.number > b.number}}
+  end
+
+  def completed?()
+    deck.empty? && nexts.empty? && columns.all?(&:empty?)
   end
 
   def openNexts()
     return if deck.empty?
-    history.record do
+    history.group do
       cards = nexts.openCount.times.map {deck.pop}.compact
       nexts.add *cards, updatePos: false
       cards.each do |card|
@@ -332,14 +399,24 @@ class Klondike < Scene
   end
 
   def refillDeck()
-    history.record do
+    history.group do
       until nexts.empty?
         card = nexts.last
         closeCard card
         moveCard card, deck, 0.3
       end
+      incrementRefillCount
     end
     startTimer(0.4) {openNexts}
+  end
+
+  def incrementRefillCount()
+    @refillCount ||= 0
+    @refillCount  += 1
+    case nexts.openCount
+    when 1 then addScore :refillDeckOnDraw1
+    when 3 then addScore :refillDeckOnDraw3 if @refillCount >= 3
+    end
   end
 
   def getPlaceAccepts(x, y, card)
@@ -351,21 +428,6 @@ class Klondike < Scene
       columns.shuffle.find {|place| place.accept? *place.center.to_a(2), card}
   end
 
-  def afterMovingCard()
-    case
-    when deck.empty? && nexts.empty? && columns.all?(&:empty?)
-      completed
-    when finishButton.hidden? && canFinish?
-      showFinishButton
-    end
-  end
-
-  def canFinish?()
-    deck.empty? && nexts.empty? &&
-      columns.any? {|col| !col.empty?} &&
-      columns.all? {|col| col.each_cons(2).all? {|a, b| a.number > b.number}}
-  end
-
   def showFinishButton()
     finishButton.tap do |b|
       m   = Card.margin
@@ -374,7 +436,7 @@ class Klondike < Scene
       b.w = width - b.x - m
       b.h = deck.h
     end
-    pos = finishButton.pos.dup
+    pos   = finishButton.pos.dup
     pos.y = deck.y
     move finishButton.show, pos, 1, ease: :bounceOut
   end
@@ -453,12 +515,19 @@ class Klondike < Scene
     end
   end
 
+  def addScore(name)
+    old = score.value
+    score.add name if history.enabled?
+    history.push [:score, score.value, old] if score.value != old
+  end
+
   def undo(action)
     history.disable do
       case action
       in [:open,  card]           then closeCard card
       in [:close, card]           then  openCard card
       in [:move,  card, from, to] then moveCard card, from, 0.2, from: to
+      in [:score, value, old]     then score.value = old
       end
     end
   end
@@ -469,6 +538,7 @@ class Klondike < Scene
       in [:open,  card]           then  openCard card
       in [:close, card]           then closeCard card
       in [:move,  card, from, to] then moveCard card, to, 0.2, from: from
+      in [:score, value, old]     then score.value = value
       end
     end
   end

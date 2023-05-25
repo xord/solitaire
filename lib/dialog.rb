@@ -12,22 +12,26 @@ class Dialog < Scene
     end
   end
 
-  def sprites()
-    super + [overlay, *buttons]
-  end
-
   def addButton(label, *args, **kwargs, &block)
-    Button.new(label, *args, **kwargs).tap do |b|
+    button = Button.new(label, *args, **kwargs).tap do |b|
       b.z = overlay.z
       b.clicked &block
-      buttons.push b
-      addSprite b if active?
     end
+    buttons.push button
+    addSprite button if active?
     updateLayout
   end
 
   def close()
     delay {parent.remove self}
+  end
+
+  def sprites()
+    super + [overlay, *buttons]
+  end
+
+  def buttons()
+    @buttons ||= []
   end
 
   def draw()
@@ -42,10 +46,6 @@ class Dialog < Scene
   private
 
   MARGIN = 10
-
-  def buttons()
-    @buttons ||= []
-  end
 
   def overlay()
     @overlay ||= Sprite.new(0, 0, width, height).tap do |sp|

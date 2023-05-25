@@ -16,14 +16,66 @@ module Processing
 end
 
 
+module CanDisable
+
+  def initialize(*a, **k, &b)
+    super
+    @enabled = true
+  end
+
+  def enable(state = true)
+    return if state == @enabled
+    @enabled = state
+    @enabled ? enabled : disabled
+  end
+
+  def disable(&block)
+    old = enabled?
+    enable false
+    if block
+      begin
+        block.call
+      ensure
+        enable old
+      end
+    end
+  end
+
+  def enabled?()
+    @enabled
+  end
+
+  def disabled?()
+    !enabled?
+  end
+
+  def enabled()
+  end
+
+  def disabled()
+  end
+
+end# CanDisable
+
+
 module HasSprite
 
   extend Forwardable
 
   def_delegators :sprite,
     :pos, :pos=, :x, :x=, :y, :y=, :z, :z=, :center, :center=,
+    :left, :left=, :top, :top=, :right, :right=, :bottom, :bottom=,
     :size, :width, :width=, :height, :height=, :depth, :w, :w=, :h, :h=, :d,
     :angle, :angle=
+
+  alias l  left
+  alias l= left=
+  alias t  top
+  alias t= top=
+  alias r  right
+  alias r= right=
+  alias b  bottom
+  alias b= bottom=
 
   def hit?(x, y)
     s = sprite

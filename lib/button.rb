@@ -3,34 +3,20 @@ using RubySketch
 
 class Button < Sprite
 
+  include CanDisable
+
   def initialize(
     label, *args, rgb: 200, width: 1, fontSize: 24, round: 5, **kwargs, &block)
 
     super 0, 0, 44 * width, 44, *args, **kwargs, &block
     @label, @rgb, @fontSize, @round = label, [rgb].flatten, fontSize, round
-    @click, @enabled                = nil, true
+    @click = nil
     setup
   end
 
   def clicked(&block)
     @click = block
     nil
-  end
-
-  def enable(state = true)
-    @enabled = state
-  end
-
-  def disable()
-    enable false
-  end
-
-  def enabled?()
-    @enabled
-  end
-
-  def disabled?()
-    !enabled?
   end
 
   private

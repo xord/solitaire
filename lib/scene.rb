@@ -9,27 +9,23 @@ class Scene
     @active   = self.class == RootScene
     @prevSize = [width, height]
     resized *@prevSize
-    add *scenes unless scenes.empty?
+    scenes.each {|scene| add scene}
   end
 
   attr_reader :name, :parent
 
-  def add(*scenes)
-    @scenes.push *scenes
-    scenes.each do |scene|
-      scene.parent = self
-      scene.activated if active?
-    end
-    self
+  def add(scene)
+    @scenes.push scene
+    scene.parent = self
+    scene.activated if active?
+    scene
   end
 
-  def remove(*scenes)
-    @scenes.delete_if {|scene| scenes.include? scene}
-    scenes.each do |scene|
-      scene.deactivated if active?
-      scene.parent = nil
-    end
-    self
+  def remove(scene)
+    @scenes.delete scene
+    scene.deactivated if active?
+    scene.parent = nil
+    scene
   end
 
   def transition(to, effect = nil, *args, **kwargs)

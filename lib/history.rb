@@ -1,14 +1,17 @@
 class History
 
+  include CanDisable
+
   def initialize(undos = [], redos = [])
-    @undos, @redos       = undos, redos
-    @recording, @enabled = nil, true
+    super()
+    @undos, @redos = undos, redos
+    @group         = nil
   end
 
   def push(*actions)
-    return if disabled? || actions.empty?
-    if @recording
-      @recording.push *actions
+    return if actions.empty? || disabled?
+    if @group
+      @group.push *actions
     else
       @undos.push actions
       @redos.clear
@@ -16,13 +19,14 @@ class History
     end
   end
 
-  def record(&block)
-    raise if @recording
-    @recording = array = []
+  def group(&block)
+    @group = group = [] unless @group
     block.call
   ensure
-    @recording = nil
-    push *array
+    if group
+      @group = nil
+      push *group
+    end
   end
 
   def undo(&block)
@@ -45,26 +49,6 @@ class History
 
   def canRedo?()
     !@redos.empty?
-  end
-
-  def enable(state = true)
-    @enabled = state
-  end
-
-  def disable(&block)
-    old, @enabled = @enabled, false
-    if block
-      block.call
-      @enabled = old
-    end
-  end
-
-  def enabled?()
-    @enabled
-  end
-
-  def disabled?()
-    !enabled?
   end
 
   def updated(&block)

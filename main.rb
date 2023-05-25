@@ -5,7 +5,7 @@ using RubySketch
 SCREEN_WIDTH  = 375 # screen width
 SCREEN_HEIGHT = 667
 STATE_PATH    = 'state.json'
-
+SCORES_PATH   = 'scores.json'
 
 
 setup do

@@ -6,9 +6,12 @@ class Score
   include CanDisable
 
   def initialize(**definitions)
-    @defs, @score = {}, 0
+    super()
+    @defs, @value = {}, 0
     define **definitions
   end
+
+  attr_accessor :value
 
   def define(**definitions)
     definitions.each do |name, score|
@@ -19,26 +22,16 @@ class Score
   def add(name)
     return if disabled?
     value   = @defs[name.intern]
-    @score += value.to_i if value
-  end
-
-  def revert(name)
-    p [:revert, disabled?]
-    return if disabled?
-    value   = @defs[name.intern]
-    @score -= value.to_i if value
-  end
-
-  def value()
-    @score
+    @value += value.to_i if value
+    @value  = 0          if @value < 0
   end
 
   def to_h()
-    {score: @score}
+    {score: @value}
   end
 
   def from_h(hash)
-    @score = hash['score']
+    @value = hash['score']
   end
 
 end# Score
