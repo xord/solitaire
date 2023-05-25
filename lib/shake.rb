@@ -7,15 +7,12 @@ class Shake
     @length, @vector = length, vector
   end
 
-  def draw()
-    v = vector
-    translate v.x, v.y if v
+  def update()
     @length *=  0.8 if @length
     @vector *= -0.8 if @vector
+    v = vector
     @length = @vector = nil if v && v.mag < 1
   end
-
-  private
 
   def vector()
     return nil unless @length || @vector
@@ -27,10 +24,25 @@ class Shake
 end# Shake
 
 
-def shake(length = nil, vector: nil)
+def shake(obj, length = nil, vector: nil)
+  shake = Shake.new length, vector
+  pos   = obj.pos.dup
+  fun = -> do
+    v = shake.vector
+    break obj.pos = pos unless v
+    obj.pos = pos + v
+    shake.update
+    delay {fun.call}
+  end
+  fun.call
+end
+
+def shakeScreen(length = nil, vector: nil)
   $shake = Shake.new length, vector
 end
 
 def drawShake()
-  $shake&.draw
+  v = $shake&.vector
+  translate v.x, v.y if v
+  $shake&.update
 end

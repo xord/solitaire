@@ -17,7 +17,6 @@ class Klondike < Scene
     sprite *places.map(&:sprite)
     sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
     sprite *interfaces
-    drawStatus
     super
   end
 
@@ -34,13 +33,12 @@ class Klondike < Scene
   end
 
   def cardClicked(card)
-    if newPlace = getPlaceToGo(card)
-      moveCard card, newPlace, 0.3
-    else
-      case card.place
-      when deck  then deckClicked
-      when nexts then nextsClicked
-      end
+    if card.closed? && card.place == deck
+      deckClicked
+    elsif card.opened? && place = findPlaceToGo(card)
+      moveCard card, place, 0.3
+    elsif card.opened?
+      shake card, vector: createVector(5, 0)
     end
   end
 
@@ -75,6 +73,8 @@ class Klondike < Scene
       openCount: nexts.openCount,
       history:   history.to_h {|o| o.id if o.respond_to? :id},
       score:     score.to_h,
+      time:      @startTime ? now - @startTime : nil,
+      moveCount: @moveCount,
       places:    places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
       openeds:   cards.select {|card| card.opened?}.map(&:id)
     }.to_json
@@ -96,20 +96,28 @@ class Klondike < Scene
     nexts.openCount = hash['openCount']
 
     self.history = History.load hash['history'] do |id|
-      (id =~ /^id:/) ? findAll[id] : nil
+      (id.respond_to?('=~') && id =~ /^id:/) ? findAll[id] : nil
     end
+
     self.score.from_h hash['score']
+    @startTime = hash['time']&.then {|sec| now - sec}
+    @moveCount = hash['moveCount']
+
     places.each do |place|
       place.clear
       ids = hash['places'][place.name.to_s] or raise "No place '#{place.name}'"
       place.add *ids.map {|id| findCard[id]}
     end
+
     hash['openeds'].each do |id|
       findCard[id].open
     end
 
     raise "Failed to restore state" unless
       places.reduce([]) {|a, place| a + place.cards}.size == 52
+  rescue => e
+    $stderr.puts e.full_message
+    nil
   end
 
   def inspect()
@@ -175,7 +183,7 @@ class Klondike < Scene
   end
 
   def interfaces()
-    [undoButton, redoButton, menuButton, finishButton, debugButton]
+    [undoButton, redoButton, menuButton, finishButton, status, debugButton]
   end
 
   def undoButton()
@@ -200,7 +208,34 @@ class Klondike < Scene
     @menuButton ||= Button.new(
       '≡', rgb: [140, 160, 120], fontSize: 36
     ).tap do |b|
-      b.clicked {add Menu.new}
+      b.clicked {showMenuDialog}
+    end
+  end
+
+  def status()
+    @status ||= Sprite.new.tap do |sp|
+      sp.draw do
+        push do
+          fill 0, 20
+          rect 0, 0, sp.w, sp.h, 10
+          fill 255
+
+          mx, my, x, w = 8, 4, 0, sp.w / 3
+          {
+            Time:  Time.at(@startTime ? now - @startTime : 0).strftime('%M:%S'),
+            Score: score.value,
+            Move:  @moveCount || 0
+          }.each do |label, value|
+            textSize 12
+            textAlign LEFT, TOP
+            text label, x + mx, my, w - mx, sp.h - my * 2
+            textSize 20
+            textAlign LEFT, BOTTOM
+            text value, x + mx, my, w - mx, sp.h - my * 2
+            x += w
+          end
+        end
+      end
     end
   end
 
@@ -215,8 +250,33 @@ class Klondike < Scene
 
   def debugButton()
     @debugButton ||= Button.new(:DEBUG, width: 3).tap do |b|
-      b.clicked {start}
+      b.hide
+      b.clicked {}
     end
+  end
+
+  def showReadyDialog()
+    add Dialog.new(alpha: 50).tap {|d|
+      d.addButton 'EASY', width: 5 do
+        start 1
+        d.close
+      end
+      d.addButton 'HARD', width: 5 do
+        start 3
+        d.close
+      end
+    }
+  end
+
+  def showMenuDialog()
+    add Dialog.new.tap {|d|
+      d.addButton 'RESUME', width: 5 do
+        d.close
+      end
+      d.addButton 'NEW GAME', width: 5 do
+        transition Klondike.new, [Fade, Curtain, Pixelate].sample
+      end
+    }
   end
 
   def updateLayout(w, h)
@@ -228,6 +288,9 @@ class Klondike < Scene
     undoButton.pos = [mx, y]
     redoButton.pos = [undoButton.x + undoButton.w + 2, y]
     menuButton.pos = [width - (menuButton.w + mx), y]
+    status.pos     = [redoButton.right + mx, y]
+    status.right   = menuButton.left - mx
+    status.height  = menuButton.h
 
     y = undoButton.y + undoButton.h + my
 
@@ -248,24 +311,6 @@ class Klondike < Scene
     debugButton.pos = [mx, height - (debugButton.h + my)]
   end
 
-  def drawStatus()
-    m = Card.margin
-    x = redoButton.right + m
-    y = redoButton.y
-    w = (menuButton.left - redoButton.right - m * 2) / 2
-    h = redoButton.h
-    r = 10
-    push do
-      translate x, y
-      fill 0, 20
-      rect 0, 0, w, h, r
-      fill 255
-      textSize 20
-      textAlign CENTER, CENTER
-      text score.value, 0, 0, w, h
-    end
-  end
-
   def ready()
     buttons = showReadyDialog.buttons
     buttons.each &:hide
@@ -280,19 +325,6 @@ class Klondike < Scene
     end
   end
 
-  def showReadyDialog()
-    add Dialog.new(alpha: 50).tap {|d|
-      d.addButton 'EASY', width: 5 do
-        start 1
-        d.close
-      end
-      d.addButton 'HARD', width: 5 do
-        start 3
-        d.close
-      end
-    }
-  end
-
   def start(openCount = 1)
     nexts.openCount = openCount
 
@@ -305,6 +337,7 @@ class Klondike < Scene
           openNexts
           history.enable
           save
+          @startTime = now
         end
       end
     end
@@ -343,7 +376,8 @@ class Klondike < Scene
   end
 
   def moveCard(
-    card, toPlace, seconds = 0, from: card.place, add: true, hover: true,
+    card, toPlace, seconds = 0,
+    from: card.place, add: true, hover: true,
     **kwargs, &block)
 
     pos = toPlace.posFor card
@@ -354,8 +388,12 @@ class Klondike < Scene
       cardMoved from if finished
     end
 
+    @moveCount ||= 0
+    @moveCount  += 1 if history.enabled?
+
     history.group do
       history.push [:move, card, from, toPlace]
+      history.push [:moveCount, @moveCount]
 
       fromNexts  = from == nexts
       fromColumn = columns.include? from
@@ -407,7 +445,7 @@ class Klondike < Scene
       end
       incrementRefillCount
     end
-    startTimer(0.4) {openNexts}
+    #startTimer(0.4) {openNexts}
   end
 
   def incrementRefillCount()
@@ -423,7 +461,8 @@ class Klondike < Scene
     (columns + marks).find {|place| place.accept? x, y, card}
   end
 
-  def getPlaceToGo(card)
+  def findPlaceToGo(card)
+    return nil if marks.include?(card.place)
     marks.find {|place| place.accept? *place.center.to_a(2), card} ||
       columns.shuffle.find {|place| place.accept? *place.center.to_a(2), card}
   end
@@ -482,7 +521,7 @@ class Klondike < Scene
   def backToPlace(card, vel)
     vec = vel.dup.normalize * sqrt(vel.mag) / 10 * sqrt(card.count)
     return if vec.mag < 3
-    shake vector: vec
+    shakeScreen vector: vec
     emitDustOnEdges card, size: sqrt(vec.mag).then {|m| m..(m * 5)}
   end
 
@@ -527,7 +566,8 @@ class Klondike < Scene
       in [:open,  card]           then closeCard card
       in [:close, card]           then  openCard card
       in [:move,  card, from, to] then moveCard card, from, 0.2, from: to
-      in [:score, value, old]     then score.value = old
+      in [:score,     value, old] then score.value = old
+      in [:moveCount, value]      then @moveCount  = value - 1
       end
     end
   end
@@ -538,7 +578,8 @@ class Klondike < Scene
       in [:open,  card]           then  openCard card
       in [:close, card]           then closeCard card
       in [:move,  card, from, to] then moveCard card, to, 0.2, from: from
-      in [:score, value, old]     then score.value = value
+      in [:score,     value, old] then score.value = value
+      in [:moveCount, value]      then @moveCount  = value
       end
     end
   end

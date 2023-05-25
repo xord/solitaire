@@ -18,5 +18,4 @@ require 'solitaire/places'
 
 require 'solitaire/background'
 require 'solitaire/start'
-require 'solitaire/menu'
 require 'solitaire/klondike'
