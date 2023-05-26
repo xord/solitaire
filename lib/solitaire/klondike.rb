@@ -69,15 +69,15 @@ class Klondike < Scene
 
   def save(path = 'state.json')
     File.write path, {
-      version:   1,
-      game:      self.class.name,
-      openCount: nexts.openCount,
-      history:   history.to_h {|o| o.id if o.respond_to? :id},
-      score:     score.to_h,
-      time:      @startTime ? now - @startTime : nil,
-      moveCount: @moveCount,
-      places:    places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
-      openeds:   cards.select {|card| card.opened?}.map(&:id)
+      version:     1,
+      game:        self.class.name,
+      openCount:   nexts.openCount,
+      history:     history.to_h {|o| o.id if o.respond_to? :id},
+      score:       score.to_h,
+      elapsedTime: elapsedTime,
+      moveCount:   @moveCount,
+      places:      places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
+      openeds:     cards.select {|card| card.opened?}.map(&:id)
     }.to_json
   rescue
     nil
@@ -101,8 +101,8 @@ class Klondike < Scene
     end
 
     self.score.from_h hash['score']
-    @startTime = hash['time']&.then {|sec| now - sec}
-    @moveCount = hash['moveCount']
+    @elapsedTime = hash['elapsedTime']
+    @moveCount   = hash['moveCount']
 
     places.each do |place|
       place.clear
@@ -116,9 +116,8 @@ class Klondike < Scene
 
     raise "Failed to restore state" unless
       places.reduce([]) {|a, place| a + place.cards}.size == 52
-  rescue => e
-    $stderr.puts e.full_message
-    nil
+
+    resume
   end
 
   def inspect()
@@ -147,6 +146,16 @@ class Klondike < Scene
       refillDeckOnDraw3: -20,
       refillDeckOnDraw1: -100
     }
+  end
+
+  def elapsedTime()
+    @elapsedTime ||= 0
+    if @prevTime
+      now_          = now
+      @elapsedTime += now_ - @prevTime
+      @prevTime     = now_
+    end
+    @elapsedTime
   end
 
   def highScores()
@@ -238,7 +247,7 @@ class Klondike < Scene
 
           mx, my, x, w = 8, 4, 0, sp.w / 3
           {
-            Time:  Time.at(@startTime ? now - @startTime : 0).strftime('%M:%S'),
+            Time:  Time.at(elapsedTime).strftime('%M:%S'),
             Score: score.value,
             Move:  @moveCount || 0
           }.each do |label, value|
@@ -285,9 +294,11 @@ class Klondike < Scene
   end
 
   def showMenuDialog()
+    pause
     add Dialog.new.tap {|d|
       d.addButton 'RESUME', width: 5 do
         d.close
+        resume
       end
       d.addButton 'NEW GAME', width: 5 do
         transition Klondike.new, [Fade, Curtain, Pixelate].sample
@@ -352,8 +363,7 @@ class Klondike < Scene
         if lasts.all? {|card| card.opened?}
           openNexts
           history.enable
-          @startTime = now
-          startInterval(:save, 1, now: true) {save}
+          resume
         end
       end
     end
@@ -572,6 +582,18 @@ class Klondike < Scene
         card.x + (rand < 0.5 ? 0 : card.w),
         card.y + rand(card.h)
       ]
+    end
+  end
+
+  def pause()
+    @prevTime = nil
+    stopTimer :save
+  end
+
+  def resume()
+    @prevTime = now
+    startInterval :save, 1, now: true do
+      save
     end
   end
 
