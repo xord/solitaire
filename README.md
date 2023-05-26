@@ -2,11 +2,18 @@
 
 ## How to use
 
-### Runs on Mac using RubyGems
+### Run local scripts on macOS
 
 ```sh
  $ gem install rubysketch
- $ ruby main.rb
+ $ ruby -Ilib -rrubysketch/solitaire -e ''
+```
+
+### Run on macOS using RubyGems
+
+```sh
+ $ gem install rubysketch-solitaire
+ $ ruby -rrubysketch/solitaire -e ''
 ```
 
 ## License
