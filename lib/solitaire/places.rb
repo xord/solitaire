@@ -120,7 +120,7 @@ class NextsPlace < CardPlace
     index ||= indexFor card
     super.tap do |pos|
       rindex = cards.size - index
-      pos.x += overlap * [drawCount - rindex, 0].max
+      pos.x += overlap * (drawCount - rindex).clamp(0, drawCount - 1)
     end
   end
 
