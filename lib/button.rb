@@ -47,6 +47,7 @@ class Button < Sprite
       else
         shake
       end
+      sound.play gain: 0.5
     end
   end
 
@@ -57,6 +58,10 @@ class Button < Sprite
       self.x = x + (finished ? 0 : strength * (1.0 - t))
       strength *= -1
     end
+  end
+
+  def sound()
+    @sound ||= loadSound 'data/button.mp3'
   end
 
 end# Button
