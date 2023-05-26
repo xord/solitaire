@@ -158,6 +158,10 @@ class Klondike < Scene
     @elapsedTime
   end
 
+  def elapsedTimeText()
+    Time.at(elapsedTime).strftime('%M:%S')
+  end
+
   def highScores()
     @highScores = HighScores.load rescue HighScores.new
   end
@@ -247,7 +251,7 @@ class Klondike < Scene
 
           mx, my, x, w = 8, 4, 0, sp.w / 3
           {
-            Time:  Time.at(elapsedTime).strftime('%M:%S'),
+            Time:  elapsedTimeText,
             Score: score.value,
             Move:  @moveCount || 0
           }.each do |label, value|
@@ -301,7 +305,20 @@ class Klondike < Scene
         resume
       end
       d.addButton 'NEW GAME', width: 5 do
-        transition Klondike.new, [Fade, Curtain, Pixelate].sample
+        startNewGame
+      end
+    }
+  end
+
+  def showCompletedDialog()
+    pause
+    add Dialog.new.tap {|d|
+      d.addLabel 'Congratulations!', fontSize: 44
+      d.addLabel "Time: #{elapsedTimeText}", fontSize: 28
+      d.addLabel "Score: #{score.value}", fontSize: 28
+      d.addSpace 50
+      d.addButton 'NEW GAME', width: 5 do
+        startNewGame
       end
     }
   end
@@ -339,15 +356,15 @@ class Klondike < Scene
   end
 
   def ready()
-    buttons = showReadyDialog.buttons
-    buttons.each &:hide
+    elements = showReadyDialog.elements
+    elements.each &:hide
 
     history.disable
     deck.add *cards.shuffle
     startTimer 0.5 do
       placeToColumns do
         history.enable
-        buttons.each &:show
+        elements.each &:show
       end
     end
   end
@@ -519,7 +536,7 @@ class Klondike < Scene
 
   def completed()
     history.disable
-    stopTimer :save
+    showCompletedDialog
 
     gravity 0, 1000
     ground = createSprite(0, height + cards.first.height + 5, width, 10).tap do |sp|
@@ -625,6 +642,10 @@ class Klondike < Scene
       in [:moveCount, value]      then @moveCount  = value
       end
     end
+  end
+
+  def startNewGame()
+    transition self.class.new, [Fade, Curtain, Pixelate].sample
   end
 
 end# Klondike

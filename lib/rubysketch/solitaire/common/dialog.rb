@@ -12,14 +12,36 @@ class Dialog < Scene
     end
   end
 
+  def addElement(sprite)
+    elements.push sprite
+    addSprite sprite if active?
+    updateLayout
+  end
+
+  def addLabel(label, rgb: [255], fontSize: 24, align: CENTER)
+    bounds = textFont.textBounds label, 0, 0, fontSize
+    addElement Sprite.new(0, 0, bounds.w, bounds.h).tap {|sp|
+      sp.z = overlay.z
+      sp.draw do
+        textAlign align, CENTER
+        textSize fontSize
+        fill *rgb
+        text label, 0, 0, sp.w, sp.h
+      end
+    }
+  end
+
   def addButton(label, *args, **kwargs, &block)
-    button = Button.new(label, *args, **kwargs).tap do |b|
+    addElement Button.new(label, *args, **kwargs).tap {|b|
       b.z = overlay.z
       b.clicked &block
-    end
-    buttons.push button
-    addSprite button if active?
-    updateLayout
+    }
+  end
+
+  def addSpace(height)
+    addElement Sprite.new(0, 0, 1, height).tap {|sp|
+      sp.draw {}
+    }
   end
 
   def close()
@@ -27,15 +49,15 @@ class Dialog < Scene
   end
 
   def sprites()
-    super + [overlay, *buttons]
+    super + [overlay, *elements]
   end
 
-  def buttons()
-    @buttons ||= []
+  def elements()
+    @elements ||= []
   end
 
   def draw()
-    sprite overlay, *buttons
+    sprite overlay, *elements
     super
   end
 
@@ -69,12 +91,12 @@ class Dialog < Scene
 
   def updateLayout()
     w, h      = width, height
-    allHeight = buttons.map(&:height).reduce {|a, b| a + MARGIN + b} || 0
+    allHeight = elements.map(&:height).reduce {|a, b| a + MARGIN + b} || 0
     y         = (h - allHeight) / 2
-    buttons.each do |b|
-      b.x = (w - b.w) / 2
-      b.y = y
-      y  += b.h + MARGIN
+    elements.each do |e|
+      e.x = (w - e.w) / 2
+      e.y = y
+      y  += e.h + MARGIN
     end
   end
 
