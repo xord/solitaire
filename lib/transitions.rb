@@ -128,15 +128,20 @@ class Pixelate < TransitionEffect
   def pixelate()
     @checker ||= createShader nil, <<~END
       uniform sampler2D texMap;
+      uniform vec3 texMax;
       uniform vec2 resolution;
       uniform float pixelateSize;
       varying vec4 vertTexCoord;
       varying vec4 vertColor;
       void main() {
-        vec2 r   = resolution;
-        float ps = pixelateSize;
-        vec4 col     = texture2D(texMap, floor(vertTexCoord.xy * r / ps) * ps / r);
-        gl_FragColor = vec4(col.rgb, 1.0) * vertColor;
+        vec2 r     = resolution;
+        float ps   = pixelateSize;
+        vec2 coord = (floor(vertTexCoord.xy * r / ps) + 0.5) * ps / r;
+        if (coord.x >= texMax.x) coord.x = texMax.x - 1. / r.x;
+        if (coord.y >= texMax.y) coord.y = texMax.y - 1. / r.y;
+
+        vec4 col     = texture2D(texMap, coord);
+        gl_FragColor = vec4(col.rgb, 1.) * vertColor;
       }
     END
   end
