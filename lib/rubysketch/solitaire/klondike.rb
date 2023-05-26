@@ -194,17 +194,17 @@ class Klondike < Scene
 
   def dealSound()
     @dealSounds ||= %w[deal1 deal2 deal3]
-      .map {|s| "data/#{s}.mp3"}
+      .map {|s| dataPath "#{s}.mp3"}
       .map {|path| loadSound path}
     @dealSounds.sample
   end
 
   def flipSound()
-    @flipSound ||= loadSound 'data/flip.mp3'
+    @flipSound ||= loadSound dataPath 'flip.mp3'
   end
 
   def noopSound()
-    noopSound ||= loadSound 'data/noop.mp3'
+    noopSound ||= loadSound dataPath 'noop.mp3'
   end
 
   def interfaces()

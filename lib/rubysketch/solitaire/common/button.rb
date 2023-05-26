@@ -61,7 +61,7 @@ class Button < Sprite
   end
 
   def sound()
-    @sound ||= loadSound 'data/button.mp3'
+    @sound ||= loadSound dataPath 'button.mp3'
   end
 
 end# Button

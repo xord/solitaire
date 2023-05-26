@@ -208,7 +208,7 @@ class Card
   end
 
   def self.cardImage()
-    @cardImage ||= loadImage 'data/card.png'
+    @cardImage ||= loadImage dataPath 'card.png'
   end
 
   def self.cardSize()

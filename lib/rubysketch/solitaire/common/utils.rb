@@ -6,6 +6,10 @@ def unique()
   Object.new.object_id
 end
 
+def dataPath(path)
+  File.expand_path "../../../../data/#{path}", __dir__
+end
+
 
 module Processing
   class Vector
