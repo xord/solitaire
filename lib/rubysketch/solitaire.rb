@@ -1,5 +1,6 @@
 require 'forwardable'
 require 'json'
+require 'rubysketch'
 
 require 'rubysketch/solitaire/common/utils'
 require 'rubysketch/solitaire/common/timer'
