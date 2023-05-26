@@ -39,6 +39,7 @@ class Klondike < Scene
       moveCard card, place, 0.3
     elsif card.opened?
       shake card, vector: createVector(5, 0)
+      noopSound.play gain: 0.5
     end
   end
 
@@ -191,6 +192,10 @@ class Klondike < Scene
 
   def flipSound()
     @flipSound ||= loadSound 'data/flip.mp3'
+  end
+
+  def noopSound()
+    noopSound ||= loadSound 'data/noop.mp3'
   end
 
   def interfaces()
