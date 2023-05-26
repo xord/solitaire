@@ -333,7 +333,7 @@ class Klondike < Scene
 
     history.disable
     deck.add *cards.shuffle
-    startTimer 0.3 do
+    startTimer 0.5 do
       placeToColumns do
         history.enable
         buttons.each &:show
@@ -362,7 +362,7 @@ class Klondike < Scene
   def placeToColumns(&block)
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
-        startTimer index / 50.0 do
+        startTimer index / 25.0 do
           flipSound.play gain: 0.1
           moveCard deck.last, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
