@@ -44,11 +44,11 @@ class Klondike < Scene
   end
 
   def deckClicked()
-    deck.empty? ? refillDeck : openNexts
+    deck.empty? ? refillDeck : drawNexts
   end
 
   def nextsClicked()
-    openNexts if nexts.empty?
+    drawNexts if nexts.empty?
   end
 
   def cardDropped(x, y, card, prevPlace)
@@ -71,7 +71,7 @@ class Klondike < Scene
     File.write path, {
       version:     1,
       game:        self.class.name,
-      openCount:   nexts.openCount,
+      drawCount:   nexts.drawCount,
       history:     history.to_h {|o| o.id if o.respond_to? :id},
       score:       score.to_h,
       elapsedTime: elapsedTime,
@@ -94,7 +94,7 @@ class Klondike < Scene
     findAll  = -> id {  all.find {|obj|  obj .id == id} or raise "No object '#{id}'"}
     findCard = -> id {cards.find {|card| card.id == id} or raise "No card '#{id}'"}
 
-    nexts.openCount = hash['openCount']
+    nexts.drawCount = hash['drawCount']
 
     self.history = History.load hash['history'] do |id|
       (id.respond_to?('=~') && id =~ /^id:/) ? findAll[id] : nil
@@ -352,8 +352,8 @@ class Klondike < Scene
     end
   end
 
-  def start(openCount = 1)
-    nexts.openCount = openCount
+  def start(drawCount = 1)
+    nexts.drawCount = drawCount
 
     history.disable
     lasts = columns.map(&:last).compact
@@ -361,7 +361,7 @@ class Klondike < Scene
       startTimer 0.02 * n do
         openCard card, gain: 0.2
         if lasts.all? {|card| card.opened?}
-          openNexts
+          drawNexts
           history.enable
           resume
         end
@@ -454,10 +454,10 @@ class Klondike < Scene
     deck.empty? && nexts.empty? && columns.all?(&:empty?)
   end
 
-  def openNexts()
+  def drawNexts()
     return if deck.empty?
     history.group do
-      cards = nexts.openCount.times.map {deck.pop}.compact
+      cards = nexts.drawCount.times.map {deck.pop}.compact
       nexts.add *cards, updatePos: false
       cards.each do |card|
         openCard card
@@ -475,13 +475,13 @@ class Klondike < Scene
       end
       incrementRefillCount
     end
-    #startTimer(0.4) {openNexts}
+    #startTimer(0.4) {drawNexts}
   end
 
   def incrementRefillCount()
     @refillCount ||= 0
     @refillCount  += 1
-    case nexts.openCount
+    case nexts.drawCount
     when 1 then addScore :refillDeckOnDraw1
     when 3 then addScore :refillDeckOnDraw3 if @refillCount >= 3
     end

@@ -83,10 +83,10 @@ class NextsPlace < CardPlace
 
   def initialize(*args, **kwargs, &block)
     super
-    @openCount = 1
+    @drawCount = 1
   end
 
-  attr_reader :openCount
+  attr_reader :drawCount
 
   def add(*cards, **kwargs)
     super
@@ -106,8 +106,10 @@ class NextsPlace < CardPlace
     end
   end
 
-  def openCount=(count)
-    @openCount = count
+  def drawCount=(count)
+    raise 'invalid drawCount' unless count
+
+    @drawCount = count
 
     w       = Card.spriteSize[0] + overlap * (count - 1)
     self.x -= w - self.w
@@ -118,7 +120,7 @@ class NextsPlace < CardPlace
     index ||= indexFor card
     super.tap do |pos|
       rindex = cards.size - index
-      pos.x += overlap * [openCount - rindex, 0].max
+      pos.x += overlap * [drawCount - rindex, 0].max
     end
   end
 
