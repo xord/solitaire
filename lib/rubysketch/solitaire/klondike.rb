@@ -535,6 +535,9 @@ class Klondike < Scene
   end
 
   def completed()
+    return if @completed
+    @completed = true
+
     history.disable
     showCompletedDialog
 
