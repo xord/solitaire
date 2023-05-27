@@ -415,7 +415,7 @@ class Klondike < Scene
 
   def moveCard(
     card, toPlace, seconds = 0,
-    from: card.place, add: true, hover: true,
+    from: card.place, add: true, count: true, hover: true,
     **kwargs, &block)
 
     pos = toPlace.posFor card
@@ -429,7 +429,7 @@ class Klondike < Scene
     dealSound.play
 
     @moveCount ||= 0
-    @moveCount  += 1 if history.enabled?
+    @moveCount  += 1 if count && history.enabled?
 
     history.group do
       history.push [:move, card, from, toPlace]
@@ -469,19 +469,18 @@ class Klondike < Scene
     history.group do
       cards = nexts.drawCount.times.map {deck.pop}.compact
       nexts.add *cards, updatePos: false
-      cards.each do |card|
+      cards.each.with_index do |card, index|
         openCard card
-        moveCard card, nexts, 0.3, from: deck, add: false
+        moveCard card, nexts, 0.3, from: deck, add: false, count: index == 0
       end
     end
   end
 
   def refillDeck()
     history.group do
-      until nexts.empty?
-        card = nexts.last
+      nexts.cards.reverse.each.with_index do |card, index|
         closeCard card
-        moveCard card, deck, 0.3
+        moveCard card, deck, 0.3, count: index == 0
       end
       incrementRefillCount
     end
