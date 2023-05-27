@@ -1,5 +1,9 @@
 import SwiftUI
 
+func getDocumentDir() -> URL {
+    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+}
+
 class GameViewController : ReflexViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +21,7 @@ class GameViewController : ReflexViewController {
                 $LOAD_PATH.unshift File.join '\(mainBundleDir)', lib
             end
 
-            Dir.chdir '\(mainBundleDir)'
+            Dir.chdir '\(getDocumentDir().path)'
         """)
 
         RubySketch.setup()
