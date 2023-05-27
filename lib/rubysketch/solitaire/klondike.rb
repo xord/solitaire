@@ -555,10 +555,19 @@ class Klondike < Scene
       startTimer 0.1 * index do
         card.place&.pop
         card.sprite.tap do |sp|
+          sp.fixAngle
           sp.contact? {|o| o == ground}
-          sp.contact {
-            vec = Vector.fromAngle(rand -135..-45) * rand(75..100)
-            emitDust sp.center, vec, size: 10..20
+          bounce = 0
+          sp.contact {|_, action|
+            next unless action == :begin
+            bounce += 1
+            if bounce > 3
+              sp.dynamic = false
+              sp.hide
+            else
+              vec = Vector.fromAngle(rand -135..-45) * rand(75..100)
+              emitDust sp.center, vec, size: 10..20
+            end
           }
           sp.dynamic     = true
           sp.restitution = 0.5
