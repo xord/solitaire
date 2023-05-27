@@ -30,7 +30,7 @@ class Score
     {score: @value}
   end
 
-  def from_h(hash)
+  def load(hash)
     @value = hash['score']
   end
 

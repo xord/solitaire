@@ -3,6 +3,7 @@ require 'json'
 require 'rubysketch'
 
 require 'rubysketch/solitaire/common/utils'
+require 'rubysketch/solitaire/common/settings'
 require 'rubysketch/solitaire/common/timer'
 require 'rubysketch/solitaire/common/history'
 require 'rubysketch/solitaire/common/score'
@@ -26,11 +27,13 @@ require 'rubysketch/solitaire/klondike'
 using RubySketch
 
 
-SCREEN_WIDTH  = 375 # screen width
-SCREEN_HEIGHT = 667
-STATE_PATH    = 'state.json'
-SCORES_PATH   = 'scores.json'
+SCREEN_WIDTH   = 375 # screen width
+SCREEN_HEIGHT  = 667
 
+
+def settings()
+  @settings ||= Settings.new 'solitaire.json'
+end
 
 setup do
   setTitle "Solitaire"

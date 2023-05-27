@@ -67,10 +67,9 @@ class Klondike < Scene
     end
   end
 
-  def save(path = 'state.json')
-    File.write path, {
+  def save()
+    settings['state'] = {
       version:     1,
-      game:        self.class.name,
       drawCount:   nexts.drawCount,
       history:     history.to_h {|o| o.id if o.respond_to? :id},
       score:       score.to_h,
@@ -78,13 +77,7 @@ class Klondike < Scene
       moveCount:   @moveCount,
       places:      places.map {|place| [place.name, place.cards.map(&:id)]}.to_h,
       openeds:     cards.select {|card| card.opened?}.map(&:id)
-    }.to_json
-  rescue
-    nil
-  end
-
-  def self.load(path = 'state.json')
-    self.new JSON.parse File.read path
+    }
   end
 
   def load(hash)
@@ -100,7 +93,7 @@ class Klondike < Scene
       (id.respond_to?('=~') && id =~ /^id:/) ? findAll[id] : nil
     end
 
-    self.score.from_h hash['score']
+    self.score.load hash['score']
     @elapsedTime = hash['elapsedTime']
     @moveCount   = hash['moveCount']
 

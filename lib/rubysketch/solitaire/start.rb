@@ -10,10 +10,8 @@ class Start < Scene
 
   private
 
-  def resume(path = STATE_PATH)
-    state = JSON.parse File.read(path)
-    klass = [Klondike].find {|c| c.name == state['game']}
-    klass&.new state
+  def resume()
+    Klondike.new settings['state']
   rescue
     nil
   end
