@@ -130,6 +130,16 @@ class Klondike < Scene
     end
   end
 
+  def elapsedTime()
+    @elapsedTime ||= 0
+    if @prevTime
+      now_          = now
+      @elapsedTime += now_ - @prevTime
+      @prevTime     = now_
+    end
+    @elapsedTime
+  end
+
   def score()
     @score ||= Score.new **{
       openCard:          5,
@@ -141,22 +151,22 @@ class Klondike < Scene
     }
   end
 
-  def elapsedTime()
-    @elapsedTime ||= 0
-    if @prevTime
-      now_          = now
-      @elapsedTime += now_ - @prevTime
-      @prevTime     = now_
-    end
-    @elapsedTime
+  def bestTime()
+    settings['bestTime'] || 24 * 60 * 60 - 1
   end
 
-  def elapsedTimeText()
-    Time.at(elapsedTime).strftime('%M:%S')
+  def bestScore()
+    settings['bestScore'] || 0
   end
 
-  def highScores()
-    @highScores = HighScores.load rescue HighScores.new
+  def updateBests()
+    newTime  = elapsedTime < bestTime
+    newScore = score.value > bestScore
+
+    settings['bestTime']  = elapsedTime if newTime
+    settings['bestScore'] = score.value if newScore
+
+    return newTime, newScore
   end
 
   def cards()
@@ -244,7 +254,7 @@ class Klondike < Scene
 
           mx, my, x, w = 8, 4, 0, sp.w / 3
           {
-            Time:  elapsedTimeText,
+            Time:  timeToText(elapsedTime),
             Score: score.value,
             Move:  @moveCount || 0
           }.each do |label, value|
@@ -300,15 +310,22 @@ class Klondike < Scene
       d.addButton 'NEW GAME', width: 5 do
         startNewGame
       end
+      d.addSpace 50
+      d.addLabel "Best Time: #{timeToText bestTime}"
+      d.addLabel "Best Score: #{bestScore}"
     }
   end
 
-  def showCompletedDialog()
+  def showCompletedDialog(newBestTime = false, newBestScore = false)
     pause
     add Dialog.new.tap {|d|
       d.addLabel 'Congratulations!', fontSize: 44
-      d.addLabel "Time: #{elapsedTimeText}", fontSize: 28
-      d.addLabel "Score: #{score.value}", fontSize: 28
+      d.addLabel(
+        "Time: #{timeToText elapsedTime} #{newBestTime ? '(NEW!)' : ''}",
+        fontSize: 28)
+      d.addLabel(
+        "Score: #{score.value} #{newBestScore ? '(NEW!)' : ''}",
+        fontSize: 28)
       d.addSpace 50
       d.addButton 'NEW GAME', width: 5 do
         startNewGame
@@ -531,7 +548,7 @@ class Klondike < Scene
     @completed = true
 
     history.disable
-    showCompletedDialog
+    showCompletedDialog *updateBests
 
     gravity 0, 1000
     ground = createSprite(0, height + cards.first.height + 5, width, 10).tap do |sp|
@@ -604,6 +621,10 @@ class Klondike < Scene
         card.y + rand(card.h)
       ]
     end
+  end
+
+  def timeToText(time)
+    Time.at(time).strftime('%M:%S')
   end
 
   def pause()

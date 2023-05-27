@@ -35,30 +35,3 @@ class Score
   end
 
 end# Score
-
-
-class HighScores
-
-  def record(type, score)
-    scores[type.intern] = score if score > get(type)
-  end
-
-  def get(type)
-    scores[type.intern]&.to_i || 0
-  end
-
-  def save(path = SCORES_PATH)
-    File.write path, @scores.to_json
-  end
-
-  def self.load(path = SCORES_PATH)
-    @scores = JSON.parse File.read path
-  end
-
-  private
-
-  def scores()
-    @scores ||= {}
-  end
-
-end# HighScores
