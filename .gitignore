@@ -3,7 +3,8 @@
 */Info.plist
 *~
 
-state*.json
+rubysketch-solitaire-*.gem
+solitaire.json
 
 vendor/bundle/
 Pods/
