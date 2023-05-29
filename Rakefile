@@ -7,6 +7,7 @@
 
 require 'xot/rake'
 
+require 'xot/extension'
 require 'rubysketch/solitaire/extension'
 
 
