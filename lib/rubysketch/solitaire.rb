@@ -27,17 +27,22 @@ require 'rubysketch/solitaire/klondike'
 using RubySketch
 
 
-SCREEN_WIDTH   = 375 # screen width
-SCREEN_HEIGHT  = 667
-
-
 def settings()
-  @settings ||= Settings.new 'solitaire.json'
+  $settings ||= Settings.new 'solitaire.json'
+end
+
+def centerPos()
+  [
+    (displayWidth  - windowWidth)  / 2,
+    (displayHeight - windowHeight) / 2
+  ]
 end
 
 setup do
   setTitle "Solitaire"
-  size SCREEN_WIDTH, SCREEN_HEIGHT
+  size 375, 667
+  windowMove *windowPos
+  windowResizable false
   angleMode DEGREES
   noStroke
 
@@ -48,6 +53,14 @@ draw do
   fireTimers
   drawShake
   push { $root.draw }
+end
+
+def windowPos()
+  settings['windowPos'] || centerPos
+end
+
+windowMoved do
+  settings['windowPos'] = [windowX, windowY]
 end
 
 mousePressed do
