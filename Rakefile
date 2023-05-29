@@ -1,8 +1,20 @@
-NAME     = 'solitaire'
-NAME_IOS = "Ruby#{NAME.capitalize}"
+# -*- mode: ruby -*-
 
-GEMSPEC = "#{NAME}.gemspec"
 
+%w[../xot  .]
+  .map  {|s| File.expand_path "#{s}/lib", __dir__}
+  .each {|s| $:.unshift s if !$:.include?(s) && File.directory?(s)}
+
+require 'xot/rake'
+
+require 'rubysketch/solitaire/extension'
+
+
+EXTENSIONS = [RubySketch::Solitaire]
+
+GEMNAME  = "rubysketch-#{target.name.downcase}"
+
+NAME_IOS = "Ruby#{target.name}"
 XCWORKSPACE = "#{NAME_IOS}.xcworkspace"
 XCODEPROJ   = "#{NAME_IOS}.xcodeproj"
 
@@ -10,12 +22,9 @@ BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
 
 
-def version()
-  File.read(GEMSPEC)[%r|\.version\s*=\s*\'([\d\.]+)\'|, 1]
-end
+default_tasks
+build_ruby_gem
 
-
-task :default => :build
 
 task :build => 'xcode:build'
 
@@ -31,22 +40,6 @@ task :run do
   libs = %w[xot rucy beeps rays reflex processing rubysketch]
     .map {|lib| "-I#{ENV['ALL']}/#{lib}/lib"}
   sh %( ruby #{libs.join ' '} -Ilib -rrubysketch/solitaire -e '' )
-end
-
-task :gem => 'gem:build'
-
-
-namespace :gem do
-  gemname = File.read(GEMSPEC)[%r|\.name\s*=\s*\'([^\']+)\'|, 1]
-  gemfile = "#{gemname}-#{version}.gem"
-
-  task :build do
-    sh %( gem build #{GEMSPEC} )
-  end
-
-  task :clean do
-    sh %( rm -f #{gemfile} )
-  end
 end
 
 
