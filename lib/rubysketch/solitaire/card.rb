@@ -182,7 +182,7 @@ class Card
       g.translate  w / 2,  h / 2
       g.rotate 180
       g.translate -w / 2, -h / 2
-      g.copy image, 0,  192, w,  h,  0,   0,   w,  h
+      g.copy image, 896,  0, w,  h,  0,   0,   w,  h
       g.tint *c.markColor(mark)
       g.copy image, nx, ny,  nw, nh, m,   m,   nw, nh
       g.copy image, mx, my,  mw, mh, mxx, myy, mw, mh
@@ -191,19 +191,21 @@ class Card
   end
 
   def closedImage()
-    self.class.closedImage
+    self.class.closedImages[3]
   end
 
   def spriteSize()
     self.class.spriteSize
   end
 
-  def self.closedImage()
-    @closedImage ||= createGraphics(*cardSize).tap do |g|
-      w, h = g.width, g.height
-      g.beginDraw
-      g.copy cardImage, 256, 192, w, h, 0, 0, w, h
-      g.endDraw
+  def self.closedImages()
+    @closedImages ||= (0..3).map {|n| n * 256}.map do |x|
+      createGraphics(*cardSize).tap do |g|
+        w, h = g.width, g.height
+        g.beginDraw
+        g.copy cardImage, x, 256, w, h, 0, 0, w, h
+        g.endDraw
+      end
     end
   end
 
