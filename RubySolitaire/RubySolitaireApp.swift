@@ -1,4 +1,5 @@
 import SwiftUI
+import GoogleMobileAds
 
 
 class AppContext: NSObject, ObservableObject {
@@ -49,7 +50,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
-        appContext.ready = true
+        GADMobileAds.sharedInstance().start(completionHandler: { [weak self] _ in
+            self!.appContext.ready = true
+        })
         return true
     }
 }
@@ -69,11 +72,24 @@ struct RubySolitaireApp: App {
 
 
 struct GameScreen: View {
+
+    @EnvironmentObject var sceneDelegate: SceneDelegate
+
     var body: some View {
         ZStack {
             Color.black
                 .ignoresSafeArea(.all)
-            GameView()
+            GeometryReader { gr in
+                VStack(spacing: 2) {
+                    GameView()
+                    AdBannerView(
+                        width: gr.size.width,
+                        adUnitID: "ca-app-pub-3940256099942544/2934735716",
+                        rootViewController: sceneDelegate.window!.rootViewController!
+                    )
+                    .frame(width: gr.size.width, height: 50)
+                }
+            }
         }
         .statusBarHidden()
     }
