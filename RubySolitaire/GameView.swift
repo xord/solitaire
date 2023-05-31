@@ -1,8 +1,5 @@
 import SwiftUI
 
-func getDocumentDir() -> URL {
-    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-}
 
 class GameViewController : ReflexViewController {
     override func viewDidLoad() {
@@ -29,19 +26,36 @@ class GameViewController : ReflexViewController {
 
         RubySketch.start("\(mainBundleDir)/main.rb");
     }
-}
 
-struct GameView: View {
-    var body: some View {
-        GameViewControllerWrapper()
+    private func getDocumentDir() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        RubySketch.resetActiveReflexViewController()
+        super.viewWillDisappear(animated)
     }
 }
 
-struct GameViewControllerWrapper : UIViewControllerRepresentable {
+
+struct GameView : UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> some UIViewController {
         return GameViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+    }
+}
+
+
+struct GameScreen: View {
+
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea(.all)
+            GameView()
+        }
+        .statusBarHidden()
     }
 }
