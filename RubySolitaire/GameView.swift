@@ -2,10 +2,11 @@ import SwiftUI
 
 
 class GameViewController : ReflexViewController {
+
+    private var started = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let mainBundleDir = Bundle.main.bundlePath
 
         CRuby.evaluate("""
             Encoding.default_internal = Encoding::UTF_8
@@ -15,7 +16,7 @@ class GameViewController : ReflexViewController {
             %w[
                 lib
             ].each do |lib|
-                $LOAD_PATH.unshift File.join '\(mainBundleDir)', lib
+                $LOAD_PATH.unshift File.join '\(Bundle.main.bundlePath)', lib
             end
 
             Dir.chdir '\(getDocumentDir().path)'
@@ -23,8 +24,6 @@ class GameViewController : ReflexViewController {
 
         RubySketch.setup()
         RubySketch.setActiveReflexViewController(self)
-
-        RubySketch.start("\(mainBundleDir)/main.rb");
     }
 
     private func getDocumentDir() -> URL {
@@ -34,6 +33,21 @@ class GameViewController : ReflexViewController {
     override func viewWillDisappear(_ animated: Bool) {
         RubySketch.resetActiveReflexViewController()
         super.viewWillDisappear(animated)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if started {return}
+        started = true
+
+        let frame = self.reflexView.frame
+        CRuby.evaluate("""
+            ENV['WIDTH']  = \(frame.width).to_s
+            ENV['HEIGHT'] = \(frame.height).to_s
+        """)
+
+        RubySketch.start("\(Bundle.main.bundlePath)/main.rb");
     }
 }
 
