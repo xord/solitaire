@@ -60,16 +60,3 @@ struct GameView : UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
     }
 }
-
-
-struct GameScreen: View {
-
-    var body: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea(.all)
-            GameView()
-        }
-        .statusBarHidden()
-    }
-}

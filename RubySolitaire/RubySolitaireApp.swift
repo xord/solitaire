@@ -66,3 +66,15 @@ struct RubySolitaireApp: App {
         }
     }
 }
+
+
+struct GameScreen: View {
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea(.all)
+            GameView()
+        }
+        .statusBarHidden()
+    }
+}
