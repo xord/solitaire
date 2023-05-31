@@ -40,7 +40,7 @@ end
 
 setup do
   setTitle "Solitaire"
-  size 375, 667
+  size 375, 667 unless $nosize
   windowMove *windowPos
   windowResizable false
   angleMode DEGREES
