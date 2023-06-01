@@ -6,7 +6,7 @@ protocol GameViewControllerDelegate {
 }
 
 
-class GameViewController : ReflexViewController {
+class GameViewController: ReflexViewController {
 
     var delegate: GameViewControllerDelegate?
 
@@ -67,7 +67,7 @@ class GameViewController : ReflexViewController {
 }
 
 
-struct GameView : UIViewControllerRepresentable {
+struct GameView: UIViewControllerRepresentable {
 
     @Binding var isInterstitialAdVisible: Bool
 

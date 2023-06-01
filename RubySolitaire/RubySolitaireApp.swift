@@ -48,7 +48,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
 
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         GADMobileAds.sharedInstance().start(completionHandler: { [weak self] _ in
             self!.appContext.ready = true
