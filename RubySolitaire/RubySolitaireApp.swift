@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseCore
 import GoogleMobileAds
 
 
@@ -50,9 +51,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        #if !DEBUG
+            FirebaseApp.configure()
+        #endif
+
         GADMobileAds.sharedInstance().start(completionHandler: { [weak self] _ in
             self!.appContext.ready = true
         })
+
         return true
     }
 }

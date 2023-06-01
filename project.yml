@@ -26,6 +26,9 @@ settings:
       DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
 
 packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    majorVersion: 9.0.0
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
     majorVersion: 9.0.0
@@ -39,6 +42,12 @@ targets:
         embed: false
       - framework: JavaScriptCore.framework
         embed: false
+      - package: Firebase
+        product: FirebaseAnalyticsSwift
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseRemoteConfigSwift
       - package: GoogleMobileAds
         product: GoogleMobileAds
     sources:
