@@ -31,13 +31,6 @@ def settings()
   $settings ||= Settings.new 'solitaire.json'
 end
 
-def centerPos()
-  [
-    (displayWidth  - windowWidth)  / 2,
-    (displayHeight - windowHeight) / 2
-  ]
-end
-
 setup do
   setTitle "Solitaire"
   size 375, 667 unless $nosize
@@ -56,7 +49,10 @@ draw do
 end
 
 def windowPos()
-  settings['windowPos'] || centerPos
+  settings['windowPos'] || [
+    (displayWidth  - windowWidth)  / 2,
+    (displayHeight - windowHeight) / 2
+  ]
 end
 
 windowMoved do
