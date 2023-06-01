@@ -670,7 +670,10 @@ class Klondike < Scene
   end
 
   def startNewGame()
-    transition self.class.new, [Fade, Curtain, Pixelate].sample
+    $newGameCount ||= 0
+    $newGameCount  += 1
+    showAd          = $newGameCount % 3 == 0
+    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd
   end
 
 end# Klondike

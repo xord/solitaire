@@ -1,7 +1,14 @@
 import SwiftUI
 
 
+protocol GameViewControllerDelegate {
+    func showInterstitialAd()
+}
+
+
 class GameViewController : ReflexViewController {
+
+    var delegate: GameViewControllerDelegate?
 
     private var started = false
 
@@ -49,14 +56,54 @@ class GameViewController : ReflexViewController {
 
         RubySketch.start("\(Bundle.main.bundlePath)/main.rb");
     }
+
+    override func update() {
+        if CRuby.evaluate("$showInterstitialAd")?.toBOOL() == true, let delegate = delegate {
+            delegate.showInterstitialAd()
+        } else {
+            super.update()
+        }
+    }
 }
 
 
 struct GameView : UIViewControllerRepresentable {
+
+    @Binding var isInterstitialAdVisible: Bool
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isInterstitialAdVisible: $isInterstitialAdVisible)
+    }
+
     func makeUIViewController(context: Context) -> some UIViewController {
-        return GameViewController()
+        let vc = GameViewController()
+        vc.delegate = context.coordinator
+        return vc
     }
 
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        let c = context.coordinator
+        if c.prevVisible && !isInterstitialAdVisible {
+            CRuby.evaluate("$showInterstitialAd = false")
+        }
+        c.prevVisible = isInterstitialAdVisible
+    }
+
+    class Coordinator: NSObject, GameViewControllerDelegate {
+
+        @Binding var isIntersittialAdVisible: Bool
+
+        var prevVisible = false
+
+        init(isInterstitialAdVisible: Binding<Bool>) {
+            _isIntersittialAdVisible = isInterstitialAdVisible
+        }
+
+        func showInterstitialAd() {
+            if !prevVisible {
+                isIntersittialAdVisible = true
+                prevVisible = true
+            }
+        }
     }
 }

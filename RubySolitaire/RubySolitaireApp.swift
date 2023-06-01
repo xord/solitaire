@@ -75,13 +75,18 @@ struct GameScreen: View {
 
     @EnvironmentObject var sceneDelegate: SceneDelegate
 
+    @StateObject var interstitialAd = InterstitialAd(
+        adUnitID: "ca-app-pub-3940256099942544/4411468910")
+
+    @State var isInterstitialAdVisible = false
+
     var body: some View {
         ZStack {
             Color.black
                 .ignoresSafeArea(.all)
             GeometryReader { gr in
                 VStack(spacing: 2) {
-                    GameView()
+                    GameView(isInterstitialAdVisible: $isInterstitialAdVisible)
                     AdBannerView(
                         width: gr.size.width,
                         adUnitID: "ca-app-pub-3940256099942544/2934735716",
@@ -92,5 +97,16 @@ struct GameScreen: View {
             }
         }
         .statusBarHidden()
+        .onChange(of: isInterstitialAdVisible) { visible in
+            if visible, interstitialAd.ready {
+                interstitialAd.show(
+                    rootViewController: sceneDelegate.window!.rootViewController!
+                ) { error in
+                    isInterstitialAdVisible = false
+                }
+            } else {
+                isInterstitialAdVisible = false
+            }
+        }
     }
 }
