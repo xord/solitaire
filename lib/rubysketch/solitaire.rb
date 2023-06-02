@@ -31,6 +31,10 @@ def settings()
   $settings ||= Settings.new 'solitaire.json'
 end
 
+def debug?()
+  $debug || ENV['DEBUG'] || false
+end
+
 setup do
   setTitle "Solitaire"
   size 375, 667 unless $nosize

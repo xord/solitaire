@@ -282,7 +282,7 @@ class Klondike < Scene
 
   def debugButton()
     @debugButton ||= Button.new(:DEBUG, width: 3).tap do |b|
-      b.hide
+      b.hide unless debug?
       b.clicked {}
     end
   end
