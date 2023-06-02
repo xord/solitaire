@@ -151,6 +151,12 @@ class Klondike < Scene
     }
   end
 
+  def addScore(name)
+    old = score.value
+    score.add name if history.enabled?
+    history.push [:score, score.value, old] if score.value != old
+  end
+
   def bestTime()
     settings[bestRecordKey :time] || 24 * 60 * 60 - 1
   end
@@ -712,12 +718,6 @@ class Klondike < Scene
     startInterval :save, 1, now: true do
       save
     end
-  end
-
-  def addScore(name)
-    old = score.value
-    score.add name if history.enabled?
-    history.push [:score, score.value, old] if score.value != old
   end
 
   def undo(action)
