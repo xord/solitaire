@@ -35,6 +35,10 @@ def debug?()
   $debug || ENV['DEBUG'] || false
 end
 
+def backgroundScene()
+  $backgroundScene ||= Background.new
+end
+
 setup do
   setTitle "Solitaire"
   size 375, 667 unless $nosize
@@ -43,7 +47,7 @@ setup do
   angleMode DEGREES
   noStroke
 
-  $root = RootScene.new 'Root', Background.new, Start.new
+  $root = RootScene.new 'Root', backgroundScene, Start.new
 end
 
 draw do

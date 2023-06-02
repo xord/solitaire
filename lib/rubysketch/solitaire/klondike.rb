@@ -372,13 +372,14 @@ class Klondike < Scene
 
   def showMenuDialog()
     add Dialog.new.tap {|d|
-      d.addButton 'RESUME', width: 6 do
+      d.addButton 'Resume', width: 6 do
         d.close
       end
-      d.addButton 'CHANGE BACKGROUND', width: 6 do
+      d.addButton 'Change Background', width: 6 do
+        backgroundScene.set backgroundScene.nextType
         d.close
       end
-      d.addButton 'NEW GAME', width: 6 do
+      d.addButton 'New Game', width: 6 do
         startNewGame
       end
       d.addSpace 50
