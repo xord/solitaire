@@ -65,6 +65,16 @@ class Dialog < Scene
     updateLayout
   end
 
+  def activated()
+    super
+    parent.pause
+  end
+
+  def deactivated()
+    parent.resume
+    super
+  end
+
   private
 
   MARGIN = 10

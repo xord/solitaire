@@ -14,6 +14,12 @@ class Scene
 
   attr_reader :name, :parent
 
+  def pause()
+  end
+
+  def resume()
+  end
+
   def add(scene)
     @scenes.push scene
     scene.parent = self

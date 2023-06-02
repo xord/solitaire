@@ -13,6 +13,21 @@ class Klondike < Scene
     super + [*cards, *places].map(&:sprite) + interfaces
   end
 
+  def pause()
+    super
+    @prevTime = nil
+    stopTimer :save
+  end
+
+  def resume()
+    super
+    return if !started? || completed?
+    @prevTime = now
+    startInterval :save, 1, now: true do
+      save
+    end
+  end
+
   def draw()
     sprite *places.map(&:sprite)
     sprite *cards.sort {|a, b| a.z <=> b.z}.map(&:sprite)
@@ -110,7 +125,7 @@ class Klondike < Scene
     raise "Failed to restore state" unless
       places.reduce([]) {|a, place| a + place.cards}.size == 52
 
-    resume
+    start!
   end
 
   def inspect()
@@ -356,13 +371,14 @@ class Klondike < Scene
   end
 
   def showMenuDialog()
-    pause
     add Dialog.new.tap {|d|
-      d.addButton 'RESUME', width: 5 do
+      d.addButton 'RESUME', width: 6 do
         d.close
-        resume
       end
-      d.addButton 'NEW GAME', width: 5 do
+      d.addButton 'CHANGE BACKGROUND', width: 6 do
+        d.close
+      end
+      d.addButton 'NEW GAME', width: 6 do
         startNewGame
       end
       d.addSpace 50
@@ -376,8 +392,6 @@ class Klondike < Scene
   def showCompletedDialog(
          bestTime = false,      bestScore = false,
     dailyBestTime = false, dailyBestScore = false)
-
-    pause
 
     suffix = -> allTime, daily do
       allTime ? '(New Record!)' : daily ? "(Today's Best!)" : ''
@@ -475,7 +489,7 @@ class Klondike < Scene
         if lasts.all? {|card| card.opened?}
           drawNexts
           history.enable
-          resume
+          start!
         end
       end
     end
@@ -554,6 +568,15 @@ class Klondike < Scene
     openCard from.last if columns.include?(from) && from.last&.closed?
     showFinishButton   if finishButton.hidden? && canFinish?
     completed          if completed?
+  end
+
+  def start!()
+    @started = true
+    resume
+  end
+
+  def started?()
+    @started ||= false
   end
 
   def canFinish?()
@@ -705,18 +728,6 @@ class Klondike < Scene
         card.x + (rand < 0.5 ? 0 : card.w),
         card.y + rand(card.h)
       ]
-    end
-  end
-
-  def pause()
-    @prevTime = nil
-    stopTimer :save
-  end
-
-  def resume()
-    @prevTime = now
-    startInterval :save, 1, now: true do
-      save
     end
   end
 
