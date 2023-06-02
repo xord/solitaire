@@ -5,6 +5,11 @@ class Settings
     @hash = load path
   end
 
+  def clear()
+    hash.clear
+    save @path
+  end
+
   def []=(key, value)
     hash[key] = value
     save @path

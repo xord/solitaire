@@ -193,6 +193,19 @@ class Klondike < Scene
     return newTime, newScore, newDailyTime, newDailyScore
   end
 
+  def clearAllTimeBests()
+    %i[time score]
+      .map {|type| bestRecordKey type}
+      .each {|key| settings[key] = nil}
+  end
+
+  def clearDailyBests()
+    %i[time score]
+      .map {|type| ['', 'Date'].map {|s| bestRecordKey type, true, s}}
+      .flatten
+      .each {|key| settings[key] = nil}
+  end
+
   def bestRecordKey(type, daily = false, suffix = '')
     (daily ? 'dailyBest' : 'best') + type.to_s.capitalize + suffix
   end
@@ -319,7 +332,7 @@ class Klondike < Scene
   def debugButton()
     @debugButton ||= Button.new(:DEBUG, width: 3).tap do |b|
       b.hide unless debug?
-      b.clicked {}
+      b.clicked {showDebugDialog}
     end
   end
 
@@ -375,6 +388,26 @@ class Klondike < Scene
       d.addSpace 50
       d.addButton 'NEW GAME', width: 5 do
         startNewGame
+      end
+    }
+  end
+
+  def showDebugDialog()
+    add Dialog.new.tap {|d|
+      d.addButton 'Clear all settings', width: 6 do
+        settings.clear
+        d.close
+      end
+      d.addButton 'Clear all time bests', width: 6 do
+        clearAllTimeBests
+        d.close
+      end
+      d.addButton "Clear today's bests", width: 6 do
+        clearDailyBests
+        d.close
+      end
+      d.addButton 'Close', width: 6 do
+        d.close
       end
     }
   end
