@@ -152,21 +152,57 @@ class Klondike < Scene
   end
 
   def bestTime()
-    settings['bestTime'] || 24 * 60 * 60 - 1
+    settings[bestRecordKey :time] || 24 * 60 * 60 - 1
   end
 
   def bestScore()
-    settings['bestScore'] || 0
+    settings[bestRecordKey :score] || 0
+  end
+
+  def dailyBestTime()
+    key = bestRecordKey :time, true
+    settings[key] = nil if settings["#{key}Date"] != today
+    settings[key] || 24 * 60 * 60 - 1
+  end
+
+  def dailyBestScore()
+    key = bestRecordKey :score, true
+    settings[key] = nil if settings["#{key}Date"] != today
+    settings[key] || 0
   end
 
   def updateBests()
-    newTime  = elapsedTime < bestTime
-    newScore = score.value > bestScore
+    newTime       = elapsedTime < bestTime
+    newScore      = score.value > bestScore
+    newDailyTime  = elapsedTime < dailyBestTime
+    newDailyScore = score.value > dailyBestScore
 
-    settings['bestTime']  = elapsedTime if newTime
-    settings['bestScore'] = score.value if newScore
+    settings[bestRecordKey :time]  = elapsedTime if newTime
+    settings[bestRecordKey :score] = score.value if newScore
 
-    return newTime, newScore
+    if newDailyTime
+      settings[bestRecordKey(:time, true)]         = elapsedTime
+      settings[bestRecordKey(:time, true, 'Date')] = today
+    end
+
+    if newDailyScore
+      settings[bestRecordKey(:score, true)]         = score.value
+      settings[bestRecordKey(:score, true, 'Date')] = today
+    end
+
+    return newTime, newScore, newDailyTime, newDailyScore
+  end
+
+  def bestRecordKey(type, daily = false, suffix = '')
+    (daily ? 'dailyBest' : 'best') + type.to_s.capitalize + suffix
+  end
+
+  def timeToText(time)
+    Time.at(time).strftime('%M:%S')
+  end
+
+  def today()
+    Time.now.strftime '%Y%m%d'
   end
 
   def cards()
@@ -313,18 +349,28 @@ class Klondike < Scene
       d.addSpace 50
       d.addLabel "Best Time: #{timeToText bestTime}"
       d.addLabel "Best Score: #{bestScore}"
+      d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
+      d.addLabel "Today's Best Score: #{dailyBestScore}"
     }
   end
 
-  def showCompletedDialog(newBestTime = false, newBestScore = false)
+  def showCompletedDialog(
+         bestTime = false,      bestScore = false,
+    dailyBestTime = false, dailyBestScore = false)
+
     pause
+
+    suffix = -> allTime, daily do
+      allTime ? '(New Record!)' : daily ? "(Today's Best!)" : ''
+    end
+
     add Dialog.new.tap {|d|
       d.addLabel 'Congratulations!', fontSize: 44
       d.addLabel(
-        "Time: #{timeToText elapsedTime} #{newBestTime ? '(NEW!)' : ''}",
+        "Time: #{timeToText elapsedTime} #{suffix.call bestTime, dailyBestTime}",
         fontSize: 28)
       d.addLabel(
-        "Score: #{score.value} #{newBestScore ? '(NEW!)' : ''}",
+        "Score: #{score.value} #{suffix.call bestScore, dailyBestScore}",
         fontSize: 28)
       d.addSpace 50
       d.addButton 'NEW GAME', width: 5 do
@@ -621,10 +667,6 @@ class Klondike < Scene
         card.y + rand(card.h)
       ]
     end
-  end
-
-  def timeToText(time)
-    Time.at(time).strftime('%M:%S')
   end
 
   def pause()
