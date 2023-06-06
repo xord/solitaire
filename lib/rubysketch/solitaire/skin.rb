@@ -53,7 +53,7 @@ class Skin
   end
 
   def translucentBackgroundColor()
-    [0, 64]
+    [0, 0, 0, 64]
   end
 
   def margin()

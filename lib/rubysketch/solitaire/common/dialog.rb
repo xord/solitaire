@@ -21,9 +21,12 @@ class Dialog < Scene
 
   def addLabel(label, rgb: [255], fontSize: 24, align: CENTER)
     bounds = textFont.textBounds label, 0, 0, fontSize
-    addElement Sprite.new(0, 0, bounds.w, bounds.h).tap {|sp|
+    addElement Sprite.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
       sp.z = overlay.z
       sp.draw do
+        r, g, b, a = skin.translucentBackgroundColor
+        fill r, g, b, a * 3
+        rect 0, -MARGIN / 2, sp.w, sp.h + MARGIN
         textAlign align, CENTER
         textSize fontSize
         fill *rgb

@@ -380,19 +380,19 @@ class Klondike < Scene
 
   def showPauseDialog()
     add Dialog.new.tap {|d|
+      d.addLabel "Difficulty: #{difficulty.upcase}"
+      d.addLabel "Best Time: #{timeToText bestTime}"
+      d.addLabel "Best Score: #{bestScore}"
+      d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
+      d.addLabel "Today's Best Score: #{dailyBestScore}"
+      d.addSpace 20
       d.addButton 'Resume', width: 6 do
         d.close
       end
       d.addButton 'New Game', width: 6 do
         startNewGame
       end
-      d.addSpace 30
-      d.addLabel "Difficulty: #{difficulty.upcase}"
-      d.addLabel "Best Time: #{timeToText bestTime}"
-      d.addLabel "Best Score: #{bestScore}"
-      d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
-      d.addLabel "Today's Best Score: #{dailyBestScore}"
-      d.addSpace 50
+      d.addSpace 10
       d.addButton icon: skin.settingsIcon do
         showSettingsDialog
       end
