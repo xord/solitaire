@@ -385,10 +385,6 @@ class Klondike < Scene
       d.addButton 'Resume', width: 6 do
         d.close
       end
-      d.addButton 'Change Background', width: 6 do
-        backgroundScene.set backgroundScene.nextType
-        d.close
-      end
       d.addButton 'New Game', width: 6 do
         startNewGame
       end
@@ -398,6 +394,22 @@ class Klondike < Scene
       d.addLabel "Best Score: #{bestScore}"
       d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
       d.addLabel "Today's Best Score: #{dailyBestScore}"
+      d.addSpace 50
+      d.addButton '⚙', fontSize: 36 do
+        showSettingsDialog
+      end
+    }
+  end
+
+  def showSettingsDialog()
+    add Dialog.new(alpha: 180).tap {|d|
+      d.addButton 'Change Background', width: 6 do
+        backgroundScene.set backgroundScene.nextType
+        d.close
+      end
+      d.addButton 'Close', width: 6 do
+        d.close
+      end
     }
   end
 
