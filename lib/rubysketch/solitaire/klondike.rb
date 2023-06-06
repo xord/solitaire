@@ -479,7 +479,7 @@ class Klondike < Scene
     status.right    = pauseButton.left - mx
     status.height   = pauseButton.h
 
-    y = undoButton.y + undoButton.h + my
+    y = undoButton.y + undoButton.h + my * 3
 
     deck.pos  = [w - (deck.w + mx), y]
     nexts.pos = [deck.x - (nexts.w + mx), deck.y]
