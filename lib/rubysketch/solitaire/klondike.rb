@@ -324,7 +324,7 @@ class Klondike < Scene
     @status ||= Sprite.new.tap do |sp|
       sp.draw do
         push do
-          fill 0, 20
+          fill *skin.translucentBackgroundColor
           rect 0, 0, sp.w, sp.h, 10
           fill 255
 

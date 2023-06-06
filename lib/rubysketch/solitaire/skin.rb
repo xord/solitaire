@@ -28,7 +28,7 @@ class Skin
     @cardSpriteSize ||= self.class.cardSpriteSize
   end
 
-  def backgroundColors()
+  def backgroundCheckerColors()
     @backgroundColors ||= self.class.colors[index][0, 2]
   end
 
@@ -42,6 +42,10 @@ class Skin
 
   def buttonColor()
     @buttonColor ||= self.class.colors[index][4]
+  end
+
+  def translucentBackgroundColor()
+    [0, 64]
   end
 
   def margin()

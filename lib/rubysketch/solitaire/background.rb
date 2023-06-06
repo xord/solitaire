@@ -41,7 +41,7 @@ class Background < Scene
       case sh
       when checker
         sh.set :iTime, now - @start
-        colors = skin.backgroundColors
+        colors = skin.backgroundCheckerColors
         sh.set :color1, *colors[0].map {|n| n / 255.0}
         sh.set :color2, *colors[1].map {|n| n / 255.0}
       when cosmic2

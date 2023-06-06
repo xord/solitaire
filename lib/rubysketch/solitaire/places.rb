@@ -60,7 +60,7 @@ class CardPlace
     @sprite ||= Sprite.new(0, 0, *skin.cardSpriteSize).tap do |sp|
       sp.draw do
         noStroke
-        fill 0, 20
+        fill *skin.translucentBackgroundColor
         rect 0, 0, sp.w, sp.h, 4
       end
     end
