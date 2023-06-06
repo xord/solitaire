@@ -1,3 +1,6 @@
+using RubySketch
+
+
 def now()
   Time.now.to_f
 end
@@ -8,6 +11,14 @@ end
 
 def dataPath(path)
   File.expand_path "../../../../data/#{path}", __dir__
+end
+
+def resizeImage(image, w, h)
+  createGraphics(w, h).tap do |g|
+    g.beginDraw do
+      g.copy image, 0, 0, image.width, image.height, 0, 0, w, h
+    end
+  end
 end
 
 

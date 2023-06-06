@@ -38,7 +38,7 @@ end
 
 def skin(index = nil)
   $skin = nil if index != nil && index != $skin.index
-  $skin ||= Skin.new index || 0
+  $skin ||= Skin.new index || settings['skinIndex'] || 0
 end
 
 def backgroundScene()

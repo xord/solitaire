@@ -16,6 +16,7 @@ class Dialog < Scene
     elements.push sprite
     addSprite sprite if active?
     updateLayout
+    sprite
   end
 
   def addLabel(label, rgb: [255], fontSize: 24, align: CENTER)

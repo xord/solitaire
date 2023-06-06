@@ -400,11 +400,23 @@ class Klondike < Scene
   end
 
   def showSettingsDialog()
+    closedImage = -> {
+      i = skin.closedImage
+      resizeImage i, i.width / 2, i.height / 2
+    }
     add Dialog.new(alpha: 180).tap {|d|
+      cardImage = d.addElement Sprite.new image: closedImage.call
+      d.addSpace 20
+      d.addButton 'Change Card Design', width: 6 do
+        skin skin.index + 1
+        settings['skinIndex'] = skin.index
+        cardImage.image = closedImage.call
+      end
       d.addButton 'Change Background', width: 6 do
         backgroundScene.set backgroundScene.nextType
         d.close
       end
+      d.addSpace 0
       d.addButton 'Close', width: 6 do
         d.close
       end
@@ -784,9 +796,7 @@ class Klondike < Scene
     $newGameCount ||= 0
     $newGameCount  += 1
     showAd          = $newGameCount % 3 == 0
-    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd do
-      skin skin.index + 1
-    end
+    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd
   end
 
 end# Klondike
