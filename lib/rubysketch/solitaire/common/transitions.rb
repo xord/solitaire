@@ -11,7 +11,8 @@ class TransitionEffect < Scene
     &block)
 
     super()
-    @nextScene, @easeOut, @easeIn, @showAd = nextScene, easeOut, easeIn, showAd
+    @nextScene, @easeOut, @easeIn, @showAd, @block =
+      nextScene, easeOut, easeIn, showAd, block
     @secOut = secOut || sec / 2.0
     @secIn  = secIn  || sec / 2.0
     @phase  = :out
@@ -29,11 +30,12 @@ class TransitionEffect < Scene
       when :out
         $showInterstitialAd = true if @showAd
         delay do
-            pa = parent
-            pa.remove self
-            @phase = :in
-            @nextScene.add self
-            pa.transition @nextScene
+          pa = parent
+          pa.remove self
+          @phase = :in
+          @nextScene.add self
+          pa.transition @nextScene
+          @block.call if @block
         end
       when :in
         parent.remove self

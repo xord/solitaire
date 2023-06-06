@@ -191,7 +191,7 @@ class Card
   end
 
   def closedImage()
-    self.class.closedImages[3]
+    self.class.closedImages[self.class.closedImageIndex]
   end
 
   def spriteSize()
@@ -207,6 +207,40 @@ class Card
         g.endDraw
       end
     end
+  end
+
+  def self.closedImageIndex()
+    @closedImageIndex ||= (0...closedImages.size).to_a.sample.tap {|o| p o}
+  end
+
+  def self.useNextClosedImage()
+    @backgroundColors = @redColor = @blackColor = @buttonColor = nil
+    @closedImageIndex = (closedImageIndex + 1) % closedImages.size
+  end
+
+  def self.backgroundColors()
+    @backgroundColors ||= colors[closedImageIndex][0, 2]
+  end
+
+  def self.redColor()
+    @redColor ||= colors[closedImageIndex][2]
+  end
+
+  def self.blackColor()
+    @blackColor ||= colors[closedImageIndex][3]
+  end
+
+  def self.buttonColor()
+    @buttonColor ||= colors[closedImageIndex][4]
+  end
+
+  def self.colors()
+    @colors ||= [
+      [[120, 106, 104], [100, 96,  95],  [255, 97,  82], [62, 46, 45], [255, 97,  82]],
+      [[98,  101, 99],  [92,  95,  96],  [255, 94,  77], [32, 48, 55], [117, 135, 124]],
+      [[130, 100, 90],  [106, 100, 97],  [255, 110, 65], [64, 49, 43], [255, 137, 99]],
+      [[111, 103, 95],  [107, 110, 111], [255, 80,  0],  [40, 60, 63], [255, 132, 0]],
+    ]
   end
 
   def self.cardImage()
@@ -241,16 +275,7 @@ class Card
   end
 
   def self.markColor(mark)
-    MARKS[0, 2].include?(mark) ? [255, 111, 61] : [62, 79, 60]
-  end
-
-  def __find_or_last_and_prev(card = nil)
-    prev, it = nil, self
-    while it.next
-      break if it == card
-      prev, it = it, it.next
-    end
-    return it, prev
+    MARKS[0, 2].include?(mark) ? redColor : blackColor
   end
 
 end# Card

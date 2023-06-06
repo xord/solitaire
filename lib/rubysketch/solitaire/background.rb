@@ -25,12 +25,10 @@ class Background < Scene
     when :checker
       @shader   = checker
       @canvas   = createGraphics width, height
-      @uniforms = %i[iTime]
       @interval = 3
     when :cosmic2
       @shader   = cosmic2
       @canvas   = createGraphics width, height#, displayDensity
-      @uniforms = %i[iTime iResolution]
       @interval = 1
     end
     @current               = type
@@ -40,8 +38,16 @@ class Background < Scene
   def draw()
     @canvas.beginDraw do |g|
       sh = @shader
-      sh.set :iTime, now - @start        if @uniforms.include?(:iTime)
-      sh.set :iResolution, width, height if @uniforms.include?(:iResolution)
+      case sh
+      when checker
+        sh.set :iTime, now - @start
+        colors = Card.backgroundColors
+        sh.set :color1, *colors[0].map {|n| n / 255.0}
+        sh.set :color2, *colors[1].map {|n| n / 255.0}
+      when cosmic2
+        sh.set :iTime, now - @start
+        sh.set :iResolution, width, height
+      end
       g.shader sh
       g.rect 0, 0, g.width, g.height
     end if frameCount % @interval == 0
@@ -54,11 +60,13 @@ class Background < Scene
     @checker ||= createShader nil, <<~END
       varying vec4 vertTexCoord;
       uniform float iTime;
+      uniform vec3 color1;
+      uniform vec3 color2;
       void main() {
-        float t = mod(iTime, 32.0) * 16.0;
+        float t = mod(iTime, 32.0) * 8.0;
         float x = mod(vertTexCoord.x + t, 32.0) < 16.0 ? 1.0 : 0.0;
         float y = mod(vertTexCoord.y + t, 32.0) < 16.0 ? 1.0 : 0.0;
-        gl_FragColor = x != y ? vec4(0.6, 0.9, 0.7, 1) : vec4(0.7, 0.9, 0.6, 1);
+        gl_FragColor = x != y ? vec4(color1, 1) : vec4(color2, 1);
       }
     END
   end

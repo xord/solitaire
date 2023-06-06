@@ -34,12 +34,13 @@ class Scene
     scene
   end
 
-  def transition(to, effect = nil, *args, **kwargs)
+  def transition(to, effect = nil, *args, **kwargs, &block)
     if effect
-      add effect.new(to, *args, **kwargs)
+      add effect.new(to, *args, **kwargs, &block)
     else
       parent.add to
       parent.remove self
+      block.call if block
     end
     to
   end

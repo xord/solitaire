@@ -290,7 +290,7 @@ class Klondike < Scene
 
   def undoButton()
     @undoButton ||= Button.new(
-      '◀', rgb: [120, 140, 160], fontSize: 28, round: [20, 4, 4, 20]
+      '◀', rgb: Card.buttonColor, fontSize: 28, round: [20, 4, 4, 20]
     ).tap do |b|
       b.update  {b.enable history.canUndo?}
       b.clicked {history.undo {|action| undo action}}
@@ -299,7 +299,7 @@ class Klondike < Scene
 
   def redoButton()
     @redoButton ||= Button.new(
-      '▶', rgb: [160, 140, 120], fontSize: 28, round: [4, 20, 20, 4]
+      '▶', rgb: Card.buttonColor, fontSize: 28, round: [4, 20, 20, 4]
     ).tap do |b|
       b.update  {b.enable history.canRedo?}
       b.clicked {history.redo {|action| self.redo action}}
@@ -308,7 +308,7 @@ class Klondike < Scene
 
   def menuButton()
     @menuButton ||= Button.new(
-      '≡', rgb: [140, 160, 120], fontSize: 36
+      '≡', rgb: Card.buttonColor, fontSize: 36
     ).tap do |b|
       b.clicked {showMenuDialog}
     end
@@ -760,7 +760,9 @@ class Klondike < Scene
     $newGameCount ||= 0
     $newGameCount  += 1
     showAd          = $newGameCount % 3 == 0
-    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd
+    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd do
+      Card.useNextClosedImage
+    end
   end
 
 end# Klondike
