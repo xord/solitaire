@@ -31,8 +31,8 @@ class Dialog < Scene
     }
   end
 
-  def addButton(label, *args, **kwargs, &block)
-    addElement Button.new(label, *args, **kwargs).tap {|b|
+  def addButton(*args, **kwargs, &block)
+    addElement Button.new(*args, **kwargs).tap {|b|
       b.z = overlay.z
       b.clicked &block
     }

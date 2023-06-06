@@ -291,7 +291,7 @@ class Klondike < Scene
   end
 
   def interfaces()
-    [undoButton, redoButton, menuButton, finishButton, status, debugButton]
+    [undoButton, redoButton, pauseButton, finishButton, status, debugButton]
   end
 
   def undoButton()
@@ -312,11 +312,9 @@ class Klondike < Scene
     end
   end
 
-  def menuButton()
-    @menuButton ||= Button.new(
-      '≡', fontSize: 36
-    ).tap do |b|
-      b.clicked {showMenuDialog}
+  def pauseButton()
+    @pauseButton ||= Button.new(icon: skin.pauseIcon).tap do |b|
+      b.clicked {showPauseDialog}
     end
   end
 
@@ -380,7 +378,7 @@ class Klondike < Scene
     }
   end
 
-  def showMenuDialog()
+  def showPauseDialog()
     add Dialog.new.tap {|d|
       d.addButton 'Resume', width: 6 do
         d.close
@@ -395,7 +393,7 @@ class Klondike < Scene
       d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
       d.addLabel "Today's Best Score: #{dailyBestScore}"
       d.addSpace 50
-      d.addButton '⚙', fontSize: 36 do
+      d.addButton icon: skin.settingsIcon do
         showSettingsDialog
       end
     }
@@ -462,12 +460,12 @@ class Klondike < Scene
     mx, my = skin.margin, cw * 0.2 # margin x, y
     y      = my
 
-    undoButton.pos = [mx, y]
-    redoButton.pos = [undoButton.x + undoButton.w + 2, y]
-    menuButton.pos = [width - (menuButton.w + mx), y]
-    status.pos     = [redoButton.right + mx, y]
-    status.right   = menuButton.left - mx
-    status.height  = menuButton.h
+    undoButton.pos  = [mx, y]
+    redoButton.pos  = [undoButton.x + undoButton.w + 2, y]
+    pauseButton.pos = [width - (pauseButton.w + mx), y]
+    status.pos      = [redoButton.right + mx, y]
+    status.right    = pauseButton.left - mx
+    status.height   = pauseButton.h
 
     y = undoButton.y + undoButton.h + my
 

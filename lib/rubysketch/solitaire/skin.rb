@@ -16,6 +16,14 @@ class Skin
 
   attr_reader :index
 
+  def pauseIcon()
+    @pauseIcon ||= self.class.getAssetImage 0, 192, 64, 64
+  end
+
+  def settingsIcon()
+    @settingsIcon ||= self.class.getAssetImage 64, 192, 64, 64
+  end
+
   def closedImage()
     @closedImage ||= self.class.closedImages[index]
   end
@@ -67,16 +75,16 @@ class Skin
       mx, my, mw, mh = c.markRect mark
       mnh            = m + nh
       mxx, myy       = (w - mw) / 2, mnh + ((h - mnh) - mh) / 2
-      g.beginDraw
-      g.angleMode DEGREES
-      g.translate  w / 2,  h / 2
-      g.rotate 180
-      g.translate -w / 2, -h / 2
-      g.copy image, 896,  0, w,  h,  0,   0,   w,  h
-      g.tint *markColor(mark)
-      g.copy image, nx, ny,  nw, nh, m,   m,   nw, nh
-      g.copy image, mx, my,  mw, mh, mxx, myy, mw, mh
-      g.endDraw
+      g.beginDraw do
+        g.angleMode DEGREES
+        g.translate  w / 2,  h / 2
+        g.rotate 180
+        g.translate -w / 2, -h / 2
+        g.copy image, 896,  0, w,  h,  0,   0,   w,  h
+        g.tint *markColor(mark)
+        g.copy image, nx, ny,  nw, nh, m,   m,   nw, nh
+        g.copy image, mx, my,  mw, mh, mxx, myy, mw, mh
+      end
     end
   end
 
@@ -100,11 +108,15 @@ class Skin
 
   def self.closedImages()
     @closedImages ||= offsets.map do |x|
-      createGraphics(*cardImageSize).tap do |g|
+      getAssetImage x, 256, *cardImageSize
+    end
+  end
+
+  def self.getAssetImage(x, y, w, h)
+    createGraphics(w, h).tap do |g|
+      g.beginDraw do
         w, h = g.width, g.height
-        g.beginDraw do
-          g.copy assetImage, x, 256, w, h, 0, 0, w, h
-        end
+        g.copy assetImage, x, y, w, h, 0, 0, w, h
       end
     end
   end

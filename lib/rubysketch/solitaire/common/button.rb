@@ -6,10 +6,14 @@ class Button < Sprite
   include CanDisable
 
   def initialize(
-    label, *args, rgb: nil, width: 1, fontSize: 24, round: 5, **kwargs, &block)
+    label = nil, *args,
+    icon: nil, rgb: nil, width: 1, fontSize: 24, round: 5, **kwargs,
+    &block)
+
+    raise if !label && !icon
 
     super 0, 0, 44 * width, 44, *args, **kwargs, &block
-    @label, @rgb, @fontSize, @round = label, rgb, fontSize, round
+    @label, @icon, @rgb, @fontSize, @round = label, icon, rgb, fontSize, round
     @click = nil
     setup
   end
@@ -36,11 +40,17 @@ class Button < Sprite
       fill *dark
       rect 0, y, w, h, *@round
       fill *light
-      rect 0, y, w, h - offset, *@round
+      h -= offset
+      rect 0, y, w, h, *@round
       fill *(enabled? ? [255] : dark)
-      textAlign CENTER, CENTER
-      textSize @fontSize
-      text @label, 0, y, w, h - offset
+      if @label
+        textAlign CENTER, CENTER
+        textSize @fontSize
+        text @label, 0, y, w, h
+      elsif @icon
+        imageMode CENTER
+        drawImage @icon, w / 2, y + h / 2, @icon.width / 2, @icon.height / 2
+      end
     end
 
     mouseClicked do
