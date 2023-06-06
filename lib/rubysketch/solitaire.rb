@@ -16,6 +16,7 @@ require 'rubysketch/solitaire/common/dialog'
 require 'rubysketch/solitaire/common/transitions'
 require 'rubysketch/solitaire/common/button'
 
+require 'rubysketch/solitaire/skin'
 require 'rubysketch/solitaire/card'
 require 'rubysketch/solitaire/places'
 
@@ -27,12 +28,17 @@ require 'rubysketch/solitaire/klondike'
 using RubySketch
 
 
+def debug?()
+  $debug || ENV['DEBUG'] || false
+end
+
 def settings()
   $settings ||= Settings.new 'solitaire.json'
 end
 
-def debug?()
-  $debug || ENV['DEBUG'] || false
+def skin(index = nil)
+  $skin = nil if index != nil && index != $skin.index
+  $skin ||= Skin.new index || 0
 end
 
 def backgroundScene()
@@ -47,6 +53,7 @@ setup do
   angleMode DEGREES
   noStroke
 
+  Skin.setup
   $root = RootScene.new 'Root', backgroundScene, Start.new
 end
 

@@ -41,7 +41,7 @@ class Background < Scene
       case sh
       when checker
         sh.set :iTime, now - @start
-        colors = Card.backgroundColors
+        colors = skin.backgroundColors
         sh.set :color1, *colors[0].map {|n| n / 255.0}
         sh.set :color2, *colors[1].map {|n| n / 255.0}
       when cosmic2
@@ -60,13 +60,13 @@ class Background < Scene
     @checker ||= createShader nil, <<~END
       varying vec4 vertTexCoord;
       uniform float iTime;
-      uniform vec3 color1;
-      uniform vec3 color2;
+      uniform vec4 color1;
+      uniform vec4 color2;
       void main() {
         float t = mod(iTime, 32.0) * 8.0;
         float x = mod(vertTexCoord.x + t, 32.0) < 16.0 ? 1.0 : 0.0;
         float y = mod(vertTexCoord.y + t, 32.0) < 16.0 ? 1.0 : 0.0;
-        gl_FragColor = x != y ? vec4(color1, 1) : vec4(color2, 1);
+        gl_FragColor = x != y ? color1 : color2;
       }
     END
   end

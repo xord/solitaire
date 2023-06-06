@@ -57,7 +57,7 @@ class CardPlace
   end
 
   def sprite()
-    @sprite ||= Sprite.new(0, 0, *Card.spriteSize).tap do |sp|
+    @sprite ||= Sprite.new(0, 0, *skin.cardSpriteSize).tap do |sp|
       sp.draw do
         noStroke
         fill 0, 20
@@ -111,7 +111,7 @@ class NextsPlace < CardPlace
 
     @drawCount = count
 
-    w       = Card.spriteSize[0] + overlap * (count - 1)
+    w       = skin.cardSpriteSize[0] + overlap * (count - 1)
     self.x -= w - self.w
     self.w  = w
   end
@@ -125,7 +125,7 @@ class NextsPlace < CardPlace
   end
 
   def overlap()
-    Card.spriteSize[0] * 0.4
+    skin.cardSpriteSize[0] * 0.4
   end
 
 end# NextsPlace

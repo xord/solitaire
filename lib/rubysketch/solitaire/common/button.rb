@@ -6,10 +6,10 @@ class Button < Sprite
   include CanDisable
 
   def initialize(
-    label, *args, rgb: 200, width: 1, fontSize: 24, round: 5, **kwargs, &block)
+    label, *args, rgb: nil, width: 1, fontSize: 24, round: 5, **kwargs, &block)
 
     super 0, 0, 44 * width, 44, *args, **kwargs, &block
-    @label, @rgb, @fontSize, @round = label, [rgb].flatten, fontSize, round
+    @label, @rgb, @fontSize, @round = label, rgb, fontSize, round
     @click = nil
     setup
   end
@@ -28,14 +28,16 @@ class Button < Sprite
 
     draw do
       offset  = 5
+      light   = [@rgb || skin.buttonColor].flatten
+      dark    = light.map {|n| n - 32}
       y       = pressing ? (offset - (enabled? ? 2 : 3.5)) : 0
       h       = self.h - y
       offset -= y
-      fill *@rgb.map {|n| n - 20}
+      fill *dark
       rect 0, y, w, h, *@round
-      fill *@rgb
+      fill *light
       rect 0, y, w, h - offset, *@round
-      fill enabled? ? 255 : 180
+      fill *(enabled? ? [255] : dark)
       textAlign CENTER, CENTER
       textSize @fontSize
       text @label, 0, y, w, h - offset

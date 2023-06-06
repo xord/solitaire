@@ -90,7 +90,7 @@ class Card
   end
 
   def color()
-    self.class.markColor mark
+    skin.markColor mark
   end
 
   def count()
@@ -111,11 +111,13 @@ class Card
   end
 
   def sprite()
-    @sprite ||= Sprite.new(0, 0, *spriteSize, image: closedImage).tap do |sp|
+    @sprite ||= Sprite.new(
+      0, 0, *skin.cardSpriteSize, image: skin.closedImage
+    ).tap do |sp|
       sp.pivot = [rand, rand]
       sp.angle = rand -5.0..5.0
       sp.update do
-        sp.image = @open > 90 ? openedImage : closedImage
+        sp.image = @open > 90 ? skin.openedImage(mark, number) : skin.closedImage
       end
       sp.draw do |&draw|
         push do
@@ -167,115 +169,6 @@ class Card
 
   def mouseDragged(x, y, dx, dy)
     self.pos += createVector x - @startPos.x, y - @startPos.y if @startPos
-  end
-
-  def openedImage()
-    @openedImage ||= createGraphics(*self.class.cardSize).tap do |g|
-      c, w, h, m     = self.class, g.width, g.height, 16# margin
-      image          = c.cardImage
-      nx, ny, nw, nh = c.numberRect number
-      mx, my, mw, mh = c.markRect mark
-      mnh            = m + nh
-      mxx, myy       = (w - mw) / 2, mnh + ((h - mnh) - mh) / 2
-      g.beginDraw
-      g.angleMode DEGREES
-      g.translate  w / 2,  h / 2
-      g.rotate 180
-      g.translate -w / 2, -h / 2
-      g.copy image, 896,  0, w,  h,  0,   0,   w,  h
-      g.tint *c.markColor(mark)
-      g.copy image, nx, ny,  nw, nh, m,   m,   nw, nh
-      g.copy image, mx, my,  mw, mh, mxx, myy, mw, mh
-      g.endDraw
-    end
-  end
-
-  def closedImage()
-    self.class.closedImages[self.class.closedImageIndex]
-  end
-
-  def spriteSize()
-    self.class.spriteSize
-  end
-
-  def self.closedImages()
-    @closedImages ||= (0..3).map {|n| n * 256}.map do |x|
-      createGraphics(*cardSize).tap do |g|
-        w, h = g.width, g.height
-        g.beginDraw
-        g.copy cardImage, x, 256, w, h, 0, 0, w, h
-        g.endDraw
-      end
-    end
-  end
-
-  def self.closedImageIndex()
-    @closedImageIndex ||= (0...closedImages.size).to_a.sample.tap {|o| p o}
-  end
-
-  def self.useNextClosedImage()
-    @backgroundColors = @redColor = @blackColor = @buttonColor = nil
-    @closedImageIndex = (closedImageIndex + 1) % closedImages.size
-  end
-
-  def self.backgroundColors()
-    @backgroundColors ||= colors[closedImageIndex][0, 2]
-  end
-
-  def self.redColor()
-    @redColor ||= colors[closedImageIndex][2]
-  end
-
-  def self.blackColor()
-    @blackColor ||= colors[closedImageIndex][3]
-  end
-
-  def self.buttonColor()
-    @buttonColor ||= colors[closedImageIndex][4]
-  end
-
-  def self.colors()
-    @colors ||= [
-      [[120, 106, 104], [100, 96,  95],  [255, 97,  82], [62, 46, 45], [255, 97,  82]],
-      [[98,  101, 99],  [92,  95,  96],  [255, 94,  77], [32, 48, 55], [117, 135, 124]],
-      [[130, 100, 90],  [106, 100, 97],  [255, 110, 65], [64, 49, 43], [255, 137, 99]],
-      [[111, 103, 95],  [107, 110, 111], [255, 80,  0],  [40, 60, 63], [255, 132, 0]],
-    ]
-  end
-
-  def self.cardImage()
-    @cardImage ||= loadImage dataPath 'card.png'
-  end
-
-  def self.cardSize()
-    [164, 252]
-  end
-
-  def self.spriteSize()
-    @spriteSize ||= cardSize.then do |cw, ch|
-      ncolumns   = 7
-      size       = [width, height].min
-      cardWidth  = (size - margin * (ncolumns + 1)) / ncolumns
-      [cardWidth, cardWidth * (ch.to_f / cw.to_f)]
-    end
-  end
-
-  def self.margin()
-    @marin ||= [width, height].min * 0.02
-  end
-
-  def self.markRect(mark)
-    w = h = 128
-    [MARKS.index(mark) * w, 0, w, h]
-  end
-
-  def self.numberRect(number)
-    w = h = 64
-    [(number - 1) * w, 128, w, h]
-  end
-
-  def self.markColor(mark)
-    MARKS[0, 2].include?(mark) ? redColor : blackColor
   end
 
 end# Card
