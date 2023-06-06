@@ -45,6 +45,12 @@ def backgroundScene()
   $backgroundScene ||= Background.new
 end
 
+def checkFocus()
+  $prevFocused = focused if $prevFocused == nil
+  $root.focusChanged focused if focused != $prevFocused
+  $prevFocused = focused
+end
+
 setup do
   setTitle "Solitaire"
   size 375, 667 unless $nosize
@@ -58,6 +64,7 @@ setup do
 end
 
 draw do
+  checkFocus
   fireTimers
   drawShake
   push { $root.draw }

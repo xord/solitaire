@@ -68,6 +68,10 @@ class Scene
     @particle ||= Particle.new
   end
 
+  def active?()
+    @active
+  end
+
   def update()
     size = [width, height]
     if size != @prevSize
@@ -102,8 +106,8 @@ class Scene
     @active = false
   end
 
-  def active?()
-    @active
+  def focusChanged(focus)
+    @scenes.each {|scene| scene.focusChanged focus}
   end
 
   def mousePressed(x, y, button)

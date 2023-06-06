@@ -1,6 +1,10 @@
 using RubySketch
 
 
+def ios?()
+  true
+end
+
 def now()
   Time.now.to_f
 end

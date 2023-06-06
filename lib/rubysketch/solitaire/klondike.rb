@@ -42,6 +42,10 @@ class Klondike < Scene
     updateLayout w, h
   end
 
+  def focusChanged(focus)
+    focus ? resume : pause if ios?
+  end
+
   def canDrop?(card)
     case card.place
     when *columns then card.opened?
