@@ -88,6 +88,14 @@ class NextsPlace < CardPlace
 
   attr_reader :drawCount
 
+  def started(difficulty)
+    @drawCount = difficulty == :hard ? 3 : 1
+
+    w       = skin.cardSpriteSize[0] + overlap * (@drawCount - 1)
+    self.x -= w - self.w
+    self.w  = w
+  end
+
   def add(*cards, **kwargs)
     super
     updateCards excludes: cards
@@ -104,16 +112,6 @@ class NextsPlace < CardPlace
       pos = posFor card, index
       move card, pos, 0.2 if pos != card.pos
     end
-  end
-
-  def drawCount=(count)
-    raise 'invalid drawCount' unless count
-
-    @drawCount = count
-
-    w       = skin.cardSpriteSize[0] + overlap * (count - 1)
-    self.x -= w - self.w
-    self.w  = w
   end
 
   def posFor(card, index = nil)
@@ -155,6 +153,10 @@ class ColumnPlace < CardPlace
     super(*args, linkCards: true, **kwargs, &block)
   end
 
+  def started(difficulty)
+    @difficulty = difficulty
+  end
+
   def accept?(x, y, card)
     return false if !card || card.closed? || !card.canDrop?
     if empty?
@@ -163,7 +165,7 @@ class ColumnPlace < CardPlace
     else
       any? {|card| card.hit?(x, y)} &&
         card.number == last.number - 1 &&
-        card.color  != last.color
+        (@difficulty == :easy ? true : card.color != last.color)
     end
   end
 

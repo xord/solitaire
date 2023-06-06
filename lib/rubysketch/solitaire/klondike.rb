@@ -9,6 +9,8 @@ class Klondike < Scene
     hash ? load(hash) : ready
   end
 
+  attr_reader :difficulty
+
   def sprites()
     super + [*cards, *places].map(&:sprite) + interfaces
   end
@@ -85,7 +87,7 @@ class Klondike < Scene
   def save()
     settings['state'] = {
       version:     1,
-      drawCount:   nexts.drawCount,
+      difficulty:  difficulty,
       history:     history.to_h {|o| o.id if o.respond_to? :id},
       score:       score.to_h,
       elapsedTime: elapsedTime,
@@ -102,7 +104,7 @@ class Klondike < Scene
     findAll  = -> id {  all.find {|obj|  obj .id == id} or raise "No object '#{id}'"}
     findCard = -> id {cards.find {|card| card.id == id} or raise "No card '#{id}'"}
 
-    nexts.drawCount = hash['drawCount']
+    @difficulty = hash['difficulty']
 
     self.history = History.load hash['history'] do |id|
       (id.respond_to?('=~') && id =~ /^id:/) ? findAll[id] : nil
@@ -228,7 +230,11 @@ class Klondike < Scene
   end
 
   def bestRecordKey(type, daily = false, suffix = '')
-    (daily ? 'dailyBest' : 'best') + type.to_s.capitalize + suffix
+    difficulty.to_s +
+      (daily ? 'Daily' : '') +
+      'Best' +
+      type.to_s.capitalize +
+      suffix
   end
 
   def timeToText(time)
@@ -360,11 +366,15 @@ class Klondike < Scene
   def showReadyDialog()
     add Dialog.new(alpha: 50).tap {|d|
       d.addButton 'EASY', width: 5 do
-        start 1
+        start :easy
+        d.close
+      end
+      d.addButton 'NORMAL', width: 5 do
+        start :normal
         d.close
       end
       d.addButton 'HARD', width: 5 do
-        start 3
+        start :hard
         d.close
       end
     }
@@ -382,7 +392,8 @@ class Klondike < Scene
       d.addButton 'New Game', width: 6 do
         startNewGame
       end
-      d.addSpace 50
+      d.addSpace 30
+      d.addLabel "Difficulty: #{difficulty.upcase}"
       d.addLabel "Best Time: #{timeToText bestTime}"
       d.addLabel "Best Score: #{bestScore}"
       d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
@@ -479,8 +490,9 @@ class Klondike < Scene
     end
   end
 
-  def start(drawCount = 1)
-    nexts.drawCount = drawCount
+  def start(difficulty = :normal)
+    @difficulty = difficulty
+    start!
 
     history.disable
     lasts = columns.map(&:last).compact
@@ -490,7 +502,6 @@ class Klondike < Scene
         if lasts.all? {|card| card.opened?}
           drawNexts
           history.enable
-          start!
         end
       end
     end
@@ -573,6 +584,9 @@ class Klondike < Scene
 
   def start!()
     @started = true
+    [*cards, *places].each do |o|
+      o.started @difficulty if o.respond_to? :started
+    end
     resume
   end
 
@@ -634,7 +648,7 @@ class Klondike < Scene
 
   def showFinishButton()
     finishButton.tap do |b|
-      m   = Card.margin
+      m   = skin.margin
       b.x = marks.last.then {|mark| mark.x + mark.w} + m * 2
       b.y = -deck.h
       b.w = width - b.x - m
