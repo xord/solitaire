@@ -1,4 +1,5 @@
 require 'forwardable'
+require 'rbconfig'
 require 'json'
 require 'rubysketch'
 
