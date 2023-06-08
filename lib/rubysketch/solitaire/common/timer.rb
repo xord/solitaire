@@ -29,7 +29,7 @@ def fireTimers()
   now_ = now
   blocks = []
   $timers.delete_if do |_, (time, block)|
-    (now_ >= time).tap { blocks.push block if _1 }
+    (now_ >= time).tap {|t| blocks.push block if t}
   end
-  blocks.each { _1.call }
+  blocks.each &:call
 end

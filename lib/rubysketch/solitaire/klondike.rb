@@ -552,7 +552,7 @@ class Klondike < Scene
 
   def firstDistribution()
     n = columns.size
-    (0...n).map { |row| (row...n).map { |col| [col, row] } }.flatten(1)
+    (0...n).map {|row| (row...n).map {|col| [col, row]}}.flatten(1)
   end
 
   def openCard(card, gain: 0.5)

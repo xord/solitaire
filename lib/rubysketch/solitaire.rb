@@ -73,7 +73,7 @@ draw do
   checkFocus
   fireTimers
   drawShake
-  push { $root.draw }
+  push {$root.draw}
 end
 
 def windowPos()
