@@ -2,7 +2,7 @@ using RubySketch
 
 
 def ios?()
-  RbConfig::CONFIG['CFLAGS']&.include? '/Platforms//iPhoneOS.platform/'
+  RbConfig::CONFIG['CFLAGS'] =~ %r{/Platforms/iPhone(OS|Simulator).platform/}
 end
 
 def now()
