@@ -28,7 +28,7 @@ class TransitionEffect < Scene
     start do
       case @phase
       when :out
-        $showInterstitialAd = true if @showAd
+        sendCommand :showInterstitialAd if @showAd
         delay do
           pa = parent
           pa.remove self

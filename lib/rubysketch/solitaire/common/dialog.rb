@@ -42,7 +42,7 @@ class Dialog < Scene
     }
   end
 
-  def addSpace(height)
+  def addSpace(height = 0)
     addElement Sprite.new(0, 0, 1, height).tap {|sp|
       sp.draw {}
     }

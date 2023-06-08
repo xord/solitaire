@@ -2,7 +2,7 @@ import SwiftUI
 
 
 protocol GameViewControllerDelegate {
-    func showInterstitialAd()
+    func run(command: String)
 }
 
 
@@ -58,8 +58,8 @@ class GameViewController: ReflexViewController {
     }
 
     override func update() {
-        if CRuby.evaluate("$showInterstitialAd")?.toBOOL() == true, let delegate = delegate {
-            delegate.showInterstitialAd()
+        if let delegate = delegate, let command = CRuby.evaluate("$command")?.toString() {
+            delegate.run(command: command)
         } else {
             super.update()
         }
@@ -69,10 +69,10 @@ class GameViewController: ReflexViewController {
 
 struct GameView: UIViewControllerRepresentable {
 
-    @Binding var isInterstitialAdVisible: Bool
+    @Binding var command: String
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isInterstitialAdVisible: $isInterstitialAdVisible)
+        Coordinator(command: $command)
     }
 
     func makeUIViewController(context: Context) -> some UIViewController {
@@ -83,26 +83,26 @@ struct GameView: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
         let c = context.coordinator
-        if c.prevVisible && !isInterstitialAdVisible {
-            CRuby.evaluate("$showInterstitialAd = false")
+        if c.prevCommand != nil && command.isEmpty {
+            CRuby.evaluate("$command = nil")
+            c.prevCommand = nil
         }
-        c.prevVisible = isInterstitialAdVisible
     }
 
     class Coordinator: NSObject, GameViewControllerDelegate {
 
-        @Binding var isIntersittialAdVisible: Bool
+        @Binding var command: String
 
-        var prevVisible = false
+        var prevCommand: String?
 
-        init(isInterstitialAdVisible: Binding<Bool>) {
-            _isIntersittialAdVisible = isInterstitialAdVisible
+        init(command: Binding<String>) {
+            _command = command
         }
 
-        func showInterstitialAd() {
-            if !prevVisible {
-                isIntersittialAdVisible = true
-                prevVisible = true
+        func run(command: String) {
+            if command != prevCommand {
+                self.command = command
+                prevCommand = command
             }
         }
     }

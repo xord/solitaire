@@ -83,12 +83,16 @@ struct RubySolitaireApp: App {
 
 struct GameScreen: View {
 
-    @EnvironmentObject var sceneDelegate: SceneDelegate
+    @EnvironmentObject private var sceneDelegate: SceneDelegate
 
-    @StateObject var interstitialAd = InterstitialAd(
+    @StateObject private var interstitialAd = InterstitialAd(
         adUnitID: "ca-app-pub-3940256099942544/4411468910")
 
-    @State var isInterstitialAdVisible = false
+    @State private var command: String = ""
+
+    @State private var url: URL? = nil
+
+    @State private var isInterstitialAdVisible = false
 
     var body: some View {
         ZStack {
@@ -96,7 +100,7 @@ struct GameScreen: View {
                 .ignoresSafeArea(.all)
             GeometryReader { gr in
                 VStack(spacing: 2) {
-                    GameView(isInterstitialAdVisible: $isInterstitialAdVisible)
+                    GameView(command: $command)
                     AdBannerView(
                         width: gr.size.width,
                         adUnitID: "ca-app-pub-3940256099942544/2934735716",
@@ -107,16 +111,58 @@ struct GameScreen: View {
             }
         }
         .statusBarHidden()
+        .onChange(of: command) { _ in
+            if command.isEmpty {
+                return
+            }
+            let split = command.split(separator: ":").map {$0.removingPercentEncoding}
+            let commandAndArgs = split.compactMap {$0}
+            if commandAndArgs.count != split.count || commandAndArgs.count == 0 {
+                return clearCommand()
+            }
+            runCommand(command: commandAndArgs.first!, args: Array<String>(commandAndArgs.dropFirst(1)))
+        }
+        .onChange(of: url) { _ in
+            if url == nil {
+                clearCommand()
+            }
+        }
         .onChange(of: isInterstitialAdVisible) { visible in
             if visible, interstitialAd.ready {
                 interstitialAd.show(
                     rootViewController: sceneDelegate.window!.rootViewController!
                 ) { error in
                     isInterstitialAdVisible = false
+                    clearCommand()
                 }
             } else {
                 isInterstitialAdVisible = false
+                clearCommand()
             }
         }
+        .fullScreenCover(item: $url) { _ in
+            if let url = url {
+                SafariView(url: url)
+                    .ignoresSafeArea()
+            }
+        }
+    }
+
+    func runCommand(command: String, args: [String]) {
+        switch command {
+        case "openURL":
+            guard let str = args.first, let url = URL(string: str) else {
+                return clearCommand()
+            }
+            self.url = url
+        case "showInterstitialAd":
+            isInterstitialAdVisible = true
+        default:
+            clearCommand()
+        }
+    }
+
+    func clearCommand() {
+        command = ""
     }
 }

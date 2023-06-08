@@ -1,5 +1,6 @@
 require 'forwardable'
 require 'rbconfig'
+require 'uri'
 require 'json'
 require 'rubysketch'
 
@@ -31,6 +32,10 @@ using RubySketch
 
 def debug?()
   $debug || ENV['DEBUG'] || false
+end
+
+def sendCommand(type, *args)
+  $command = [type, *args].map {|s| URI.encode_www_form_component s}.join ':'
 end
 
 def settings()
