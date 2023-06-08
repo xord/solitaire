@@ -9,8 +9,6 @@ class Klondike < Scene
     hash ? load(hash) : ready
   end
 
-  attr_reader :difficulty
-
   def sprites()
     super + [*cards, *places].map(&:sprite) + interfaces
   end
@@ -149,6 +147,10 @@ class Klondike < Scene
     @history = history.tap do |h|
       h.updated {save}
     end
+  end
+
+  def difficulty()
+    @difficulty ||= :normal
   end
 
   def elapsedTime()
@@ -615,7 +617,7 @@ class Klondike < Scene
   def start!()
     @started = true
     [*cards, *places].each do |o|
-      o.started @difficulty if o.respond_to? :started
+      o.started difficulty if o.respond_to? :started
     end
     resume
   end
