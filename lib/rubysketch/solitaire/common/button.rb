@@ -27,8 +27,26 @@ class Button < Sprite
 
   def setup()
     pressing = false
-    mousePressed  {pressing = true}
-    mouseReleased {pressing = false}
+
+    mousePressed do
+      pressing = true
+    end
+
+    mouseReleased do
+      pressing = false
+      if includeMouse?
+        if enabled?
+          @click&.call
+        else
+          shake
+        end
+        sound.play gain: 0.5
+      end
+    end
+
+    mouseDragged do
+      pressing = includeMouse?
+    end
 
     draw do
       offset  = 5
@@ -52,15 +70,6 @@ class Button < Sprite
         drawImage @icon, w / 2, y + h / 2, @icon.width / 2, @icon.height / 2
       end
     end
-
-    mouseClicked do
-      if enabled?
-        @click.call if @click
-      else
-        shake
-      end
-      sound.play gain: 0.5
-    end
   end
 
   def shake(strength = 10)
@@ -74,6 +83,10 @@ class Button < Sprite
 
   def sound()
     @sound ||= loadSound dataPath 'button.mp3'
+  end
+
+  def includeMouse?()
+    (0...width).include?(mouseX) && (0...height).include?(mouseY)
   end
 
 end# Button
