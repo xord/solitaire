@@ -136,12 +136,17 @@ class Card
         image sp.image, 0, 0, w, h
       end
       sp.mousePressed do
+        next if $dragging
+        $dragging = self
         mousePressed sp.mouseX, sp.mouseY
       end
       sp.mouseReleased do
+        next unless $dragging.object_id == self.object_id
         mouseReleased sp.mouseX, sp.mouseY, sp.clickCount
+        $dragging = nil
       end
       sp.mouseDragged do
+        next unless $dragging.object_id == self.object_id
         x, y = sp.mouseX, sp.mouseY
         mouseDragged x, y, x - sp.pmouseX, y - sp.pmouseY
       end

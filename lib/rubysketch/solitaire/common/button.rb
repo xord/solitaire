@@ -29,10 +29,13 @@ class Button < Sprite
     pressing = false
 
     mousePressed do
+      next if $dragging
+      $dragging = self
       pressing = true
     end
 
     mouseReleased do
+      next unless $dragging.object_id == self.object_id
       pressing = false
       if includeMouse?
         if enabled?
@@ -42,9 +45,11 @@ class Button < Sprite
         end
         sound.play gain: 0.5
       end
+      $dragging = nil
     end
 
     mouseDragged do
+      next unless $dragging.object_id == self.object_id
       pressing = includeMouse?
     end
 
