@@ -67,6 +67,7 @@ class InterstitialAd: NSObject, GADFullScreenContentDelegate, ObservableObject {
 
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         self.ad = nil
+        load()
         if let closed = self.closed {
             closed(nil)
             self.closed = nil
@@ -75,6 +76,7 @@ class InterstitialAd: NSObject, GADFullScreenContentDelegate, ObservableObject {
 
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         self.ad = nil
+        load()
         if let closed = self.closed {
             closed(error)
             self.closed = nil
