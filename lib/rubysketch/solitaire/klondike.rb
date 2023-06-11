@@ -437,9 +437,11 @@ class Klondike < Scene
         backgroundScene.set backgroundScene.nextType
         d.close
       end
-      d.addSpace 10
-      d.addButton 'Privacy Policy', width: 6 do
-        sendCommand :openURL, 'https://xord.org/rubysolitaire/privacy_policy.html'
+      if ios?
+        d.addSpace 10
+        d.addButton 'Privacy Policy', width: 6 do
+          sendCommand :openURL, 'https://xord.org/rubysolitaire/privacy_policy.html'
+        end
       end
       d.addSpace 10
       d.addButton 'Close', width: 6 do
