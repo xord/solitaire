@@ -490,6 +490,17 @@ class Klondike < Scene
         clearDailyBests
         d.close
       end
+      d.addButton str("One step for completion"), width: 6 do
+        cards.sort.group_by(&:mark).each.with_index do |(mark, cards), index|
+          place = marks[index]
+          place.clear
+          cards.reverse.each.with_index do |card, i|
+            card.z = i
+            place.add card.open
+          end
+        end
+        d.close
+      end
       d.addButton str('Close'), width: 6 do
         d.close
       end
