@@ -340,7 +340,7 @@ class Klondike < Scene
           }.each do |label, value|
             textSize 12
             textAlign LEFT, TOP
-            text label, x + mx, my, w - mx, sp.h - my * 2
+            text str(label), x + mx, my, w - mx, sp.h - my * 2
             textSize 20
             textAlign LEFT, BOTTOM
             text value, x + mx, my, w - mx, sp.h - my * 2
@@ -369,15 +369,15 @@ class Klondike < Scene
 
   def showReadyDialog()
     add Dialog.new(alpha: 50).tap {|d|
-      d.addButton 'EASY', width: 5 do
+      d.addButton str('EASY'), width: 5 do
         start :easy
         d.close
       end
-      d.addButton 'NORMAL', width: 5 do
+      d.addButton str('NORMAL'), width: 5 do
         start :normal
         d.close
       end
-      d.addButton 'HARD', width: 5 do
+      d.addButton str('HARD'), width: 5 do
         start :hard
         d.close
       end
@@ -386,16 +386,16 @@ class Klondike < Scene
 
   def showPauseDialog()
     add Dialog.new.tap {|d|
-      d.addLabel "Difficulty: #{difficulty.upcase}"
-      d.addLabel "Best Time: #{timeToText bestTime}"
-      d.addLabel "Best Score: #{bestScore}"
-      d.addLabel "Today's Best Time: #{timeToText dailyBestTime}"
-      d.addLabel "Today's Best Score: #{dailyBestScore}"
+      d.addLabel "#{str 'Difficulty'}: #{str difficulty.upcase}"
+      d.addLabel "#{str 'Best Time'}: #{timeToText bestTime}"
+      d.addLabel "#{str 'Best Score'}: #{bestScore}"
+      d.addLabel "#{str "Today's Best Time"}: #{timeToText dailyBestTime}"
+      d.addLabel "#{str "Today's Best Score"}: #{dailyBestScore}"
       d.addSpace 20
-      d.addButton 'Resume', width: 6 do
+      d.addButton str('Resume'), width: 6 do
         d.close
       end
-      d.addButton 'New Game', width: 6 do
+      d.addButton str('New Game'), width: 6 do
         d.close
         showNewGameDialog
       end
@@ -408,13 +408,13 @@ class Klondike < Scene
 
   def showNewGameDialog()
     add Dialog.new(alpha: 180).tap {|d|
-      d.addLabel "Start New Game?"
+      d.addLabel str("Start New Game?")
       d.addSpace 20
-      d.addButton 'OK', width: 4 do
+      d.addButton str('OK'), width: 4 do
         startNewGame
         d.close
       end
-      d.addButton 'Cancel', width: 4 do
+      d.addButton str('Cancel'), width: 4 do
         d.close
       end
     }
@@ -429,23 +429,23 @@ class Klondike < Scene
       background = d.add Background.new backgroundScene.type
       cardImage = d.addElement Sprite.new image: closedImage.call
       d.addSpace 20
-      d.addButton 'Change Card Design', width: 6 do
+      d.addButton str('Change Card Design'), width: 7 do
         skin skin.index + 1
         settings['skinIndex'] = skin.index
         cardImage.image = closedImage.call
       end
-      d.addButton 'Change Background', width: 6 do
+      d.addButton str('Change Background'), width: 7 do
         background.set background.nextType
         backgroundScene.set background.type
       end
       if ios?
         d.addSpace 10
-        d.addButton 'Privacy Policy', width: 6 do
+        d.addButton str('Privacy Policy'), width: 6 do
           sendCommand :openURL, 'https://xord.org/rubysolitaire/privacy_policy.html'
         end
       end
       d.addSpace 10
-      d.addButton 'Close', width: 6 do
+      d.addButton str('Close'), width: 6 do
         d.close
       end
     }
@@ -456,19 +456,21 @@ class Klondike < Scene
     dailyBestTime = false, dailyBestScore = false)
 
     suffix = -> allTime, daily do
-      allTime ? '(New Record!)' : daily ? "(Today's Best!)" : ''
+      return str '(New Record!)'   if allTime
+      return str "(Today's Best!)" if daily
+      ''
     end
 
     add Dialog.new.tap {|d|
-      d.addLabel 'Congratulations!', fontSize: 44
+      d.addLabel str('Congratulations!'), fontSize: 44
       d.addLabel(
-        "Time: #{timeToText elapsedTime} #{suffix.call bestTime, dailyBestTime}",
+        "#{str 'Time'}: #{timeToText elapsedTime} #{suffix.call bestTime, dailyBestTime}",
         fontSize: 28)
       d.addLabel(
-        "Score: #{score.value} #{suffix.call bestScore, dailyBestScore}",
+        "#{str 'Score'}: #{score.value} #{suffix.call bestScore, dailyBestScore}",
         fontSize: 28)
       d.addSpace 50
-      d.addButton 'NEW GAME', width: 5 do
+      d.addButton str('Start Next Game'), width: 5 do
         startNewGame
       end
     }
@@ -476,19 +478,19 @@ class Klondike < Scene
 
   def showDebugDialog()
     add Dialog.new.tap {|d|
-      d.addButton 'Clear all settings', width: 6 do
+      d.addButton str('Clear all settings'), width: 6 do
         settings.clear
         d.close
       end
-      d.addButton 'Clear all time bests', width: 6 do
+      d.addButton str('Clear all time bests'), width: 6 do
         clearAllTimeBests
         d.close
       end
-      d.addButton "Clear today's bests", width: 6 do
+      d.addButton str("Clear today's bests"), width: 6 do
         clearDailyBests
         d.close
       end
-      d.addButton 'Close', width: 6 do
+      d.addButton str('Close'), width: 6 do
         d.close
       end
     }
@@ -826,6 +828,42 @@ class Klondike < Scene
     $newGameCount  += 1
     showAd          = $newGameCount % 3 == 0
     transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd
+  end
+
+  STRINGS = {
+    OK:     {},
+    Cancel: {ja: 'キャンセル'},
+    Close:  {ja: '閉じる'},
+
+    Time:  {ja: 'タイム'},
+    Score: {ja: 'スコア'},
+    Move:  {ja: '移動回数'},
+
+    Difficulty: {ja: '難易度'},
+    EASY:       {ja: '簡単'},
+    NORMAL:     {ja: '普通'},
+    HARD:       {ja: '難しい'},
+
+    'New Game': {ja: '新規ゲーム'},
+    'Resume': {ja: 'ゲーム再開'},
+
+    'Best Time':          {ja: 'ベストタイム'},
+    'Best Score':         {ja: 'ベストスコア'},
+    "Today's Best Time":  {ja: '本日のベストタイム'},
+    "Today's Best Score": {ja: '本日のベストスコア'},
+
+    "Start New Game?": {ja: '新しいゲームをはじめますか？'},
+    "Start Next Game": {ja: '次のゲームを開始'},
+
+    "Change Card Design": {ja: 'カードデザインを変更'},
+    "Change Background":  {ja: 'ゲーム背景を変更'},
+
+    '(New Record!)':   {ja: '（新記録！）'},
+    "(Today's Best!)": {ja: '（本日のベスト！）'},
+  }
+
+  def str(s, lang: $language)
+    STRINGS.dig(s.intern, lang&.intern) || s.to_s
   end
 
 end# Klondike

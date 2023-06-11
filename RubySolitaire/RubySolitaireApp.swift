@@ -51,6 +51,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        CRuby.evaluate("$language = '\(language)'")
+
         #if DEBUG
             CRuby.evaluate("$debug = true")
         #endif
@@ -64,6 +66,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         })
 
         return true
+    }
+
+    var language: String {
+        guard let lang = Locale.preferredLanguages.first else {
+            return ""
+        }
+        guard let first = lang.split(separator: "-").first else {
+            return ""
+        }
+
+        return String(first)
     }
 }
 
