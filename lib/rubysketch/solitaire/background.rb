@@ -10,47 +10,46 @@ class Background < Scene
     set type || settings['background']&.intern|| types.first
   end
 
+  attr_reader :type
+
   def types()
-    %i[checker cosmic2]
+    %i[checker checker2 cosmic2]
   end
 
   def nextType()
-    index = types.index(@current) || 0
+    index = types.index(@type) || 0
     types[(index + 1) % types.size]
   end
 
   def set(type)
     type = types.first unless types.include?(type)
     case type
-    when :checker
-      @shader   = checker
-      @canvas   = createGraphics width, height
-      @interval = 3
+    when :checker, :checker2
+      @shader = checker
+      @canvas = createGraphics width, height
     when :cosmic2
-      @shader   = cosmic2
-      @canvas   = createGraphics width, height#, displayDensity
-      @interval = 1
+      @shader = cosmic2
+      @canvas = createGraphics width, height#, displayDensity
     end
-    @current               = type
-    settings['background'] = type
+    settings['background'] = @type = type
   end
 
   def draw()
     @canvas.beginDraw do |g|
       sh = @shader
-      case sh
-      when checker
-        sh.set :iTime, now - @start
+      case type
+      when :checker, :checker2
         colors = skin.backgroundCheckerColors
+        sh.set :iTime, (type == :checker2 ? 0.0 : now - @start)
         sh.set :color1, *colors[0].map {|n| n / 255.0}
         sh.set :color2, *colors[1].map {|n| n / 255.0}
-      when cosmic2
+      when :cosmic2
         sh.set :iTime, now - @start
         sh.set :iResolution, width, height
       end
       g.shader sh
       g.rect 0, 0, g.width, g.height
-    end if frameCount % @interval == 0
+    end
     copy @canvas, 0, 0, @canvas.width, @canvas.height, 0, 0, width, height
   end
 
@@ -63,9 +62,9 @@ class Background < Scene
       uniform vec4 color1;
       uniform vec4 color2;
       void main() {
-        float t = mod(iTime, 32.0) * 8.0;
-        float x = mod(vertTexCoord.x + t, 32.0) < 16.0 ? 1.0 : 0.0;
-        float y = mod(vertTexCoord.y + t, 32.0) < 16.0 ? 1.0 : 0.0;
+        float t = mod(iTime, 32.) * 8.;
+        float x = mod(vertTexCoord.x + t, 32.) < 16. ? 1. : 0.;
+        float y = mod(vertTexCoord.y + t, 32.) < 16. ? 1. : 0.;
         gl_FragColor = x != y ? color1 : color2;
       }
     END
