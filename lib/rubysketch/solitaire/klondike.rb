@@ -396,11 +396,26 @@ class Klondike < Scene
         d.close
       end
       d.addButton 'New Game', width: 6 do
-        startNewGame
+        d.close
+        showNewGameDialog
       end
       d.addSpace 10
       d.addButton icon: skin.settingsIcon do
         showSettingsDialog
+      end
+    }
+  end
+
+  def showNewGameDialog()
+    add Dialog.new(alpha: 180).tap {|d|
+      d.addLabel "Start New Game?"
+      d.addSpace 20
+      d.addButton 'OK', width: 4 do
+        startNewGame
+        d.close
+      end
+      d.addButton 'Cancel', width: 4 do
+        d.close
       end
     }
   end
