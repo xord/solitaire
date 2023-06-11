@@ -425,7 +425,8 @@ class Klondike < Scene
       i = skin.closedImage
       resizeImage i, i.width / 2, i.height / 2
     }
-    add Dialog.new(alpha: 180).tap {|d|
+    add Dialog.new(alpha: 255).tap {|d|
+      background = d.add Background.new backgroundScene.type
       cardImage = d.addElement Sprite.new image: closedImage.call
       d.addSpace 20
       d.addButton 'Change Card Design', width: 6 do
@@ -434,8 +435,8 @@ class Klondike < Scene
         cardImage.image = closedImage.call
       end
       d.addButton 'Change Background', width: 6 do
-        backgroundScene.set backgroundScene.nextType
-        d.close
+        background.set background.nextType
+        backgroundScene.set background.type
       end
       if ios?
         d.addSpace 10

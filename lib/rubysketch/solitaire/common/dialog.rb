@@ -61,8 +61,9 @@ class Dialog < Scene
   end
 
   def draw()
-    sprite overlay, *elements
+    sprite overlay
     super
+    sprite *elements
   end
 
   def resized(w, h)
