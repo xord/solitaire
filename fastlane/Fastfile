@@ -35,13 +35,13 @@ platform :ios do
 
   lane :match_update do
     %w[development adhoc appstore].each do |type|
-      sync_code_signing(type: type, **match_params.call)
+      sync_code_signing type: type, **match_params.call
     end
   end
 
   lane :match_fetch do
     %w[development adhoc appstore].each do |type|
-      sync_code_signing(type: type, **match_params.call, readonly: true)
+      sync_code_signing type: type, **match_params.call, readonly: true
     end
   end
 
@@ -65,6 +65,6 @@ platform :ios do
 
     sync_code_signing type: 'appstore', readonly: true
     build_app workspace: workspace, scheme: config(:app_name)
-    upload_to_testflight(**params)
+    upload_to_testflight **params
   end
 end
