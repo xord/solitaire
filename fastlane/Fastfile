@@ -4,10 +4,10 @@
 require 'yaml'
 
 
-def config(key)
+def config(key, defval = nil)
   $config ||= YAML.load_file(File.expand_path '../config.yml', __dir__) rescue {}
   key = key.to_s.upcase
-  ENV[key] or $config[key] or raise "missing #{key}"
+  ENV[key] or $config[key] or defval or raise "missing #{key}"
 end
 
 def project()
@@ -23,7 +23,14 @@ default_platform(:ios)
 
 platform :ios do
   lane :setup_code_signing do
-    update_code_signing_settings path: project, use_automatic_signing: false
+    type     = config :match_type, 'Development'
+    identity = type == 'Development' ? type : 'Distribution'
+    update_code_signing_settings(
+      path:                  project,
+      team_id:               config(:team_id),
+      code_sign_identity:    "Apple #{identity}",
+      profile_name:          "match #{type} #{config :app_id}",
+      use_automatic_signing: false)
   end
 
   match_params = -> {{
@@ -63,7 +70,7 @@ platform :ios do
     params = upload_params.call
     params.update({changelog: config(:changelog)})
 
-    sync_code_signing type: 'appstore', readonly: true
+    sync_code_signing type: 'appstore', readonly: true, **match_params.call
     build_app workspace: workspace, scheme: config(:app_name)
     upload_to_testflight **params
   end

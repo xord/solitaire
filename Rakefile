@@ -21,6 +21,7 @@ PROJECT   = 'project.yml'
 CHANGELOG = 'ChangeLog.md'
 
 APP_NAME    = ENV['APP_NAME'] = "Ruby#{target.name}"
+APP_ID      = ENV['APP_ID']   = "org.xord.#{APP_NAME}"
 XCWORKSPACE = "#{APP_NAME}.xcworkspace"
 XCODEPROJ   = "#{APP_NAME}.xcodeproj"
 GINFO_PLIST = 'RubySolitaire/GoogleService-Info.plist'
@@ -164,8 +165,11 @@ end# version
 
 
 namespace :release do
-  task :testflight do
-    ENV['CHANGELOG'] = versions.values.first['en']
+  task :testflight => XCWORKSPACE do
+    ENV['MATCH_TYPE'] = 'AppStore'
+    sh %( fastlane setup_code_signing )
+
+    ENV['CHANGELOG']  = versions.values.first['en']
     sh %( fastlane release_testflight )
   end
 
