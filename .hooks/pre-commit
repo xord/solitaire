@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+
+def ls_files(regexp)
+  `git ls-files`
+    .lines(chomp: true)
+    .select {|path| path =~ regexp}
+end
+
+
+raise "do not commit fastlane/config.yml" unless
+  ls_files(%r|fastlane/config.yml|).empty?

@@ -26,6 +26,26 @@ BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
 
 
+def versions()
+  File.read(CHANGELOG)
+    .split(/^\s*##\s*\[\s*v([\d\.]+)\s*\].*$/)
+    .slice(1..-1)
+    .each_slice(2)
+    .to_h
+    .transform_values do |changes|
+      changes.strip.lines
+        .group_by {|line| line[/^\W*(\[\w{2}\])/, 1]}
+        .map {|lang, lines|
+          [
+            lang[/\w+/],
+            lines.map {|line| line.sub(lang, '')}.join
+          ]
+        }
+        .to_h
+    end
+end
+
+
 default_tasks
 build_ruby_gem
 
@@ -65,7 +85,7 @@ namespace :xcode do
 
   file XCWORKSPACE => [BUNDLE_DIR, PODS_DIR]
 
-  file XCODEPROJ do
+  file XCODEPROJ => 'scripts:setup' do
     sh %( xcodegen generate )
     sh %( fastlane setup_code_signing )
   end
@@ -104,36 +124,23 @@ end# pods
 
 
 namespace :version do
-  task :update do
-    versions = File.read(CHANGELOG)
-      .split(/^\s*##\s*\[\s*v([\d\.]+)\s*\].*$/)
-      .slice(1..-1)
-      .each_slice(2)
-      .to_h
-      .transform_values do |changes|
-        changes.strip.lines
-          .group_by {|line| line[/(\[\w{2}\])/, 1]}
-          .map {|lang, lines|
-            [
-              lang[/\w+/],
-              lines.map {|line| line.sub(lang, '')}.join
-            ]
-          }
-          .to_h
-      end
+  task :update => %w[version:update_project version:update_release_notes]
 
+  task :update_project do
     filter_file PROJECT do |body|
-      version           = versions.keys.first
-      marketing_version = version.split('.')
+      ver           = versions.keys.first
+      marketing_ver = ver.split('.')
         .map(&:to_i)
         .tap {|a| a.pop while a.size > 3}
         .join '.'
       replace = -> s, key, ver {s.gsub /#{key}:\s*[\d\.]+/, "#{key}: #{ver}"}
 
-      body = replace.call body, 'CURRENT_PROJECT_VERSION', version
-      body = replace.call body, 'MARKETING_VERSION',       marketing_version
+      body = replace.call body, 'CURRENT_PROJECT_VERSION', ver
+      body = replace.call body, 'MARKETING_VERSION',       marketing_ver
     end
+  end
 
+  task :update_release_notes do
     versions.values.first.tap do |changes|
       changes.each do |lang, lines|
         path = Dir.glob("fastlane/metadata/#{lang}*/release_notes.txt").first
@@ -141,12 +148,13 @@ namespace :version do
       end
     end
   end
-end
+end# version
 
 
 namespace :release do
   task :testflight do
-    sh %( fastlane testflight )
+    ENV['CHANGELOG'] = versions.values.first['en']
+    sh %( fastlane release_testflight )
   end
 
   namespace :match do
@@ -160,4 +168,23 @@ namespace :release do
       sh %( fastlane match development --force_for_new_devices )
     end
   end# match
-end# fastlane
+end# release
+
+
+namespace :scripts do
+  task :setup => 'scripts:hooks:setup'
+
+  namespace :hooks do
+    hooks = Dir.glob('.hooks/*')
+      .map {|path| [path, ".git/hooks/#{File.basename path}"]}
+      .to_h
+
+    task :setup => hooks.values
+
+    hooks.each do |from, to|
+      file to => from do
+        sh %( cp #{from} #{to} )
+      end
+    end
+  end
+end# scripts

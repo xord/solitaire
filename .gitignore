@@ -3,6 +3,7 @@
 */Info.plist
 *~
 
+fastlane/config.yml
 rubysketch-solitaire-*.gem
 solitaire.json
 

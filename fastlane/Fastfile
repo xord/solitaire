@@ -1,13 +1,26 @@
 # -*- mode: ruby -*-
 
 
+require 'yaml'
+
+
 def env(key)
   key = key.to_s.upcase
   ENV[key] or raise "missing #{key} env var"
 end
 
-def project   = "#{env :app_name}.xcodeproj"
-def workspace = "#{env :app_name}.xcworkspace"
+def project()
+  "#{env :app_name}.xcodeproj"
+end
+
+def workspace()
+  "#{env :app_name}.xcworkspace"
+end
+
+
+(YAML.load_file(File.expand_path 'config.yml', __dir__) rescue nil)&.each do |key, value|
+  ENV[key] = value.to_s
+end
 
 
 default_platform(:ios)
@@ -50,8 +63,12 @@ platform :ios do
   }}
 
   desc "Upload to TestFlight"
-  lane :upload_testflight do
-    build_app(workspace: workspace, scheme: env(:app_name))
-    upload_to_testflight(**upload_params.call)
+  lane :release_testflight do
+    params = upload_params.call
+    params.update({changelog: env(:changelog)})
+
+    sync_code_signing type: 'appstore', readonly: true
+    build_app workspace: workspace, scheme: env(:app_name)
+    upload_to_testflight(**params)
   end
 end
