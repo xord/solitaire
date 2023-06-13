@@ -5,6 +5,8 @@
   .map  {|s| File.expand_path "#{s}/lib", __dir__}
   .each {|s| $:.unshift s if !$:.include?(s) && File.directory?(s)}
 
+require 'yaml'
+require 'base64'
 require 'xot/rake'
 
 require 'xot/extension'
@@ -21,10 +23,17 @@ CHANGELOG = 'ChangeLog.md'
 APP_NAME    = ENV['APP_NAME'] = "Ruby#{target.name}"
 XCWORKSPACE = "#{APP_NAME}.xcworkspace"
 XCODEPROJ   = "#{APP_NAME}.xcodeproj"
+GINFO_PLIST = 'RubySolitaire/GoogleService-Info.plist'
 
 BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
 
+
+def config(key)
+  $config ||= YAML.load_file(File.expand_path 'config.yml', __dir__) rescue {}
+  key = key.to_s.upcase
+  ENV[key] or $config[key]
+end
 
 def versions()
   File.read(CHANGELOG)
@@ -71,8 +80,8 @@ namespace :xcode do
     sh %( xcodebuild clean ) if File.exist?(XCODEPROJ)
   end
 
-  task :clobber => 'xcode:clean' do
-    sh %( rm -rf #{XCWORKSPACE} #{XCODEPROJ} )
+  task :clobber do
+    sh %( rm -rf #{XCWORKSPACE} #{XCODEPROJ} #{GINFO_PLIST} )
   end
 
   task :build => XCWORKSPACE do
@@ -86,6 +95,9 @@ namespace :xcode do
   file XCWORKSPACE => [BUNDLE_DIR, PODS_DIR]
 
   file XCODEPROJ => 'scripts:setup' do
+    plist = config(:ginfo_plist)&.then {|s| Base64.decode64 s}
+    File.write GINFO_PLIST, plist if plist
+
     sh %( xcodegen generate )
     sh %( fastlane setup_code_signing )
   end

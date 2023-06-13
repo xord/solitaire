@@ -4,22 +4,18 @@
 require 'yaml'
 
 
-def env(key)
+def config(key)
+  $config ||= YAML.load_file(File.expand_path '../config.yml', __dir__) rescue {}
   key = key.to_s.upcase
-  ENV[key] or raise "missing #{key} env var"
+  ENV[key] or $config[key] or raise "missing #{key}"
 end
 
 def project()
-  "#{env :app_name}.xcodeproj"
+  "#{config :app_name}.xcodeproj"
 end
 
 def workspace()
-  "#{env :app_name}.xcworkspace"
-end
-
-
-(YAML.load_file(File.expand_path 'config.yml', __dir__) rescue nil)&.each do |key, value|
-  ENV[key] = value.to_s
+  "#{config :app_name}.xcworkspace"
 end
 
 
@@ -31,10 +27,10 @@ platform :ios do
   end
 
   match_params = -> {{
-    team_id:        env(:team_id),
-    app_identifier: env(:app_id),
-    git_url:        env(:certs_url),
-    git_branch:     env(:app_name)
+    team_id:        config(:team_id),
+    app_identifier: config(:app_id),
+    git_url:        config(:certs_url),
+    git_branch:     config(:app_name)
   }}
 
   lane :match_update do
@@ -56,19 +52,19 @@ platform :ios do
   end
 
   upload_params = -> {{
-    apple_id:       env(:apple_id),
-    itc_team_id:    env(:itc_team_id),
-    team_id:        env(:team_id),
-    app_identifier: env(:app_id)
+    apple_id:       config(:apple_id),
+    itc_team_id:    config(:itc_team_id),
+    team_id:        config(:team_id),
+    app_identifier: config(:app_id)
   }}
 
   desc "Upload to TestFlight"
   lane :release_testflight do
     params = upload_params.call
-    params.update({changelog: env(:changelog)})
+    params.update({changelog: config(:changelog)})
 
     sync_code_signing type: 'appstore', readonly: true
-    build_app workspace: workspace, scheme: env(:app_name)
+    build_app workspace: workspace, scheme: config(:app_name)
     upload_to_testflight(**params)
   end
 end

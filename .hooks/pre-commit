@@ -8,5 +8,6 @@ def ls_files(regexp)
 end
 
 
-raise "do not commit fastlane/config.yml" unless
-  ls_files(%r|fastlane/config.yml|).empty?
+%w[config.yml GoogleService-Info.plist].each do |name|
+  raise "Do not commit #{name}" unless ls_files(/#{Regexp.escape name}/).empty?
+end
