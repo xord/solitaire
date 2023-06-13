@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+
+
+def env(key)
+  key = key.to_s.upcase
+  ENV[key] or raise "missing #{key} env var"
+end
+
+def project   = "#{env :app_name}.xcodeproj"
+def workspace = "#{env :app_name}.xcworkspace"
+
+
+default_platform(:ios)
+
+platform :ios do
+  lane :setup_code_signing do
+    update_code_signing_settings path: project, use_automatic_signing: false
+  end
+
+  match_params = -> {{
+    team_id:        env(:team_id),
+    app_identifier: env(:app_id),
+    git_url:        env(:certs_url),
+    git_branch:     env(:app_name)
+  }}
+
+  lane :match_update do
+    %w[development adhoc appstore].each do |type|
+      sync_code_signing(type: type, **match_params.call)
+    end
+  end
+
+  lane :match_fetch do
+    %w[development adhoc appstore].each do |type|
+      sync_code_signing(type: type, **match_params.call, readonly: true)
+    end
+  end
+
+  lane :match_delete do
+    %w[development distribution].each do |type|
+      match_nuke(type: type)
+    end
+  end
+
+  upload_params = -> {{
+    apple_id:       env(:apple_id),
+    itc_team_id:    env(:itc_team_id),
+    team_id:        env(:team_id),
+    app_identifier: env(:app_id)
+  }}
+
+  desc "Upload to TestFlight"
+  lane :upload_testflight do
+    build_app(workspace: workspace, scheme: env(:app_name))
+    upload_to_testflight(**upload_params.call)
+  end
+end

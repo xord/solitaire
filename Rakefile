@@ -15,9 +15,12 @@ EXTENSIONS = [RubySketch::Solitaire]
 
 GEMNAME  = "rubysketch-#{target.name.downcase}"
 
-NAME_IOS = "Ruby#{target.name}"
-XCWORKSPACE = "#{NAME_IOS}.xcworkspace"
-XCODEPROJ   = "#{NAME_IOS}.xcodeproj"
+PROJECT   = 'project.yml'
+CHANGELOG = 'ChangeLog.md'
+
+APP_NAME    = ENV['APP_NAME'] = "Ruby#{target.name}"
+XCWORKSPACE = "#{APP_NAME}.xcworkspace"
+XCODEPROJ   = "#{APP_NAME}.xcodeproj"
 
 BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
@@ -25,7 +28,6 @@ PODS_DIR   = 'Pods'
 
 default_tasks
 build_ruby_gem
-
 
 task :build => 'xcode:build'
 
@@ -65,8 +67,9 @@ namespace :xcode do
 
   file XCODEPROJ do
     sh %( xcodegen generate )
+    sh %( fastlane setup_code_signing )
   end
-end
+end# xcode
 
 
 namespace :bundle do
@@ -82,7 +85,7 @@ namespace :bundle do
     sh %( bundle install )
     raise "failed to bundle install" unless File.exist? BUNDLE_DIR
   end
-end
+end# bundle
 
 
 namespace :pods do
@@ -97,4 +100,64 @@ namespace :pods do
   file PODS_DIR => [BUNDLE_DIR, XCODEPROJ] do
     sh %( bundle exec pod install --verbose --repo-update )
   end
+end# pods
+
+
+namespace :version do
+  task :update do
+    versions = File.read(CHANGELOG)
+      .split(/^\s*##\s*\[\s*v([\d\.]+)\s*\].*$/)
+      .slice(1..-1)
+      .each_slice(2)
+      .to_h
+      .transform_values do |changes|
+        changes.strip.lines
+          .group_by {|line| line[/(\[\w{2}\])/, 1]}
+          .map {|lang, lines|
+            [
+              lang[/\w+/],
+              lines.map {|line| line.sub(lang, '')}.join
+            ]
+          }
+          .to_h
+      end
+
+    filter_file PROJECT do |body|
+      version           = versions.keys.first
+      marketing_version = version.split('.')
+        .map(&:to_i)
+        .tap {|a| a.pop while a.size > 3}
+        .join '.'
+      replace = -> s, key, ver {s.gsub /#{key}:\s*[\d\.]+/, "#{key}: #{ver}"}
+
+      body = replace.call body, 'CURRENT_PROJECT_VERSION', version
+      body = replace.call body, 'MARKETING_VERSION',       marketing_version
+    end
+
+    versions.values.first.tap do |changes|
+      changes.each do |lang, lines|
+        path = Dir.glob("fastlane/metadata/#{lang}*/release_notes.txt").first
+        filter_file(path) {lines}
+      end
+    end
+  end
 end
+
+
+namespace :release do
+  task :testflight do
+    sh %( fastlane testflight )
+  end
+
+  namespace :match do
+    task(:update) {sh %( fastlane match_update )}
+    task(:fetch)  {sh %( fastlane match_fetch  )}
+    task(:delete) {sh %( fastlane match_delete )}
+
+    task :refresh => ['fastlane:match:delete', 'fastlane:match:update']
+
+    task :fetch_new_devices do
+      sh %( fastlane match development --force_for_new_devices )
+    end
+  end# match
+end# fastlane
