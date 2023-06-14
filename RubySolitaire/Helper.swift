@@ -42,4 +42,21 @@ class Helper {
         return String(first)
     }
 
+    static func getInfoString(_ key: String, plistName: String? = nil) -> String? {
+        guard let dic = getPlist(plistName) else {
+            return nil
+        }
+        return dic[key] as? String
+    }
+
+    static func getPlist(_ name: String? = nil) -> [String: Any]? {
+        guard let name = name else {
+            return Bundle.main.infoDictionary
+        }
+        guard let path = Bundle.main.path(forResource: name, ofType: "plist") else {
+            return nil
+        }
+        return NSDictionary(contentsOfFile: path) as? [String: Any]
+    }
+
 }// Helper

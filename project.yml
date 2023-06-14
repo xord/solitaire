@@ -20,7 +20,6 @@ settings:
     MARKETING_VERSION: 0.1.0
     CURRENT_PROJECT_VERSION: 0.1.0
     DEVELOPMENT_TEAM: $(TEAM_ID)
-    GAD_APP_ID: ca-app-pub-3940256099942544~1458002511
   configs:
     debug:
       DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
@@ -85,7 +84,9 @@ targets:
           #- UIInterfaceOrientationLandscapeRight
         NSCameraUsageDescription:
           Ruby scripts will be able to retrieve images from the camera.
-        GADApplicationIdentifier: $(GAD_APP_ID)
+        GADApplicationIdentifier:    ca-app-pub-3940256099942544~1458002511
+        GADGameScreenBottomBannerAd: ca-app-pub-3940256099942544/2934735716
+        GADGameScreenInterstitialAd: ca-app-pub-3940256099942544/4411468910
         SKAdNetworkItems:
           - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork
           - SKAdNetworkIdentifier: 4fzdc2evr5.skadnetwork
