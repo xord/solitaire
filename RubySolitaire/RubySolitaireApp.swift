@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseCore
 import GoogleMobileAds
+import AppTrackingTransparency
 
 
 class AppContext: NSObject, ObservableObject {
@@ -25,6 +26,19 @@ class SceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
             window = windowScene.keyWindow
         } else {
             window = windowScene.windows.first
+        }
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        showATTDialog()
+    }
+
+    func showATTDialog() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else {
+                return
+            }
+            ATTrackingManager.requestTrackingAuthorization {_ in}
         }
     }
 }
