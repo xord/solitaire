@@ -4,6 +4,7 @@
 *~
 
 config.yml
+GoogleService-Info.plist
 rubysketch-solitaire-*.gem
 solitaire.json
 
