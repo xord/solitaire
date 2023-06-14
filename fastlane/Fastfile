@@ -60,7 +60,6 @@ platform :ios do
 
   upload_params = -> {{
     apple_id:       config(:apple_id),
-    itc_team_id:    config(:itc_team_id),
     team_id:        config(:team_id),
     app_identifier: config(:app_id)
   }}
