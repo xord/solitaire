@@ -165,12 +165,31 @@ end# version
 
 
 namespace :release do
-  task :testflight => XCWORKSPACE do
+  task :testflight => 'release:setup' do
     ENV['MATCH_TYPE'] = 'AppStore'
     sh %( fastlane setup_code_signing )
 
     ENV['CHANGELOG']  = versions.values.first['en']
     sh %( fastlane release_testflight )
+  end
+
+  task :setup => ['xcode:clobber', :clobber, XCWORKSPACE] do
+    replace = -> s, key, value {s.gsub /#{key}:\s*.+/, "#{key}: #{value}"}
+
+    filter_file PROJECT do |body|
+      body = replace.call(
+        body,
+        'GADApplicationIdentifier',
+        config(:gad_app_id))
+      body = replace.call(
+        body,
+        'GADGameScreenBottomBanner',
+        config(:gad_game_screen_bottom_banner))
+      body = replace.call(
+        body,
+        'GADGameScreenInterstitial',
+        config(:gad_game_screen_interstitial))
+    end
   end
 
   namespace :match do

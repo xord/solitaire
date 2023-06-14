@@ -90,7 +90,7 @@ struct GameScreen: View {
     @EnvironmentObject private var sceneDelegate: SceneDelegate
 
     @StateObject private var interstitialAd = InterstitialAd(
-        adUnitID: Helper.getInfoString("GADGameScreenInterstitialAd")!)
+        adUnitID: Helper.getInfoString("GADGameScreenInterstitial")!)
 
     @State private var command: String = ""
 
@@ -107,7 +107,7 @@ struct GameScreen: View {
                     GameView(command: $command)
                     AdBannerView(
                         width: gr.size.width,
-                        adUnitID: Helper.getInfoString("GADGameScreenBottomBannerAd")!,
+                        adUnitID: Helper.getInfoString("GADGameScreenBottomBanner")!,
                         rootViewController: sceneDelegate.window!.rootViewController!
                     )
                     .frame(width: gr.size.width, height: 50)
