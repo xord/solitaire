@@ -51,32 +51,23 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        CRuby.evaluate("$language = '\(language)'")
+        if let lang = Helper.language {
+            CRuby.evaluate("$language = '\(lang)'")
+        }
 
-        #if DEBUG
+        if Helper.isDebug {
             CRuby.evaluate("$debug = true")
-        #endif
+        }
 
-        #if !DEBUG
+        if Helper.isRelease {
             FirebaseApp.configure()
-        #endif
+        }
 
         GADMobileAds.sharedInstance().start(completionHandler: { [weak self] _ in
             self!.appContext.ready = true
         })
 
         return true
-    }
-
-    var language: String {
-        guard let lang = Locale.preferredLanguages.first else {
-            return ""
-        }
-        guard let first = lang.split(separator: "-").first else {
-            return ""
-        }
-
-        return String(first)
     }
 }
 
