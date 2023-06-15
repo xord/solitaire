@@ -2,6 +2,11 @@
 //  Bit of weekend tinkering
 //  Some shadow artefacts which are irritating but felt it was overall good enough to share.
 
+vec2 round(vec2 v) {
+  return floor(v + 0.5);
+}
+#define const
+
 #define TIME                iTime
 #define RESOLUTION          iResolution
 
@@ -41,13 +46,13 @@ vec3 sRGB(vec3 t) {
 // License: Unknown, author: Matt Taylor (https://github.com/64), found: https://64.github.io/tonemapping/
 vec3 aces_approx(vec3 v) {
   v = max(v, 0.0);
-  v *= 0.6f;
-  float a = 2.51f;
-  float b = 0.03f;
-  float c = 2.43f;
-  float d = 0.59f;
-  float e = 0.14f;
-  return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+  v *= 0.6;
+  float a = 2.51;
+  float b = 0.03;
+  float c = 2.43;
+  float d = 0.59;
+  float e = 0.14;
+  return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0, 1.0);
 }
 
 // License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
@@ -212,4 +217,3 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
   col = sRGB(col);
   fragColor = vec4(col, 1.0);
 }
-
