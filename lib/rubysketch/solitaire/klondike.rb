@@ -385,7 +385,7 @@ class Klondike < Scene
   end
 
   def showPauseDialog()
-    add Dialog.new.tap {|d|
+    add Dialog.new {|d|
       d.addLabel "#{str 'Difficulty'}: #{str difficulty.upcase}"
       d.addLabel "#{str 'Best Time'}: #{timeToText bestTime}"
       d.addLabel "#{str 'Best Score'}: #{bestScore}"
@@ -400,8 +400,15 @@ class Klondike < Scene
         showNewGameDialog
       end
       d.addSpace 10
-      d.addButton icon: skin.settingsIcon do
-        showSettingsDialog
+      d.group do
+        if ios?
+          d.addButton icon: skin.menuIcon do
+            sendCommand :showMenu
+          end
+        end
+        d.addButton icon: skin.settingsIcon do
+          showSettingsDialog
+        end
       end
     }
   end
@@ -437,12 +444,6 @@ class Klondike < Scene
       d.addButton str('Change Background'), width: 7 do
         background.set background.nextType
         backgroundScene.set background.type
-      end
-      if ios?
-        d.addSpace 10
-        d.addButton str('Privacy Policy'), width: 6 do
-          sendCommand :openURL, 'https://xord.org/rubysolitaire/privacy_policy.html'
-        end
       end
       d.addSpace 10
       d.addButton str('Close'), width: 6 do

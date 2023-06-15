@@ -3,17 +3,29 @@ using RubySketch
 
 class Dialog < Scene
 
-  def initialize(background: 0, alpha: 100, z: 1000)
-    super
+  def initialize(background: 0, alpha: 100, z: 1000, &block)
     @background, @alpha = background, 0
+    @elements = []
+    super
     overlay.z = z
+    group :vertical, &block if block
     animate 0.2 do |t|
       @alpha = alpha * t
     end
   end
 
+  def group(flow = :horizontal, &block)
+    old, @group = @group, []
+    block.call self
+  ensure
+    (old || @elements).push({elements: @group, flow: flow})
+    @group = old
+    updateLayout
+  end
+
   def addElement(sprite)
-    elements.push sprite
+    (@group || @elements).push sprite
+    sprite.z = overlay.z
     addSprite sprite if active?
     updateLayout
     sprite
@@ -22,7 +34,6 @@ class Dialog < Scene
   def addLabel(label, rgb: [255], fontSize: 24, align: CENTER)
     bounds = textFont.textBounds label, 0, 0, fontSize
     addElement Sprite.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
-      sp.z = overlay.z
       sp.draw do
         r, g, b, a = skin.translucentBackgroundColor
         fill r, g, b, a * 3
@@ -37,7 +48,6 @@ class Dialog < Scene
 
   def addButton(*args, **kwargs, &block)
     addElement Button.new(*args, **kwargs).tap {|b|
-      b.z = overlay.z
       b.clicked &block
     }
   end
@@ -57,7 +67,8 @@ class Dialog < Scene
   end
 
   def elements()
-    @elements ||= []
+    f = -> es {es.map {|e| ((e in {elements:})) ? f[elements] : e}}
+    f.call(@elements).flatten
   end
 
   def draw()
@@ -99,19 +110,40 @@ class Dialog < Scene
 
   def cancelButton()
     @cancelButton ||= Button.new('CLOSE', width: 3, fontSize: 28).tap do |sp|
-      sp.z = overlay.z
       sp.clicked {close}
     end
   end
 
   def updateLayout()
-    w, h      = width, height
-    allHeight = elements.map(&:height).reduce {|a, b| a + MARGIN + b} || 0
-    y         = (h - allHeight) / 2
-    elements.each do |e|
-      e.x = (w - e.w) / 2
-      e.y = y
-      y  += e.h + MARGIN
+    element = {elements: @elements, flow: :vertical}
+    w, h    = getSize element
+    setPosition element, (width - w) / 2, (height - h) / 2, w, h
+  end
+
+  def getSize(element)
+    if element in {elements:, flow:}
+      v     = flow == :vertical
+      sizes = elements.map {|e| getSize e}
+      sum   = sizes.map {|size| size[v ? 1 : 0]}.reduce {|a, b| a + MARGIN + b} || 0
+      max   = sizes.map {|size| size[v ? 0 : 1]}.max || 0
+      v ? [max, sum] : [sum, max]
+    else
+      [element.w, element.h]
+    end
+  end
+
+  def setPosition(element, x, y, w, h)
+    if element in {elements:, flow:}
+      v = flow == :vertical
+      elements.each do |e|
+        ew, eh = getSize e
+        ex, ey = v ? [x + (w - ew) / 2, y] : [x, y + (h - eh) / 2]
+        setPosition e, ex, ey, ew, eh
+        x += ew + MARGIN if !v
+        y += eh + MARGIN if  v
+      end
+    else
+      element.x, element.y = x, y
     end
   end
 

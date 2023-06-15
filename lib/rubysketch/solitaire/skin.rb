@@ -20,8 +20,12 @@ class Skin
     @pauseIcon ||= self.class.getAssetImage 0, 192, 64, 64
   end
 
+  def menuIcon()
+    @menuIcon ||= self.class.getAssetImage 64, 192, 64, 64
+  end
+
   def settingsIcon()
-    @settingsIcon ||= self.class.getAssetImage 64, 192, 64, 64
+    @settingsIcon ||= self.class.getAssetImage 128, 192, 64, 64
   end
 
   def closedImage()
