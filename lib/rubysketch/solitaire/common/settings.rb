@@ -11,8 +11,11 @@ class Settings
   end
 
   def []=(key, value)
-    hash[key] = value
-    save @path
+    if value != hash[key]
+      hash[key] = value
+      save @path
+    end
+    value
   end
 
   def [](key)
