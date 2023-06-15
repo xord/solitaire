@@ -4,7 +4,6 @@ options:
   bundleIdPrefix: org.xord
   deploymentTarget:
     iOS: 14.0
-  developmentLanguage: ja
 
 settingGroups:
   all:
@@ -68,6 +67,7 @@ targets:
       properties:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: Solitaire
         LSRequiresIPhoneOS: YES
         UILaunchScreen: ""
         UIApplicationSupportsIndirectInputEvents: YES

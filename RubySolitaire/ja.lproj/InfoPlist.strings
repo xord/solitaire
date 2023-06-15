@@ -1,2 +1,4 @@
+CFBundleDisplayName = "ソリティア";
+
 NSCameraUsageDescription       = "Rubyスクリプトからカメラの画像を取得できるようになります。";
 NSUserTrackingUsageDescription = "許可すると、あなたの好みに合った広告が表示されやすくなります。";
