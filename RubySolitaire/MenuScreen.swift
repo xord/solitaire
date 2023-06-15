@@ -50,15 +50,13 @@ struct LicensesScreen: View {
 
 ## Cosmic 2
 
-https://www.shadertoy.com/view/XllGzN
-
 // Started as Star Nest by Pablo RomÃ¡n Andrioli
 // Modifications by Beibei Wang and Huw Bowles.
 // This content is under the MIT License.
 
-## Classic PSP Wave
+https://www.shadertoy.com/view/XllGzN
 
-https://www.shadertoy.com/view/ddV3DK
+## Classic PSP Wave
 
 MIT License
 
@@ -81,6 +79,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+https://www.shadertoy.com/view/ddV3DK
+
+## Reflective hexes
+
+// CC0: Reflective hexes
+(https://creativecommons.org/publicdomain/zero/1.0/)
+
+https://www.shadertoy.com/view/ds2XRt
 
 
 # Assets
