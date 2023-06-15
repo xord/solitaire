@@ -18,11 +18,15 @@ class Dialog < Scene
     end
   end
 
-  def group(flow = :horizontal, &block)
+  def group(flow = :horizontal, space: nil, &block)
     old, @group = @group, []
     block.call self
   ensure
-    (old || @elements).push({elements: @group, flow: flow})
+    (old || @elements).push({
+      elements: @group,
+      flow:     flow,
+      space:    space || MARGIN
+    })
     @group = old
     updateLayout
   end
@@ -121,16 +125,16 @@ class Dialog < Scene
   end
 
   def updateLayout()
-    element = {elements: @elements, flow: :vertical}
+    element = {elements: @elements, flow: :vertical, space: MARGIN}
     w, h    = getSize element
     setPosition element, (width - w) / 2, (height - h) / 2, w, h
   end
 
   def getSize(element)
-    if element in {elements:, flow:}
+    if element in {elements:, flow:, space:}
       v     = flow == :vertical
       sizes = elements.map {|e| getSize e}
-      sum   = sizes.map {|size| size[v ? 1 : 0]}.reduce {|a, b| a + MARGIN + b} || 0
+      sum   = sizes.map {|size| size[v ? 1 : 0]}.reduce {|a, b| a + space + b} || 0
       max   = sizes.map {|size| size[v ? 0 : 1]}.max || 0
       v ? [max, sum] : [sum, max]
     else
@@ -139,14 +143,14 @@ class Dialog < Scene
   end
 
   def setPosition(element, x, y, w, h)
-    if element in {elements:, flow:}
+    if element in {elements:, flow:, space:}
       v = flow == :vertical
       elements.each do |e|
         ew, eh = getSize e
         ex, ey = v ? [x + (w - ew) / 2, y] : [x, y + (h - eh) / 2]
         setPosition e, ex, ey, ew, eh
-        x += ew + MARGIN if !v
-        y += eh + MARGIN if  v
+        x += ew + space if !v
+        y += eh + space if  v
       end
     else
       element.x, element.y = x, y
