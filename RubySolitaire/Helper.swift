@@ -42,6 +42,10 @@ class Helper {
         return String(first)
     }
 
+    static var appVersion: String {
+        getInfoString("CFBundleShortVersionString")!
+    }
+
     static func getInfoString(_ key: String, plistName: String? = nil) -> String? {
         guard let dic = getPlist(plistName) else {
             return nil
@@ -57,6 +61,10 @@ class Helper {
             return nil
         }
         return NSDictionary(contentsOfFile: path) as? [String: Any]
+    }
+
+    static func openURL(_ url: URL) {
+        UIApplication.shared.open(url)
     }
 
 }// Helper

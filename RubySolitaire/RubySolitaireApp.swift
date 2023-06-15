@@ -110,6 +110,7 @@ struct GameScreen: View {
 
     @State private var url: URL? = nil
 
+    @State private var isMenuVisible = false
     @State private var isInterstitialAdVisible = false
 
     var body: some View {
@@ -145,6 +146,11 @@ struct GameScreen: View {
                 clearCommand()
             }
         }
+        .onChange(of: isMenuVisible) { visible in
+            if !visible {
+                clearCommand()
+            }
+        }
         .onChange(of: isInterstitialAdVisible) { visible in
             if visible, interstitialAd.ready {
                 interstitialAd.show(
@@ -157,6 +163,9 @@ struct GameScreen: View {
                 isInterstitialAdVisible = false
                 clearCommand()
             }
+        }
+        .sheet(isPresented: $isMenuVisible) {
+            MenuScreen(isVisible: $isMenuVisible)
         }
         .fullScreenCover(item: $url) { _ in
             if let url = url {
@@ -173,6 +182,8 @@ struct GameScreen: View {
                 return clearCommand()
             }
             self.url = url
+        case "showMenu":
+            isMenuVisible = true;
         case "showInterstitialAd":
             isInterstitialAdVisible = true
         default:

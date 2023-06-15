@@ -1,2 +1,6 @@
+appName = "Solitaire in Space";
+
+close = "Close";
+
 menuPrivacyPolicy = "Privacy Policy";
 menuLicenses      = "Licenses";

@@ -1,2 +1,6 @@
+appName = "宇宙ソリティア";
+
+close = "閉じる";
+
 menuPrivacyPolicy = "プライバシーポリシー";
 menuLicenses      = "ライセンス";

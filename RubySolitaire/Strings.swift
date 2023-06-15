@@ -1,4 +1,8 @@
 enum Strings : String, CaseIterable {
+    case appName
+
+    case close
+
     case menuPrivacyPolicy
     case menuLicenses
 
