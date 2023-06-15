@@ -433,7 +433,7 @@ class Klondike < Scene
       resizeImage i, i.width / 2, i.height / 2
     }
     add Dialog.new(alpha: 255).tap {|d|
-      background = d.add Background.new backgroundScene.type
+      bg        = d.add Background.new backgroundScene.type
       cardImage = d.addElement Sprite.new image: closedImage.call
       d.addButton str('Change Card Design'), width: 7 do
         skin skin.index + 1
@@ -441,13 +441,17 @@ class Klondike < Scene
         cardImage.image = closedImage.call
       end
       d.addSpace 10
-      backgroundName = d.addLabel background.name, alpha: 0 do
-        sendCommand :openURL, background.url
+      author = -> {bg.author&.then {|author| "by #{author}"} || '-'}
+      bgName = bgAuthor = nil
+      d.group :vertical, space: 0 do
+        bgName   = d.addLabel(bg.name, alpha: 0) {sendCommand :openURL, bg.url}
+        bgAuthor = d.addLabel author.call, fontSize: 16, alpha: 0
       end
       d.addButton str('Change Background'), width: 7 do
-        background.set background.nextType
-        backgroundName.label = background.name
-        backgroundScene.set background.type
+        bg.set bg.nextType
+        bgName  .label = bg.name
+        bgAuthor.label = author.call
+        backgroundScene.set bg.type
       end
       d.addSpace 20
       d.addButton str('Close'), width: 6 do
