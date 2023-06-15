@@ -3,6 +3,10 @@ using RubySketch
 
 class Dialog < Scene
 
+  class Label < Sprite
+    attr_accessor :label
+  end
+
   def initialize(background: 0, alpha: 100, z: 1000, &block)
     @background, @alpha = background, 0
     @elements = []
@@ -31,18 +35,20 @@ class Dialog < Scene
     sprite
   end
 
-  def addLabel(label, rgb: [255], fontSize: 24, align: CENTER)
+  def addLabel(label, rgb: [255], alpha: nil, fontSize: 24, align: CENTER, &block)
     bounds = textFont.textBounds label, 0, 0, fontSize
-    addElement Sprite.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
+    addElement Label.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
+      sp.label = label
       sp.draw do
         r, g, b, a = skin.translucentBackgroundColor
-        fill r, g, b, a * 3
+        fill r, g, b, alpha || (a * 3)
         rect 0, -MARGIN / 2, sp.w, sp.h + MARGIN
         textAlign align, CENTER
         textSize fontSize
         fill *rgb
-        text label, 0, 0, sp.w, sp.h
+        text sp.label, 0, 0, sp.w, sp.h
       end
+      sp.mouseClicked &block
     }
   end
 

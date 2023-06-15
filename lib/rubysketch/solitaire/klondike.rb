@@ -435,17 +435,21 @@ class Klondike < Scene
     add Dialog.new(alpha: 255).tap {|d|
       background = d.add Background.new backgroundScene.type
       cardImage = d.addElement Sprite.new image: closedImage.call
-      d.addSpace 20
       d.addButton str('Change Card Design'), width: 7 do
         skin skin.index + 1
         settings['skinIndex'] = skin.index
         cardImage.image = closedImage.call
       end
+      d.addSpace 10
+      backgroundName = d.addLabel background.name, alpha: 0 do
+        sendCommand :openURL, background.url
+      end
       d.addButton str('Change Background'), width: 7 do
         background.set background.nextType
+        backgroundName.label = background.name
         backgroundScene.set background.type
       end
-      d.addSpace 10
+      d.addSpace 20
       d.addButton str('Close'), width: 6 do
         d.close
       end
