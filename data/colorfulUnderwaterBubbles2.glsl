@@ -1,6 +1,8 @@
 // CCO: Colorful underwater bubbles II
 //  Recoloring of earlier shader + spherical shading
 
+#define const
+
 #define TIME        iTime
 #define RESOLUTION  iResolution
 #define PI          3.141592654
