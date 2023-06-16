@@ -13,6 +13,10 @@ class Klondike < Scene
     super + [*cards, *places].map(&:sprite) + interfaces
   end
 
+  def difficulty()
+    @difficulty ||= :normal
+  end
+
   def pause()
     super
     @prevTime = nil
@@ -106,7 +110,7 @@ class Klondike < Scene
     findAll  = -> id {  all.find {|obj|  obj .id == id} or raise "No object '#{id}'"}
     findCard = -> id {cards.find {|card| card.id == id} or raise "No card '#{id}'"}
 
-    @difficulty = hash['difficulty']
+    @difficulty = hash['difficulty'].intern
 
     self.history = History.load hash['history'] do |id|
       (id.respond_to?('=~') && id =~ /^id:/) ? findAll[id] : nil
@@ -147,10 +151,6 @@ class Klondike < Scene
     @history = history.tap do |h|
       h.updated {save}
     end
-  end
-
-  def difficulty()
-    @difficulty ||= :normal
   end
 
   def elapsedTime()
@@ -262,23 +262,23 @@ class Klondike < Scene
   end
 
   def deck()
-    @deck ||= CardPlace.new(:deck).tap do |deck|
+    @deck ||= CardPlace.new(self, :deck).tap do |deck|
       deck.sprite.mouseClicked {deckClicked}
     end
   end
 
   def nexts()
-    @nexts ||= NextsPlace.new(:nexts).tap do |nexts|
+    @nexts ||= NextsPlace.new(self, :nexts).tap do |nexts|
       nexts.sprite.mouseClicked {nextsClicked}
     end
   end
 
   def marks()
-    @marks ||= Card::MARKS.size.times.map {|i| MarkPlace.new "mark_#{i + 1}"}
+    @marks ||= Card::MARKS.size.times.map {|i| MarkPlace.new self, "mark_#{i + 1}"}
   end
 
   def columns()
-    @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new "column_#{i + 1}"}
+    @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new self, "column_#{i + 1}"}
   end
 
   def dealSound()
@@ -657,7 +657,7 @@ class Klondike < Scene
   def start!()
     @started = true
     [*cards, *places].each do |o|
-      o.started difficulty if o.respond_to? :started
+      o.started if o.respond_to? :started
     end
     resume
   end
@@ -891,17 +891,12 @@ end# Klondike
 
 class Klondike::NextsPlace < CardPlace
 
-  def initialize(*args, **kwargs, &block)
-    super
-    @drawCount = 1
+  def drawCount()
+    @game.difficulty == :hard ? 3 : 1
   end
 
-  attr_reader :drawCount
-
-  def started(difficulty)
-    @drawCount = difficulty == :hard ? 3 : 1
-
-    w       = skin.cardSpriteSize[0] + overlap * (@drawCount - 1)
+  def started()
+    w       = skin.cardSpriteSize[0] + overlap * (drawCount - 1)
     self.x -= w - self.w
     self.w  = w
   end
@@ -963,10 +958,6 @@ class Klondike::ColumnPlace < CardPlace
     super(*args, linkCards: true, **kwargs, &block)
   end
 
-  def started(difficulty)
-    @difficulty = difficulty
-  end
-
   def accept?(x, y, card)
     return false if !card || card.closed? || !card.canDrop?
     if empty?
@@ -975,7 +966,7 @@ class Klondike::ColumnPlace < CardPlace
     else
       any? {|card| card.hit?(x, y)} &&
         card.number == last.number - 1 &&
-        (@difficulty == :easy ? true : card.color != last.color)
+        (@game.difficulty == :easy || card.color != last.color)
     end
   end
 

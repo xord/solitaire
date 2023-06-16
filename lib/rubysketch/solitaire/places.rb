@@ -8,8 +8,8 @@ class CardPlace
 
   extend Forwardable
 
-  def initialize(name, linkCards: false)
-    @name, @linkCards = name.intern, linkCards
+  def initialize(game, name, linkCards: false)
+    @game, @name, @linkCards = game, name.intern, linkCards
     @cards = []
   end
 
