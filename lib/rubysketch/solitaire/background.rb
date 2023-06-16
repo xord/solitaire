@@ -94,6 +94,8 @@ class Background < Scene
         sh.set :iResolution, width, height
       end
       g.shader sh
+      g.translate 0, g.height
+      g.scale 1, -1
       g.rect 0, 0, g.width, g.height
     end
     copy @canvas, 0, 0, @canvas.width, @canvas.height, 0, 0, width, height
@@ -109,8 +111,8 @@ class Background < Scene
       uniform vec4 color2;
       void main() {
         float t = mod(iTime, 32.) * 8.;
-        float x = mod(vertTexCoord.x + t, 32.) < 16. ? 1. : 0.;
-        float y = mod(vertTexCoord.y + t, 32.) < 16. ? 1. : 0.;
+        float x = mod( vertTexCoord.x + t, 32.) < 16. ? 1. : 0.;
+        float y = mod(-vertTexCoord.y + t, 32.) < 16. ? 1. : 0.;
         gl_FragColor = x != y ? color1 : color2;
       }
     END
