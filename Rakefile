@@ -136,34 +136,6 @@ namespace :pods do
 end# pods
 
 
-namespace :version do
-  task :update => %w[version:update_project version:update_release_notes]
-
-  task :update_project do
-    filter_file PROJECT do |body|
-      ver           = versions.keys.first
-      marketing_ver = ver.split('.')
-        .map(&:to_i)
-        .tap {|a| a.pop while a.size > 3}
-        .join '.'
-      replace = -> s, key, ver {s.gsub /#{key}:\s*[\d\.]+/, "#{key}: #{ver}"}
-
-      body = replace.call body, 'CURRENT_PROJECT_VERSION', ver
-      body = replace.call body, 'MARKETING_VERSION',       marketing_ver
-    end
-  end
-
-  task :update_release_notes do
-    versions.values.first.tap do |changes|
-      changes.each do |lang, lines|
-        path = Dir.glob("fastlane/metadata/#{lang}*/release_notes.txt").first
-        filter_file(path) {lines}
-      end
-    end
-  end
-end# version
-
-
 namespace :release do
   task :testflight => 'release:setup' do
     ENV['MATCH_TYPE'] = 'AppStore'

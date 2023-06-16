@@ -1,13 +1,66 @@
 #!/usr/bin/ruby
 
 
+def filter_file(path, &block)
+  File.write path, block.call(File.read path)
+end
+
 def ls_files(regexp)
   `git ls-files`
     .lines(chomp: true)
     .select {|path| path =~ regexp}
 end
 
+def versions()
+  File.read(File.expand_path '../../ChangeLog.md', __dir__)
+    .split(/^\s*##\s*\[\s*v([\d\.]+)\s*\].*$/)
+    .slice(1..-1)
+    .each_slice(2)
+    .to_h
+    .transform_values do |changes|
+      changes.strip.lines
+        .group_by {|line| line[/^\W*(\[\w{2}\])/, 1]}
+        .map {|lang, lines|
+          [
+            lang[/\w+/],
+            lines.map {|line| line.sub(lang, '')}.join
+          ]
+        }
+        .to_h
+    end
+end
+
 
 %w[config.yml GoogleService-Info.plist].each do |name|
   raise "Do not commit #{name}" unless ls_files(/#{Regexp.escape name}/).empty?
+end
+
+
+begin
+  File.write File.expand_path('../../VERSION', __dir__), versions.keys.first
+end
+
+begin
+  filter_file File.expand_path('../../project.yml', __dir__) do |body|
+    ver           = versions.keys.first
+    marketing_ver = ver.split('.')
+      .map(&:to_i)
+      .tap {|a| a.pop while a.size > 3}
+      .join '.'
+    replace = -> s, key, ver {s.gsub /#{key}:\s*[\d\.]+/, "#{key}: #{ver}"}
+
+    body = replace.call body, 'CURRENT_PROJECT_VERSION', ver
+    body = replace.call body, 'MARKETING_VERSION',       marketing_ver
+  end
+end
+
+begin
+  versions.values.first.tap do |changes|
+    changes.each do |lang, lines|
+      Dir.chdir File.expand_path('../..', __dir__) do
+        path = Dir.glob("fastlane/metadata/#{lang}*/release_notes.txt").first
+        filter_file(path) {lines}
+      end
+    end
+  end
 end
