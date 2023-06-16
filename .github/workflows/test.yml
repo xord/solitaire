@@ -19,5 +19,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
+      - name: setup dependencies
+        run: "ruby -I.github/workflows -rutils -e 'setup_dependencies'"
+
       - name: build
         run: rake build
