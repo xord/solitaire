@@ -56,6 +56,14 @@ class CardPlace
     createVector *pos.to_a(2), self.z + index + 1
   end
 
+  def updateCards(seconds = 0.2, excludes: [])
+    cards.each.with_index do |card, index|
+      next if excludes.include? card
+      pos = posFor card, index
+      move card, pos, seconds if pos != card.pos
+    end
+  end
+
   def sprite()
     @sprite ||= Sprite.new(0, 0, *skin.cardSpriteSize).tap do |sp|
       sp.draw do

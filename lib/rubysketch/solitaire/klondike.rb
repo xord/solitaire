@@ -659,6 +659,7 @@ class Klondike < Scene
     [*cards, *places].each do |o|
       o.started if o.respond_to? :started
     end
+    places.each {|p| p.updateCards 0}
     resume
   end
 
@@ -909,14 +910,6 @@ class Klondike::NextsPlace < CardPlace
   def pop(*args)
     super
     updateCards
-  end
-
-  def updateCards(excludes: [])
-    cards.each.with_index do |card, index|
-      next if excludes.include? card
-      pos = posFor card, index
-      move card, pos, 0.2 if pos != card.pos
-    end
   end
 
   def posFor(card, index = nil)
