@@ -5,14 +5,32 @@ using RubySketch
 class Background < Scene
 
   TYPES = {
-    checker:         {name: 'Checker'},
-    checker2:        {name: 'Checker (No Scroll)'},
-    cosmic2:         {name: 'Cosmic 2',         author: 'huwb',
-      url: 'https://www.shadertoy.com/view/XllGzN'},
-    classicPSPWave:  {name: 'Classic PSP Wave', author: 'ParkingLotGames',
-      url: 'https://www.shadertoy.com/view/ddV3DK'},
-    reflectiveHexes: {name: 'Reflective hexes', author: 'mrange',
-      url: 'https://www.shadertoy.com/view/ds2XRt'},
+    checker: {
+      name: 'Checker'
+    },
+    checker2: {
+      name: 'Checker (No Scroll)'
+    },
+    cosmic2: {
+      name:   'Cosmic 2',
+      author: 'huwb',
+      url:    'https://www.shadertoy.com/view/XllGzN'
+    },
+    classicPSPWave: {
+      name:   'Classic PSP Wave',
+      author: 'ParkingLotGames',
+      url:    'https://www.shadertoy.com/view/ddV3DK'
+    },
+    reflectiveHexes: {
+      name:   'Reflective hexes',
+      author: 'mrange',
+      url:    'https://www.shadertoy.com/view/ds2XRt'
+    },
+    colorfulUnderwaterBubbles2: {
+      name:   'Colorful underwater bubbles II',
+      author: 'mrange',
+      url:    'https://www.shadertoy.com/view/mlBSWc'
+    },
   }
 
   def initialize(type = nil)
@@ -56,6 +74,8 @@ class Background < Scene
       @shader = createShader nil, classicPSPWave
     when :reflectiveHexes
       @shader = createShader nil, reflectiveHexes
+    when :colorfulUnderwaterBubbles2
+      @shader = createShader nil, colorfulUnderwaterBubbles2
     end
     settings['background'] = @type = type
   end
@@ -106,6 +126,10 @@ class Background < Scene
 
   def reflectiveHexes()
     File.read(dataPath 'reflectiveHexes.glsl')
+  end
+
+  def colorfulUnderwaterBubbles2()
+    File.read(dataPath 'colorfulUnderwaterBubbles2.glsl')
   end
 
 end# Background
