@@ -85,9 +85,16 @@ https://www.shadertoy.com/view/ddV3DK
 ## Reflective hexes
 
 // CC0: Reflective hexes
-(https://creativecommons.org/publicdomain/zero/1.0/)
+https://creativecommons.org/publicdomain/zero/1.0/
 
 https://www.shadertoy.com/view/ds2XRt
+
+## Colorful underwater bubbles II
+
+// CCO: Colorful underwater bubbles II
+https://creativecommons.org/publicdomain/zero/1.0/
+
+https://www.shadertoy.com/view/mlBSWc
 
 
 # Assets
