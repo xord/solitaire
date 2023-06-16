@@ -5,17 +5,20 @@ using RubySketch
 class Background < Scene
 
   TYPES = {
-    checker:        {name: 'Checker'},
-    checker2:       {name: 'Checker (No Scroll)'},
-    cosmic2:        {name: 'Cosmic 2',         author: 'huwb',
+    checker:         {name: 'Checker'},
+    checker2:        {name: 'Checker (No Scroll)'},
+    cosmic2:         {name: 'Cosmic 2',         author: 'huwb',
       url: 'https://www.shadertoy.com/view/XllGzN'},
-    classicPSPWave: {name: 'Classic PSP Wave', author: 'ParkingLotGames',
+    classicPSPWave:  {name: 'Classic PSP Wave', author: 'ParkingLotGames',
       url: 'https://www.shadertoy.com/view/ddV3DK'},
+    reflectiveHexes: {name: 'Reflective hexes', author: 'mrange',
+      url: 'https://www.shadertoy.com/view/ds2XRt'},
   }
 
   def initialize(type = nil)
     super
-    @start = now
+    @start  = now
+    @canvas = createGraphics width, height
     set type || settings['background']&.intern|| types.first
   end
 
@@ -47,13 +50,12 @@ class Background < Scene
     case type
     when :checker, :checker2
       @shader = createShader nil, checker
-      @canvas = createGraphics width, height
     when :cosmic2
       @shader = createShader nil, cosmic2
-      @canvas = createGraphics width, height#, displayDensity
     when :classicPSPWave
       @shader = createShader nil, classicPSPWave
-      @canvas = createGraphics width, height#, displayDensity
+    when :reflectiveHexes
+      @shader = createShader nil, reflectiveHexes
     end
     settings['background'] = @type = type
   end
@@ -67,10 +69,7 @@ class Background < Scene
         sh.set :iTime, (type == :checker2 ? 0.0 : now - @start)
         sh.set :color1, *colors[0].map {|n| n / 255.0}
         sh.set :color2, *colors[1].map {|n| n / 255.0}
-      when :cosmic2
-        sh.set :iTime, now - @start
-        sh.set :iResolution, width, height
-      when :classicPSPWave
+      else
         sh.set :iTime, now - @start
         sh.set :iResolution, width, height
       end
@@ -98,15 +97,15 @@ class Background < Scene
   end
 
   def cosmic2()
-    # Cosmic 2
-    # https://www.shadertoy.com/view/XllGzN
     File.read(dataPath 'cosmic2.glsl').gsub('iMouse', 'vec2(0.)')
   end
 
   def classicPSPWave()
-    # Classic PSP Wave
-    # https://www.shadertoy.com/view/ddV3DK
     File.read(dataPath 'classicPSPWave.glsl')
+  end
+
+  def reflectiveHexes()
+    File.read(dataPath 'reflectiveHexes.glsl')
   end
 
 end# Background
