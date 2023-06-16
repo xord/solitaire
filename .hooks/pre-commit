@@ -1,8 +1,9 @@
 #!/usr/bin/ruby
 
 
-def filter_file(path, &block)
+def filter_file(path, git_add: true, &block)
   File.write path, block.call(File.read path)
+  `git add '#{path}'` if git_add
 end
 
 def ls_files(regexp)
@@ -37,7 +38,9 @@ end
 
 
 begin
-  File.write File.expand_path('../../VERSION', __dir__), versions.keys.first
+  filter_file File.expand_path('../../VERSION', __dir__) do
+    versions.keys.first
+  end
 end
 
 begin

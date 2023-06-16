@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v0.1.2] - 2023-06-16
+
+- [en]Fixed some minor bugs
+- [ja]軽微な不具合をいくつか修正
+
+
 ## [v0.1.1] - 2023-06-16
 
 - [en]Added several types of backgrounds

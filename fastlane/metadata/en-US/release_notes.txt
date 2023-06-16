@@ -1,2 +1,1 @@
-- Added several types of backgrounds
 - Fixed some minor bugs
