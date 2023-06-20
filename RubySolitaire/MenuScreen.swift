@@ -11,6 +11,7 @@ struct MenuScreen: View {
                 PrivacyPolicy()
                 Licenses()
             }
+            .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("\(Strings.appName.s) v\(Helper.appVersion)")
             .navigationBarItems(leading: BackButton())
         }
