@@ -16,6 +16,14 @@
  $ ruby -rrubysketch/solitaire -e ''
 ```
 
+## How to release to AppStore
+
+### Upload to TestFlight on local macOS
+
+1. Edit ChangeLog.md and commit
+2. Make sure you have a config.yml file
+3. run "rake release:testflight"
+
 ## License
 
 see [LICENSE](LICENSE) file
