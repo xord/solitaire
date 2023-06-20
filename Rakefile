@@ -15,7 +15,8 @@ require 'rubysketch/solitaire/extension'
 
 EXTENSIONS = [RubySketch::Solitaire]
 
-GEMNAME  = "rubysketch-#{target.name.downcase}"
+GIT_URL = 'https://github.com/xord/solitaire'
+GEMNAME = "rubysketch-#{target.name.downcase}"
 
 PROJECT   = 'project.yml'
 CHANGELOG = 'ChangeLog.md'
@@ -55,6 +56,16 @@ def versions()
     end
 end
 
+def clone_tmp(url, dir_name, &block)
+  Dir.chdir '/tmp' do
+    sh %( rm -rf #{dir_name} )
+    sh %( git clone #{url} #{dir_name} )
+    chdir dir_name do
+      block.call
+    end
+  end
+end
+
 
 default_tasks
 build_ruby_gem
@@ -73,6 +84,14 @@ task :run do
   libs = %w[xot rucy beeps rays reflex processing rubysketch]
     .map {|lib| "-I#{ENV['ALL']}/#{lib}/lib"}
   sh %( ruby #{libs.join ' '} -Ilib -rrubysketch/solitaire -e '' )
+end
+
+task :testflight do |t|
+  clone_tmp GIT_URL, "#{APP_NAME}-#{t.name.split(':').last}" do
+    puts Dir.pwd
+    sh %( cp #{ENV['CONFIG_PATH'] or raise} . )
+    sh %( rake release:testflight )
+  end
 end
 
 
