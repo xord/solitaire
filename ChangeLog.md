@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0] - 2023-06-21
+
+- [en]First public version
+- [ja]最初の正式公開バージョン
+
+
 ## [v0.9.0] - 2023-06-20
 
 - [en]First beta version

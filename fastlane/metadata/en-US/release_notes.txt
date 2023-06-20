@@ -1,1 +1,1 @@
-- First beta version
+- First public version
