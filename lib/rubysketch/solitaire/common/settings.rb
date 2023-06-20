@@ -22,6 +22,10 @@ class Settings
     hash[key]
   end
 
+  def to_json()
+    hash.to_json
+  end
+
   private
 
   def hash()
@@ -29,7 +33,7 @@ class Settings
   end
 
   def save(path)
-    File.write path, hash.to_json
+    File.write path, to_json
   end
 
   def load(path)

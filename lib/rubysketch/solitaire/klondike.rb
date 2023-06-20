@@ -510,6 +510,10 @@ class Klondike < Scene
         end
         d.close
       end
+      d.addButton str("Dump settings"), width: 6 do
+        puts settings.to_json
+        d.close
+      end
       d.addButton str('Close'), width: 6 do
         d.close
       end
