@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+
+
+def versions()
+  File.read(File.expand_path '../../ChangeLog.md', __dir__)
+    .split(/^\s*##\s*\[\s*v([\d\.]+)\s*\].*$/)
+    .slice(1..-1)
+    .each_slice(2)
+    .to_h
+    .transform_values do |changes|
+      changes.strip.lines
+        .group_by {|line| line[/^\W*(\[\w{2}\])/, 1]}
+        .map {|lang, lines|
+          [
+            lang[/\w+/],
+            lines.map {|line| line.sub(lang, '')}.join
+          ]
+        }
+        .to_h
+    end
+end
+
+
+begin
+  ver     = File.read(File.expand_path '../../VERSION', __dir__)[/[\d\.]+/]
+  changes = versions[ver].dig 'en'
+  tag     = "v#{ver}"
+  tags    = `git tag`.lines chomp: true
+
+  raise "no version found" unless ver
+  return if tags.include?(tag)
+
+  raise "no changes found" unless changes
+
+  puts "Tag '#{tag}'\n#{changes}"
+  `git tag -a -m "#{changes}" #{tag}`
+end
