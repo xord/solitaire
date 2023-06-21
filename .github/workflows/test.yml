@@ -16,6 +16,9 @@ jobs:
         with:
           ruby-version: 3.2
 
+      - name: xcodegen
+        run: brew install xcodegen
+
       - name: checkout
         uses: actions/checkout@v2
 
