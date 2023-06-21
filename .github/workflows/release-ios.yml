@@ -12,10 +12,15 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
+
+      - name: check
+        run: |
+          git tag -n99
+          git branch -v
 
       - name: push to repository for continuous delivery
         run: |
