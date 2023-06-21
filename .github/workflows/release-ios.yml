@@ -1,0 +1,40 @@
+name: Release iOS
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  push-to-cd:
+    if: env.GITHUB_REPOSITORY == 'xord/solitaire'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: push to repository for continuous delivery
+        run: |
+          git remote add cd https://github.com/xord/solitaire_cd
+          git push cd master --tags
+
+  testflight:
+    if: env.GITHUB_REPOSITORY == 'xord/solitaire_cd'
+
+    runs-on: macos-latest
+
+    steps:
+      - name: ruby 3.2
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup dependencies
+        run: "ruby -I.github/workflows -rutils -e 'setup_dependencies'"
