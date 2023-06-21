@@ -1,1 +1,1 @@
-- Automate to upload to TestFlight
+- Fixed a bug in automation

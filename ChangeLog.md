@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.0.2] - 2023-06-21
+
+- [en]Fixed a bug in automation
+- [ja]自動化の不具合を修正
+
+
 ## [v1.0.0.1] - 2023-06-21
 
 - [en]Automate to upload to TestFlight
