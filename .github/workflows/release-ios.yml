@@ -5,28 +5,6 @@ on:
     tags: ['v[0-9]*']
 
 jobs:
-  push-to-cd:
-    if: github.repository == 'xord/solitaire'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.PAT }}
-
-      - name: check
-        run: |
-          git tag -n99
-          git branch -v
-
-      - name: push to repository for continuous delivery
-        run: |
-          git remote add cd https://github.com/xord/solitaire_cd
-          git push cd master --tags
-
   testflight:
     if: github.repository == 'xord/solitaire_cd'
 
