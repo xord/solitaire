@@ -119,7 +119,7 @@ namespace :xcode do
     File.write GINFO_PLIST, plist if plist
 
     sh %( xcodegen generate )
-    sh %( fastlane setup_code_signing )
+    sh %( bundle exec fastlane setup_code_signing )
   end
 end# xcode
 
@@ -160,10 +160,10 @@ end# pods
 namespace :release do
   task :testflight => 'release:setup' do
     ENV['MATCH_TYPE'] = 'AppStore'
-    sh %( fastlane setup_code_signing )
+    sh %( bundle exec fastlane setup_code_signing )
 
     ENV['CHANGELOG']  = versions.values.first['en']
-    sh %( fastlane release_testflight )
+    sh %( bundle exec fastlane release_testflight )
   end
 
   task :setup => ['xcode:clobber', :clobber, XCWORKSPACE] do
@@ -186,14 +186,14 @@ namespace :release do
   end
 
   namespace :match do
-    task(:update) {sh %( fastlane match_update )}
-    task(:fetch)  {sh %( fastlane match_fetch  )}
-    task(:delete) {sh %( fastlane match_delete )}
+    task(:update) {sh %( bundle exec fastlane match_update )}
+    task(:fetch)  {sh %( bundle exec fastlane match_fetch  )}
+    task(:delete) {sh %( bundle exec fastlane match_delete )}
 
     task :refresh => ['fastlane:match:delete', 'fastlane:match:update']
 
     task :fetch_new_devices do
-      sh %( fastlane match development --force_for_new_devices )
+      sh %( bundle exec fastlane match development --force_for_new_devices )
     end
   end# match
 end# release
