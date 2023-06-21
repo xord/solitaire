@@ -25,5 +25,8 @@ jobs:
       - name: setup dependencies
         run: "ruby -I.github/workflows -rutils -e 'setup_dependencies'"
 
+      - name: match
+        run: rake match:fetch
+
       - name: build
         run: rake build

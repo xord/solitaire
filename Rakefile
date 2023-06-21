@@ -161,6 +161,27 @@ namespace :pods do
 end# pods
 
 
+namespace :match do
+  task :update do
+    sh %( bundle exec fastlane match_update )
+  end
+
+  task :fetch do
+    sh %( bundle exec fastlane match_fetch )
+  end
+
+  task :delete do
+    sh %( bundle exec fastlane match_delete )
+  end
+
+  task :refresh => ['match:delete', 'match:update']
+
+  task :fetch_new_devices do
+    sh %( bundle exec fastlane match development --force_for_new_devices )
+  end
+end# match
+
+
 namespace :release do
   task :testflight => 'release:setup' do
     ENV['MATCH_TYPE'] = 'AppStore'
@@ -188,18 +209,6 @@ namespace :release do
         config(:gad_game_screen_interstitial))
     end
   end
-
-  namespace :match do
-    task(:update) {sh %( bundle exec fastlane match_update )}
-    task(:fetch)  {sh %( bundle exec fastlane match_fetch  )}
-    task(:delete) {sh %( bundle exec fastlane match_delete )}
-
-    task :refresh => ['fastlane:match:delete', 'fastlane:match:update']
-
-    task :fetch_new_devices do
-      sh %( bundle exec fastlane match development --force_for_new_devices )
-    end
-  end# match
 end# release
 
 
