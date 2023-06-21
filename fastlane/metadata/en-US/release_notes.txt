@@ -1,1 +1,1 @@
-- Fix RubyZip 3.0 warning
+- Fix CI problems
