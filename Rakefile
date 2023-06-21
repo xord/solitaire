@@ -134,6 +134,7 @@ namespace :bundle do
   end
 
   file BUNDLE_DIR do
+    sh %( pwd )
     sh %( bundle install )
     sh %( ls -al )
     raise "failed to bundle install" unless File.exist? BUNDLE_DIR
