@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.0.3] - 2023-06-21
+
+- [en]Fix RubyZip 3.0 warning
+- [ja]RubyZip 3.0 の警告を修正
+
+
 ## [v1.0.0.2] - 2023-06-21
 
 - [en]Fixed a bug in automation

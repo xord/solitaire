@@ -1,1 +1,1 @@
-- Fixed a bug in automation
+- Fix RubyZip 3.0 warning
