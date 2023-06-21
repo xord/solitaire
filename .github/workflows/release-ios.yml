@@ -40,7 +40,7 @@ jobs:
         run: "ruby -I.github/workflows -rutils -e 'setup_dependencies'"
 
       - name: create config file
-        run: echo ${{ secrets.CONFIG }} | base64 -d > config.yml
+        run: echo '${{ secrets.CONFIG }}' | base64 -d > config.yml
 
       - name: check
         run: ls -al
