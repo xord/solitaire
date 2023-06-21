@@ -100,8 +100,10 @@ end
 
 
 namespace :xcode do
+  xcodebuild = "xcodebuild -workspace #{XCWORKSPACE} -scheme #{APP_NAME}"
+
   task :clean do
-    sh %( xcodebuild clean ) if File.exist?(XCODEPROJ)
+    sh %( #{xcodebuild} clean ) if File.exist?(XCWORKSPACE)
   end
 
   task :clobber do
@@ -109,7 +111,7 @@ namespace :xcode do
   end
 
   task :build => XCWORKSPACE do
-    sh %( xcodebuild build )
+    sh %( #{xcodebuild} build )
   end
 
   task :open => XCWORKSPACE do
