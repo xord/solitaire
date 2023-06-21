@@ -6,7 +6,7 @@ on:
 
 jobs:
   push-to-cd:
-    if: env.GITHUB_REPOSITORY == 'xord/solitaire'
+    if: github.repository == 'xord/solitaire'
 
     runs-on: ubuntu-latest
 
@@ -23,7 +23,7 @@ jobs:
           git push cd master --tags
 
   testflight:
-    if: env.GITHUB_REPOSITORY == 'xord/solitaire_cd'
+    if: github.repository == 'xord/solitaire_cd'
 
     runs-on: macos-latest
 
