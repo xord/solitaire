@@ -66,6 +66,10 @@ def clone_tmp(url, dir_name, &block)
   end
 end
 
+def ci?()
+  ENV['CI'] == 'true'
+end
+
 
 default_tasks
 build_ruby_gem
@@ -119,7 +123,7 @@ namespace :xcode do
     File.write GINFO_PLIST, plist if plist
 
     sh %( xcodegen generate )
-    sh %( bundle exec fastlane setup_code_signing )
+    sh %( bundle exec fastlane setup_code_signing ) unless ci?
   end
 end# xcode
 
