@@ -1,1 +1,1 @@
-- First public version
+- Automate to upload to TestFlight

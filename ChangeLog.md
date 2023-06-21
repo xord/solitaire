@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.0.1] - 2023-06-21
+
+- [en]Automate to upload to TestFlight
+- [ja]TestFlight へのアップロードを自動化
+
+
 ## [v1.0] - 2023-06-21
 
 - [en]First public version
