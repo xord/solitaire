@@ -1,1 +1,1 @@
-- Fix CI problems
+- Fixed a bug that the display did not fit the screen on devices with non-integer pixel density

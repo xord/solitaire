@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.0.7] - 2023-06-22
+
+- [en]Fixed a bug that the display did not fit the screen on devices with non-integer pixel density
+- [ja]画素密度が非整数倍の端末で表示が画面に収まりきらない不具合を修正
+
+
 ## [v1.0.0.6] - 2023-06-22
 
 - [en]Fix CI problems
