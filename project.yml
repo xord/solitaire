@@ -86,9 +86,9 @@ targets:
           Ruby scripts will be able to retrieve images from the camera.
         NSUserTrackingUsageDescription:
           This identifier will be used to deliver personalized ads to you.
-        GADApplicationIdentifier: ca-app-pub-2838008143835331~1720297583
-        GADGameScreenBottomBanner: ca-app-pub-2838008143835331/4306898056
-        GADGameScreenInterstitial: ca-app-pub-2838008143835331/8585888561
+        GADApplicationIdentifier:  ca-app-pub-3940256099942544~1458002511
+        GADGameScreenBottomBanner: ca-app-pub-3940256099942544/2934735716
+        GADGameScreenInterstitial: ca-app-pub-3940256099942544/4411468910
         SKAdNetworkItems:
           - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork
           - SKAdNetworkIdentifier: 4fzdc2evr5.skadnetwork
