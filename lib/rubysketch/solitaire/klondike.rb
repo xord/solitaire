@@ -62,7 +62,7 @@ class Klondike < Scene
       moveCard card, place, 0.3
     elsif card.opened?
       shake card, vector: createVector(5, 0)
-      noopSound.play gain: 0.5
+      playSound 'noop.mp3', gain: 0.5
     end
   end
 
@@ -279,21 +279,6 @@ class Klondike < Scene
 
   def columns()
     @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new self, "column_#{i + 1}"}
-  end
-
-  def dealSound()
-    @dealSounds ||= %w[deal1 deal2 deal3]
-      .map {|s| dataPath "#{s}.mp3"}
-      .map {|path| loadSound path}
-    @dealSounds.sample
-  end
-
-  def flipSound()
-    @flipSound ||= loadSound dataPath 'flip.mp3'
-  end
-
-  def noopSound()
-    noopSound ||= loadSound dataPath 'noop.mp3'
   end
 
   def interfaces()
@@ -587,7 +572,7 @@ class Klondike < Scene
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
         startTimer index / 25.0 do
-          flipSound.play gain: 0.1
+          playSound 'flip.mp3', gain: 0.1
           moveCard deck.last, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
           end
@@ -608,7 +593,7 @@ class Klondike < Scene
       history.push [:open, card]
       addScore :openCard if columns.include?(card.place)
     end
-    flipSound.play gain: gain
+    playSound 'flip.mp3', gain: gain
   end
 
   def closeCard(card)
@@ -630,7 +615,7 @@ class Klondike < Scene
       cardMoved from if finished
     end
 
-    dealSound.play
+    playSound "deal#{(1..3).to_a.sample}.mp3"
 
     @moveCount ||= 0
     @moveCount  += 1 if count && history.enabled?
@@ -695,10 +680,12 @@ class Klondike < Scene
 
   def refillDeck()
     history.group do
+      gain = globalGain 0.2
       nexts.cards.reverse.each.with_index do |card, index|
         closeCard card
         moveCard card, deck, 0.3, count: index == 0
       end
+      globalGain gain
       incrementRefillCount
     end
     #startTimer(0.4) {drawNexts}

@@ -43,7 +43,7 @@ class Button < Sprite
         else
           shake
         end
-        sound.play gain: 0.5
+        playSound 'button.mp3'
       end
       $dragging = nil
     end
@@ -84,10 +84,6 @@ class Button < Sprite
       self.x = x + (finished ? 0 : strength * (1.0 - t))
       strength *= -1
     end
-  end
-
-  def sound()
-    @sound ||= loadSound dataPath 'button.mp3'
   end
 
   def includeMouse?()
