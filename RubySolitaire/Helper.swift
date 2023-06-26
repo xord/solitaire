@@ -1,3 +1,6 @@
+import StoreKit
+
+
 class Helper {
 
     static var isDebug: Bool {
@@ -65,6 +68,10 @@ class Helper {
 
     static func openURL(_ url: URL) {
         UIApplication.shared.open(url)
+    }
+
+    static func requestReview(scene: UIWindowScene) {
+        SKStoreReviewController.requestReview(in: scene)
     }
 
 }// Helper

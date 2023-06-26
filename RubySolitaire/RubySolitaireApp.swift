@@ -186,6 +186,11 @@ struct GameScreen: View {
             isMenuVisible = true;
         case "showInterstitialAd":
             isInterstitialAdVisible = true
+        case "requestReview":
+            if let scene = sceneDelegate.window?.windowScene {
+                Helper.requestReview(scene: scene)
+            }
+            clearCommand()
         default:
             clearCommand()
         }

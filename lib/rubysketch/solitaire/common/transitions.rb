@@ -8,11 +8,12 @@ class TransitionEffect < Scene
      secOut: nil,       secIn: nil,
     easeOut: :expoOut, easeIn: :expoIn,
     showAd: false,
+    requestReview: false,
     &block)
 
     super()
-    @nextScene, @easeOut, @easeIn, @showAd, @block =
-      nextScene, easeOut, easeIn, showAd, block
+    @nextScene, @easeOut, @easeIn, @showAd, @requestReview, @block =
+      nextScene, easeOut, easeIn, showAd, requestReview, block
     @secOut = secOut || sec / 2.0
     @secIn  = secIn  || sec / 2.0
     @phase  = :out
@@ -28,7 +29,8 @@ class TransitionEffect < Scene
     start do
       case @phase
       when :out
-        sendCommand :showInterstitialAd if @showAd
+        sendCommand :showInterstitialAd if @showAd && !@requestReview
+        sendCommand :requestReview      if @requestReview
         delay do
           pa = parent
           pa.remove self

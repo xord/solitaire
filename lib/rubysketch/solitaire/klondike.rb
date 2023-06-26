@@ -465,7 +465,7 @@ class Klondike < Scene
         fontSize: 28)
       d.addSpace 50
       d.addButton str('Start Next Game'), width: 5 do
-        startNewGame
+        startNewGame true
       end
     }
   end
@@ -835,11 +835,25 @@ class Klondike < Scene
     end
   end
 
-  def startNewGame()
+  def startNewGame(completed = false)
     $newGameCount ||= 0
     $newGameCount  += 1
-    showAd          = $newGameCount % 3 == 0
-    transition self.class.new, [Fade, Curtain, Pixelate].sample, showAd: showAd
+    completeCount true if completed && difficulty != :easy
+
+    transition(
+      self.class.new,
+      [Fade, Curtain, Pixelate].sample,
+      showAd:        $newGameCount % 3 == 0,
+      requestReview: completeCount     == 1)
+  end
+
+  def completeCount(increment = false)
+    key = 'completeCount'
+    if increment
+      settings[key] ||= 0
+      settings[key]  += 1
+    end
+    settings[key] || 0
   end
 
   STRINGS = {
