@@ -1,1 +1,1 @@
-Solitaire in Space
+RubySolitaire - Klondike

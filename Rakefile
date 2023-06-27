@@ -30,6 +30,11 @@ GINFO_PLIST = 'RubySolitaire/GoogleService-Info.plist'
 BUNDLE_DIR = 'vendor/bundle'
 PODS_DIR   = 'Pods'
 
+METADATA_REVIEW_INFO_DIR = 'fastlane/metadata/review_information'
+METADATA_FIRST_NAME      = "#{METADATA_REVIEW_INFO_DIR}/first_name.txt"
+METADATA_LAST_NAME       = "#{METADATA_REVIEW_INFO_DIR}/last_name.txt"
+METADATA_PHONE_NUMBER    = "#{METADATA_REVIEW_INFO_DIR}/phone_number.txt"
+
 
 def config(key)
   $config ||= YAML.load_file(File.expand_path 'config.yml', __dir__) rescue {}
@@ -208,6 +213,10 @@ namespace :release do
         'GADGameScreenInterstitial',
         config(:gad_game_screen_interstitial))
     end
+
+    filter_file(METADATA_FIRST_NAME)   {config :author_first_name}
+    filter_file(METADATA_LAST_NAME)    {config :author_last_name}
+    filter_file(METADATA_PHONE_NUMBER) {config :author_phone_number}
   end
 end# release
 

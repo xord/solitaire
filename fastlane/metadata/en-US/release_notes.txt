@@ -1,1 +1,2 @@
-- Fixed a bug that the display did not fit the screen on devices with non-integer pixel density
+- Volume of some sounds adjusted
+- Fixed other minor bugs.

@@ -1,1 +1,1 @@
-playing,card,cards,game,ruby,klondike,free,shader,glsl,processing
+playing,card,cards,game,ruby,free,shader,glsl,processing
