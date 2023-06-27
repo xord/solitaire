@@ -1,1 +1,1 @@
-Made with RubySketch
+Beautiful shader animations
