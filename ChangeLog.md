@@ -1,6 +1,14 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.1] - 2023-06-27
+
+- [en]Volume of some sounds adjusted
+- [en]Fixed some minor bugs.
+- [ja]一部のサウンドの音量を調整しました
+- [ja]軽微な不具合をいくつか修正しました
+
+
 ## [v1.0.0.7] - 2023-06-22
 
 - [en]Fixed a bug that the display did not fit the screen on devices with non-integer pixel density

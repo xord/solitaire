@@ -1,2 +1,2 @@
 - Volume of some sounds adjusted
-- Fixed other minor bugs.
+- Fixed some minor bugs.
