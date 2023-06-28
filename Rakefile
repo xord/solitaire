@@ -188,7 +188,7 @@ end# match
 
 
 namespace :release do
-  task :testflight => 'release:setup' do
+  task :testflight => ['xcode:clobber', :clobber, 'release:setup', XCWORKSPACE] do
     ENV['MATCH_TYPE'] = 'AppStore'
     sh %( bundle exec fastlane setup_code_signing )
 
@@ -196,7 +196,7 @@ namespace :release do
     sh %( bundle exec fastlane release_testflight )
   end
 
-  task :setup => ['xcode:clobber', :clobber, XCWORKSPACE] do
+  task :setup do
     replace = -> s, key, value {s.gsub /#{key}:\s*.+/, "#{key}: #{value}"}
 
     filter_file PROJECT do |body|
