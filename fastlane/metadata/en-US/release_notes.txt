@@ -1,2 +1,1 @@
-- Volume of some sounds adjusted
-- Fixed some minor bugs.
+- Fixed a bug that caused test ads to be displayed
