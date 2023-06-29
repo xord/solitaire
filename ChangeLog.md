@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.1.3] - 2023-06-29
+
+- [en]Fixed some minor bugs
+- [ja]軽微な不具合をいくつか修正しました
+
+
 ## [v1.0.1.2] - 2023-06-29
 
 - [en]Fixed some minor bugs
