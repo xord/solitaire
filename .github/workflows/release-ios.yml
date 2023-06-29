@@ -31,4 +31,5 @@ jobs:
       - name: upload to testflight
         run: rake release:testflight
         env:
-          PAT: ${{ secrets.PAT }}
+          PAT:            ${{ secrets.PAT }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
