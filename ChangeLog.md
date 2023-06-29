@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.1.2] - 2023-06-29
+
+- [en]Fixed some minor bugs
+- [ja]軽微な不具合をいくつか修正しました
+
+
 ## [v1.0.1.1] - 2023-06-28
 
 - [en]Fixed a bug that caused test ads to be displayed
@@ -10,7 +16,7 @@
 ## [v1.0.1] - 2023-06-27
 
 - [en]Volume of some sounds adjusted
-- [en]Fixed some minor bugs.
+- [en]Fixed some minor bugs
 - [ja]一部のサウンドの音量を調整しました
 - [ja]軽微な不具合をいくつか修正しました
 
