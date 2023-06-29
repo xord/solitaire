@@ -21,5 +21,4 @@ jobs:
         run: |
           git checkout master
           git remote add cd https://github.com/xord/solitaire_cd
-          git push cd master
-          git push cd --tags -f
+          git push cd master ${GITHUB_REF##*/}

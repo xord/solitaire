@@ -44,8 +44,9 @@ end
 
 def upload_params()
   {
-    api_key:        asc_api_key,
-    app_identifier: config(:app_id)
+    api_key:                           asc_api_key,
+    app_identifier:                    config(:app_id),
+    skip_waiting_for_build_processing: true
   }
 end
 
