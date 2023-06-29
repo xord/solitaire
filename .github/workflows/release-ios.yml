@@ -31,5 +31,6 @@ jobs:
       - name: upload to testflight
         run: rake release:testflight
         env:
-          PAT:            ${{ secrets.PAT }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          PAT:                                  ${{ secrets.PAT }}
+          MATCH_PASSWORD:                       ${{ secrets.MATCH_PASSWORD }}
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120

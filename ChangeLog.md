@@ -1,6 +1,12 @@
 # RubySolitaire ChangeLog
 
 
+## [v1.0.1.8] - 2023-06-29
+
+- [en]Fix CI problems
+- [ja]CI での不具合を修正
+
+
 ## [v1.0.1.7] - 2023-06-29
 
 - [en]Fix CI problems
