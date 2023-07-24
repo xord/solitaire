@@ -25,6 +25,14 @@ def resizeImage(image, w, h)
   end
 end
 
+def move(obj, toPos, seconds, **kwargs, &block)
+  from, to = obj.pos.dup, toPos.dup
+  animate seconds, **kwargs do |t, *args|
+    obj.pos = Vector.lerp(from, to, t)
+    block&.call t, *args
+  end
+end
+
 
 module Processing
   class Vector

@@ -50,7 +50,7 @@ class TransitionEffect < Scene
   def start(&block)
     sec  = out? ? @secOut  : @secIn
     ease = out? ? @easeOut : @easeIn
-    animate sec, ease: ease do |t, finished|
+    animate sec, easing: ease do |t, finished|
       effect (out? ? t : 1.0 - t)
       block.call if finished
     end

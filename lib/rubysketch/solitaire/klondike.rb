@@ -80,7 +80,7 @@ class Klondike < Scene
     elsif prevPlace
       history.disable do
         prevPos, prevTime = card.pos.xy, now
-        moveCard card, prevPlace, 0.15, add: false, ease: :quadIn do |t, finished|
+        moveCard card, prevPlace, 0.15, add: false, easing: :quadIn do |t, finished|
           pos, time         = card.pos.xy, now
           vel               = (pos - prevPos) / (time - prevTime)
           prevPos, prevTime = pos, time
@@ -720,7 +720,7 @@ class Klondike < Scene
     end
     pos   = finishButton.pos.dup
     pos.y = deck.y
-    move finishButton.show, pos, 1, ease: :bounceOut
+    move finishButton.show, pos, 1, easing: :bounceOut
   end
 
   def finish!(cards = columns.map(&:cards).flatten.sort)
