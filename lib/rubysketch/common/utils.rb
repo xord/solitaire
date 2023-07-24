@@ -17,6 +17,10 @@ def dataPath(path)
   File.expand_path "../../../data/#{path}", __dir__
 end
 
+def delay(...)
+  setTimeout(...)
+end
+
 def resizeImage(image, w, h)
   createGraphics(w, h).tap do |g|
     g.beginDraw do

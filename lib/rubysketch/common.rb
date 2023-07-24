@@ -1,6 +1,5 @@
 require 'rubysketch/common/utils'
 require 'rubysketch/common/settings'
-require 'rubysketch/common/timer'
 require 'rubysketch/common/history'
 require 'rubysketch/common/score'
 require 'rubysketch/common/particle'

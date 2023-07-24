@@ -59,7 +59,6 @@ end
 
 draw do
   checkFocus
-  fireTimers
   drawShake
   push {$root.draw}
 end

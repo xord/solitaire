@@ -20,14 +20,14 @@ class Klondike < Scene
   def pause()
     super
     @prevTime = nil
-    stopTimer :save
+    clearInterval :save
   end
 
   def resume()
     super
     return if !started? || completed?
     @prevTime = now
-    startInterval :save, 1, now: true do
+    setInterval 1, id: :save, now: true do
       save
     end
   end
@@ -543,7 +543,7 @@ class Klondike < Scene
 
     history.disable
     deck.add *cards.shuffle
-    startTimer 0.5 do
+    setTimeout 0.5 do
       placeToColumns do
         history.enable
         elements.each &:show
@@ -558,7 +558,7 @@ class Klondike < Scene
     history.disable
     lasts = columns.map(&:last).compact
     lasts.each.with_index do |card, n|
-      startTimer 0.02 * n do
+      setTimeout 0.02 * n do
         openCard card, gain: 0.2
         if lasts.all? {|card| card.opened?}
           drawNexts
@@ -571,7 +571,7 @@ class Klondike < Scene
   def placeToColumns(&block)
     firstDistribution.then do |positions|
       positions.each.with_index do |(col, row), index|
-        startTimer index / 25.0 do
+        setTimeout index / 25.0 do
           playSound 'flip.mp3', gain: 0.1
           moveCard deck.last, columns[col], 0.5, hover: false do |t, finished|
             block&.call if finished && [col, row] == positions.last
@@ -688,7 +688,7 @@ class Klondike < Scene
       globalGain gain
       incrementRefillCount
     end
-    #startTimer(0.4) {drawNexts}
+    #setTimeout(0.4) {drawNexts}
   end
 
   def incrementRefillCount()
@@ -727,7 +727,7 @@ class Klondike < Scene
     card  = cards.shift or return
     place = marks.find {|mark| mark.accept? mark.x, mark.y, card} or return
     moveCard card, place, 0.3
-    startTimer(0.05) {finish! cards}
+    setTimeout(0.05) {finish! cards}
   end
 
   def completed()
@@ -748,7 +748,7 @@ class Klondike < Scene
       .flatten
       .each.with_index do |card, index|
 
-      startTimer 0.1 * index do
+      setTimeout 0.1 * index do
         card.place&.pop
         card.sprite.tap do |sp|
           sp.fixAngle
