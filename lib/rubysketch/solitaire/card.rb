@@ -167,7 +167,7 @@ class Card
 
   def mouseReleased(x, y, clickCount)
     self.z = @startPos.z if @startPos
-    pos    = sprite.to_screen createVector x, y
+    pos    = sprite.toScreen createVector x, y
     @game.cardDropped pos.x, pos.y, self, @prevPlace if
       @prevPlace && clickCount == 0
   end
