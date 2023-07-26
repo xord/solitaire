@@ -14,7 +14,7 @@ def unique()
 end
 
 def dataPath(path)
-  File.expand_path "../../../data/#{path}", __dir__
+  File.expand_path "#{$data_dir || '../../..'}/data/#{path}", __dir__
 end
 
 def delay(...)
@@ -38,11 +38,9 @@ def move(obj, toPos, seconds, **kwargs, &block)
 end
 
 
-module Processing
-  class Vector
-    def xy()
-      self.class.new x, y
-    end
+class Processing::Vector
+  def xy()
+    self.class.new x, y
   end
 end
 
