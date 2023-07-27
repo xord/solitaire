@@ -14,7 +14,7 @@ def unique()
 end
 
 def dataPath(path)
-  File.expand_path "#{$data_dir || '../../..'}/data/#{path}", __dir__
+  File.expand_path "../../../data/#{path}", __dir__
 end
 
 def delay(...)
