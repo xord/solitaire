@@ -32,13 +32,11 @@ SOFTWARE.
 
 ## [Reflective hexes](https://www.shadertoy.com/view/ds2XRt) (data/reflectiveHexes.glsl)
 
-// CC0: Reflective hexes
-[https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+// [CC0](https://creativecommons.org/publicdomain/zero/1.0/): Reflective hexes
 
 ## [Colorful underwater bubbles II](https://www.shadertoy.com/view/mlBSWc) (data/colorfulUnderwaterBubbles2.glsl)
 
-// CCO: Colorful underwater bubbles II
-[https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+// [CCO](https://creativecommons.org/publicdomain/zero/1.0/): Colorful underwater bubbles II
 
 # Assets
 
