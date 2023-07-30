@@ -5,7 +5,8 @@ class Skin
 
   def self.setup()
     ncolumns         = 7
-    size             = [width, height].min
+    w, h             = ios? ? [displayWidth, displayHeight] : [width, height]
+    size             = [w, h].min
     @margin          = size * 0.02
     @cardSpriteWidth = (size - @margin * (ncolumns + 1)) / ncolumns
   end
