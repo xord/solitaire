@@ -50,6 +50,7 @@ setup do
   size 375, 667 unless ios?
   windowMove *windowPos
   windowResizable false
+  windowOrientation PORTRAIT if ios?
   angleMode DEGREES
   noStroke
 
