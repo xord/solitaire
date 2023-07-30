@@ -534,6 +534,8 @@ class Klondike < Scene
       column.pos = [m + (cw + m) * index, y]
     end
 
+    places.each {|place| place.updateCards}
+
     debugButton.pos = [mx, height - (debugButton.h + my)]
   end
 
