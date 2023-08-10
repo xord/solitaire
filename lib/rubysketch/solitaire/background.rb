@@ -5,6 +5,9 @@ using RubySketch
 class Background < Scene
 
   TYPES = {
+    default: {
+      name: 'Default'
+    },
     checker: {
       name: 'Checker'
     },
@@ -66,6 +69,8 @@ class Background < Scene
   def set(type)
     type = types.first unless types.include?(type)
     case type
+    when :default
+      @shader = createShader nil, default
     when :checker, :checker2
       @shader = createShader nil, checker
     when :cosmic2
@@ -84,6 +89,8 @@ class Background < Scene
     @canvas.beginDraw do |g|
       sh = @shader
       case type
+      when :default
+        sh.set :iResolution, width, height
       when :checker, :checker2
         colors = skin.backgroundCheckerColors
         sh.set :iTime, (type == :checker2 ? 0.0 : now - @start)
@@ -102,6 +109,23 @@ class Background < Scene
   end
 
   private
+
+  def default()
+    <<~END
+      varying vec4 vertTexCoord;
+      uniform vec2 iResolution;
+      float rand(vec2 p) {
+        return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
+      }
+      void main() {
+        vec2 uv      = (vertTexCoord.xy / iResolution.xy) * 2. - 1.;
+        float darken = 0.8 + (1.0 - dot(uv, uv)) * 0.2;
+        vec3 color   = vec3(0.1, 0.55, 0.2);
+        float noise  = rand(uv) * 0.1;
+        gl_FragColor = vec4((color + noise) * darken, 1.0);
+      }
+    END
+  end
 
   def checker()
     <<~END
