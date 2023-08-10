@@ -779,7 +779,6 @@ class Klondike < Scene
   def backToPlace(card, vel)
     return if vel.mag == 0
     vec = vel.dup.normalize * sqrt(vel.mag) / 10 * sqrt(card.count)
-    return if vec.mag < 3
     shakeScreen vector: vec
     emitDustOnEdges card, size: sqrt(vec.mag).then {|m| m..(m * 5)}
   end
