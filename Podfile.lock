@@ -1,36 +1,36 @@
 PODS:
   - CRuby (3.2.202)
-  - RubySketch (0.5.19):
-    - RubySketch/Beeps (= 0.5.19)
-    - RubySketch/Rays (= 0.5.19)
-    - RubySketch/Reflex (= 0.5.19)
-    - RubySketch/Rucy (= 0.5.19)
-    - RubySketch/Xot (= 0.5.19)
-  - RubySketch/Beeps (0.5.19):
-    - RubySketch/Beeps/Ext (= 0.5.19)
-    - RubySketch/Beeps/R8BrainFreeSrc (= 0.5.19)
-    - RubySketch/Beeps/STK (= 0.5.19)
-  - RubySketch/Beeps/Ext (0.5.19)
-  - RubySketch/Beeps/R8BrainFreeSrc (0.5.19)
-  - RubySketch/Beeps/STK (0.5.19)
-  - RubySketch/Rays (0.5.19):
-    - RubySketch/Rays/Clipper (= 0.5.19)
-    - RubySketch/Rays/Ext (= 0.5.19)
-    - RubySketch/Rays/Poly2Tri (= 0.5.19)
-    - RubySketch/Rays/SplineLib (= 0.5.19)
-  - RubySketch/Rays/Clipper (0.5.19)
-  - RubySketch/Rays/Ext (0.5.19)
-  - RubySketch/Rays/Poly2Tri (0.5.19)
-  - RubySketch/Rays/SplineLib (0.5.19)
-  - RubySketch/Reflex (0.5.19):
-    - RubySketch/Reflex/Box2D (= 0.5.19)
-    - RubySketch/Reflex/Ext (= 0.5.19)
-  - RubySketch/Reflex/Box2D (0.5.19)
-  - RubySketch/Reflex/Ext (0.5.19)
-  - RubySketch/Rucy (0.5.19):
-    - RubySketch/Rucy/Ext (= 0.5.19)
-  - RubySketch/Rucy/Ext (0.5.19)
-  - RubySketch/Xot (0.5.19)
+  - RubySketch (0.5.28):
+    - RubySketch/Beeps (= 0.5.28)
+    - RubySketch/Rays (= 0.5.28)
+    - RubySketch/Reflex (= 0.5.28)
+    - RubySketch/Rucy (= 0.5.28)
+    - RubySketch/Xot (= 0.5.28)
+  - RubySketch/Beeps (0.5.28):
+    - RubySketch/Beeps/Ext (= 0.5.28)
+    - RubySketch/Beeps/R8BrainFreeSrc (= 0.5.28)
+    - RubySketch/Beeps/STK (= 0.5.28)
+  - RubySketch/Beeps/Ext (0.5.28)
+  - RubySketch/Beeps/R8BrainFreeSrc (0.5.28)
+  - RubySketch/Beeps/STK (0.5.28)
+  - RubySketch/Rays (0.5.28):
+    - RubySketch/Rays/Clipper (= 0.5.28)
+    - RubySketch/Rays/Ext (= 0.5.28)
+    - RubySketch/Rays/Poly2Tri (= 0.5.28)
+    - RubySketch/Rays/SplineLib (= 0.5.28)
+  - RubySketch/Rays/Clipper (0.5.28)
+  - RubySketch/Rays/Ext (0.5.28)
+  - RubySketch/Rays/Poly2Tri (0.5.28)
+  - RubySketch/Rays/SplineLib (0.5.28)
+  - RubySketch/Reflex (0.5.28):
+    - RubySketch/Reflex/Box2D (= 0.5.28)
+    - RubySketch/Reflex/Ext (= 0.5.28)
+  - RubySketch/Reflex/Box2D (0.5.28)
+  - RubySketch/Reflex/Ext (0.5.28)
+  - RubySketch/Rucy (0.5.28):
+    - RubySketch/Rucy/Ext (= 0.5.28)
+  - RubySketch/Rucy/Ext (0.5.28)
+  - RubySketch/Xot (0.5.28)
 
 DEPENDENCIES:
   - CRuby (from `https://github.com/xord/cruby.git`)
@@ -47,12 +47,12 @@ CHECKOUT OPTIONS:
     :commit: 133060a967e6acbf4aad3971b369acab86029065
     :git: https://github.com/xord/cruby.git
   RubySketch:
-    :commit: 06c8aeb516409919ef775cb5fee2460a7313a361
+    :commit: 3919ffb6d3bec1cf924e1e2da96aa47a5d47e7c4
     :git: https://github.com/xord/rubysketch.git
 
 SPEC CHECKSUMS:
   CRuby: f677262f16d7c714efd3021c90246296cf5bf9c3
-  RubySketch: 503fa9c76f536bc824d5d7fad3bef041721ae953
+  RubySketch: 4ba40efff13e9413b1bcaa0c3873bd537a02ee86
 
 PODFILE CHECKSUM: 3ad0b358d0bc13ea451aa93df078142a38c591fc
 
