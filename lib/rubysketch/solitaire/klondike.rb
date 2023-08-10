@@ -792,9 +792,10 @@ class Klondike < Scene
     }
   end
 
-  def emitDust(pos, vec, sec = 0.5, size: 2.0..10.0)
-    size_ = rand size
-    par   = emitParticle pos.x, pos.y, size_, size_, sec
+  def emitDust(pos, vec, sec = 0.5, size: 2.0..10.0, rgb: nil)
+    size_   = rand size
+    par     = emitParticle pos.x, pos.y, size_, size_, sec
+    par.rgb = rgb || 3.times.map {rand 100..200}
     animateValue(sec, from: pos, to: pos + vec) {|p| par.pos   = p}
     animateValue(sec, from: 255, to: 0)         {|a| par.alpha = a}
   end
