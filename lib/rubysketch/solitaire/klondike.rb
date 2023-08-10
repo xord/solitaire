@@ -429,7 +429,7 @@ class Klondike < Scene
       author = -> {bg.author&.then {|author| "by #{author}"} || '-'}
       bgName = bgAuthor = nil
       d.group :vertical, space: 0 do
-        bgName   = d.addLabel(bg.name, alpha: 0) {sendCommand :openURL, bg.url}
+        bgName   = d.addLabel(bg.name, fontSize: 24, alpha: 0) {sendCommand :openURL, bg.url}
         bgAuthor = d.addLabel author.call, fontSize: 16, alpha: 0
       end
       d.addButton str('Change Background'), width: 7 do
@@ -456,13 +456,13 @@ class Klondike < Scene
     end
 
     add Dialog.new.tap {|d|
-      d.addLabel str('Congratulations!'), fontSize: 44
+      d.addLabel str('Congratulations!'), fontSize: 36
       d.addLabel(
         "#{str 'Time'}: #{timeToText elapsedTime} #{suffix.call bestTime, dailyBestTime}",
-        fontSize: 28)
+        fontSize: 22)
       d.addLabel(
         "#{str 'Score'}: #{score.value} #{suffix.call bestScore, dailyBestScore}",
-        fontSize: 28)
+        fontSize: 22)
       d.addSpace 50
       d.addButton str('Start Next Game'), width: 5 do
         startNewGame true

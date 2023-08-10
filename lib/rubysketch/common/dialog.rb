@@ -39,7 +39,7 @@ class Dialog < Scene
     sprite
   end
 
-  def addLabel(label, rgb: [255], alpha: nil, fontSize: 24, align: CENTER, &block)
+  def addLabel(label, rgb: [255], alpha: nil, fontSize: 20, align: CENTER, &block)
     bounds = textFont.textBounds label, 0, 0, fontSize
     addElement Label.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
       sp.label = label
