@@ -118,6 +118,10 @@ class Scene
     @scenes.each {|scene| scene.mouseReleased x, y, button}
   end
 
+  def mouseClicked(x, y, button)
+    @scenes.each {|scene| scene.mouseClicked x, y, button}
+  end
+
   def mouseMoved(x, y, dx, dy)
     @scenes.each {|scene| scene.mouseMoved x, y, dx, dy}
   end

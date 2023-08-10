@@ -83,6 +83,10 @@ mouseReleased do
   $root.mouseReleased mouseX, mouseY, mouseButton
 end
 
+mouseClicked do
+  $root.mouseClicked mouseX, mouseY, mouseButton
+end
+
 mouseMoved do
   $root.mouseMoved mouseX, mouseY, mouseX - pmouseX, mouseY - pmouseY
 end
