@@ -840,22 +840,32 @@ class Klondike < Scene
   def startNewGame(completed = false)
     $newGameCount ||= 0
     $newGameCount  += 1
-    completeCount true if completed && difficulty != :easy
+    completeCount increment: true if completed && difficulty != :easy
+
+    cc = completeCount
+    requestReview = cc == 1 && cc != lastCompleteCountForRequestReview
+    lastCompleteCountForRequestReview update: cc if requestReview
 
     transition(
       self.class.new,
       [Fade, Curtain, Pixelate].sample,
       showAd:        $newGameCount % 3 == 0,
-      requestReview: completeCount     == 1)
+      requestReview: requestReview)
   end
 
   def completeCount(increment = false)
-    key = 'completeCount'
+    key = __method__.to_s
     if increment
       settings[key] ||= 0
       settings[key]  += 1
     end
     settings[key] || 0
+  end
+
+  def lastCompleteCountForRequestReview(update: nil)
+    key = __method__.to_s
+    settings[key] = update if update
+    settings[key]
   end
 
   STRINGS = {
