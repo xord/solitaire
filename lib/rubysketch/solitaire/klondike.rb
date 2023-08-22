@@ -10,7 +10,7 @@ class Klondike < Scene
   end
 
   def sprites()
-    super + [*cards, *places].map(&:sprite) + interfaces
+    super + [*cards, *places].map(&:sprite) + [ground] + interfaces
   end
 
   def difficulty()
@@ -281,6 +281,10 @@ class Klondike < Scene
     @culumns ||= 7.times.map.with_index {|i| ColumnPlace.new self, "column_#{i + 1}"}
   end
 
+  def ground()
+    @ground ||= createSprite 0, 0, 1, 10
+  end
+
   def interfaces()
     [undoButton, redoButton, pauseButton, finishButton, status, debugButton]
   end
@@ -534,6 +538,9 @@ class Klondike < Scene
       column.pos = [m + (cw + m) * index, y]
     end
 
+    ground.y = height + ch + 5
+    ground.w = width
+
     places.each {|place| place.updateCards}
 
     debugButton.pos = [mx, height - (debugButton.h + my)]
@@ -740,9 +747,6 @@ class Klondike < Scene
     showCompletedDialog *updateBests
 
     gravity 0, 1000
-    ground = createSprite(0, height + cards.first.height + 5, width, 10).tap do |sp|
-      sp.dynamic = false
-    end
 
     cards.group_by(&:number).values
       .reverse
