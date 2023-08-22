@@ -48,6 +48,22 @@ class Klondike < Scene
     focus ? resume : pause if ios?
   end
 
+  def mouseClicked(x, y, button)
+    count = 8
+    count.times do |n|
+      seg   = 360 / count
+      angle = seg * n + rand(seg)
+      len   = rand 20..30
+      vec   = Vector.fromAngle(angle) * len
+      emitDust createVector(x, y), vec, rand(0.2..0.5)
+    end
+  end
+
+  def mouseDragged(x, y, dx, dy)
+    vec = Vector.fromAngle(rand 360) * rand(20..30)
+    emitDust createVector(x, y), vec, rand(0.2..0.5)
+  end
+
   def canDrop?(card)
     case card.place
     when *columns then card.opened?
@@ -59,7 +75,7 @@ class Klondike < Scene
     if card.closed? && card.place == deck
       deckClicked
     elsif card.opened? && place = findPlaceToGo(card)
-      moveCard card, place, 0.3
+      moveCard card, place, 0.3, dust: true, flash: true
     elsif card.opened?
       shake card, vector: createVector(5, 0)
       playSound 'noop.mp3', gain: 0.5
@@ -76,7 +92,7 @@ class Klondike < Scene
 
   def cardDropped(x, y, card, prevPlace)
     if place = getPlaceAccepts(x, y, card)
-      moveCard card, place, 0.2
+      moveCard card, place, 0.1, dust: true
     elsif prevPlace
       history.disable do
         prevPos, prevTime = card.pos.xy, now
@@ -614,12 +630,15 @@ class Klondike < Scene
   def moveCard(
     card, toPlace, seconds = 0,
     from: card.place, add: true, count: true, hover: true,
+    dust: false, flash: false,
     **kwargs, &block)
 
     pos = toPlace.posFor card
     card.hover base: pos.z if hover
     toPlace.add card, updatePos: false if add
     move card, pos, seconds, **kwargs do |t, finished|
+      emitDustOnEdges card if finished && dust
+      flashCard card       if finished && flash
       block.call t, finished if block
       cardMoved from if finished
     end
@@ -650,6 +669,10 @@ class Klondike < Scene
     openCard from.last if columns.include?(from) && from.last&.closed?
     showFinishButton   if finishButton.hidden? && canFinish?
     completed          if completed?
+  end
+
+  def flashCard(card)
+    card.flash
   end
 
   def start!()

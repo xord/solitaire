@@ -11,7 +11,7 @@ class Card
 
   def initialize(game, mark, number)
     @game, @mark, @number = game, mark, number
-    @state, @open         = :close, 0
+    @state, @open, @flash = :close, 0, 0
     @place = @next = nil
   end
 
@@ -32,6 +32,11 @@ class Card
 
   def hover(rise = 100, base: self.z)
     self.z = base + rise
+  end
+
+  def flash()
+    animateValue(3, from: 200, to: 0) {@flash = _1}
+    setTimeout(0.01) {@next.flash} if @next
   end
 
   def name()
@@ -134,6 +139,13 @@ class Card
         rotate @open
         translate -sp.w / 2, -sp.h / 2
         image sp.image, 0, 0, w, h
+        if @flash > 0
+          push do
+            blendMode ADD
+            fill 255, @flash
+            rect 0, 0, w, h, 4
+          end
+        end
       end
       sp.mousePressed do
         next if $dragging
