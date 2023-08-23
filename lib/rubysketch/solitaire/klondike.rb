@@ -678,6 +678,7 @@ class Klondike < Scene
   def flashCard(card)
     return unless vfx?
     card.flash
+    setTimeout(0.01) {flashCard card.next} if card.next
   end
 
   def start!()

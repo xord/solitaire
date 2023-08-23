@@ -36,7 +36,6 @@ class Card
 
   def flash()
     animateValue(3, from: 200, to: 0) {@flash = _1}
-    setTimeout(0.01) {@next.flash} if @next
   end
 
   def name()
