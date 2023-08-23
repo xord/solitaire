@@ -676,6 +676,7 @@ class Klondike < Scene
   def flashCard(card)
     return unless vfx?
     card.flash
+    emitDustOnEdges card
     setTimeout(0.01) {flashCard card.next} if card.next
   end
 
@@ -762,7 +763,7 @@ class Klondike < Scene
   def finish!(cards = columns.map(&:cards).flatten.sort)
     card  = cards.shift or return
     place = marks.find {|mark| mark.accept? mark.x, mark.y, card} or return
-    moveCard card, place, 0.3, dust: true, flash: true
+    moveCard card, place, 0.3, dust: true
     setTimeout(0.05) {finish! cards}
   end
 
@@ -813,7 +814,7 @@ class Klondike < Scene
     return if vel.mag == 0
     vec = vel.dup.normalize * sqrt(vel.mag) / 10 * sqrt(card.count)
     shakeScreen vector: vec
-    emitDustOnEdges card, size: sqrt(vec.mag).then {|m| m..(m * 5)}
+    #emitDustOnEdges card, size: sqrt(vec.mag).then {|m| m..(m * 5)}
   end
 
   def emitDustOnEdges(card, amount = 10, speed: 10, **kwargs)
