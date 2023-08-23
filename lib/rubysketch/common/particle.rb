@@ -39,6 +39,7 @@ class Particle
 
   def popSprite(x, y, w, h)
     @pool.pop&.tap do |sp|
+      sp.reset
       sp.frame = [x, y, w, h]
     end
   end
@@ -50,14 +51,18 @@ class ParticleSprite < Sprite
 
   def initialize(owner, *args, rgb: [255], alpha: 255, **kwargs, &block)
     @owner, @rgb, @alpha = owner, rgb, alpha
-    super(*args, **kwargs, &block)
-    draw do |&draw|
-      fill *@rgb, @alpha
-      draw.call
-    end
+    super(*args, physics: false, **kwargs, &block)
+    setup
+    reset
   end
 
   attr_accessor :rgb, :alpha
+
+  def reset()
+    @shape     = [:rect, :triangle].sample
+    @rotate    = rand -10..10
+    self.angle = rand 360
+  end
 
   def frame=(frame)
     self.pos  = frame[0, 2]
@@ -66,6 +71,25 @@ class ParticleSprite < Sprite
 
   def delete()
     @owner.delete self
+  end
+
+  private
+
+  def setup()
+    self.pivot = [0.5, 0.5]
+
+    update do
+      self.angle += @rotate
+    end
+
+    draw do
+      fill *@rgb, @alpha
+      if @shape == :triangle
+        triangle w / 2, 0, w, h, 0, h
+      else
+        rect 0, 0, w, h
+      end
+    end
   end
 
 end# ParticleSprite
