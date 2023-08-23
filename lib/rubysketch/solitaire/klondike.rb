@@ -423,8 +423,8 @@ class Klondike < Scene
       d.addLabel str("Start New Game?")
       d.addSpace 20
       d.addButton str('OK'), width: 4 do
-        startNewGame
         d.close
+        startNewGame
       end
       d.addButton str('Cancel'), width: 4 do
         d.close
@@ -489,6 +489,7 @@ class Klondike < Scene
         fontSize: 22)
       d.addSpace 50
       d.addButton str('Start Next Game'), width: 5 do
+        d.close
         startNewGame true
       end
     }
@@ -509,13 +510,10 @@ class Klondike < Scene
         d.close
       end
       d.addButton str("One step for completion"), width: 6 do
-        cards.sort.group_by(&:mark).each.with_index do |(mark, cards), index|
+        cards.sort.group_by(&:mark).each.with_index do |(mark, cards_), index|
           place = marks[index]
           place.clear
-          cards.reverse.each.with_index do |card, i|
-            card.z = i
-            place.add card.open
-          end
+          place.add *cards_.each {_1.open}
         end
         d.close
       end
@@ -672,7 +670,7 @@ class Klondike < Scene
   def cardMoved(from)
     openCard from.last if columns.include?(from) && from.last&.closed?
     showFinishButton   if finishButton.hidden? && canFinish?
-    completed          if completed?
+    completed!         if completed?
   end
 
   def flashCard(card)
@@ -764,11 +762,11 @@ class Klondike < Scene
   def finish!(cards = columns.map(&:cards).flatten.sort)
     card  = cards.shift or return
     place = marks.find {|mark| mark.accept? mark.x, mark.y, card} or return
-    moveCard card, place, 0.3
+    moveCard card, place, 0.3, dust: true, flash: true
     setTimeout(0.05) {finish! cards}
   end
 
-  def completed()
+  def completed!()
     return if @completed
     @completed = true
 
