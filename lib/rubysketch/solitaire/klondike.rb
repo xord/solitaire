@@ -459,6 +459,10 @@ class Klondike < Scene
         backgroundScene.set bg.type
       end
       d.addSpace 20
+      d.addCheck str('Particle & Visual Effect'), checked: vfx? do |checked|
+        settings['vfx'] = checked
+      end
+      d.addSpace 20
       d.addButton str('Close'), width: 6 do
         d.close
       end
@@ -672,6 +676,7 @@ class Klondike < Scene
   end
 
   def flashCard(card)
+    return unless vfx?
     card.flash
   end
 
@@ -819,6 +824,7 @@ class Klondike < Scene
   end
 
   def emitDust(pos, vec, sec = 0.5, size: 2.0..10.0, rgb: nil)
+    return unless vfx?
     size_   = rand size
     par     = emitParticle pos.x, pos.y, size_, size_, sec
     par.rgb = rgb || 3.times.map {rand 100..200}
@@ -895,6 +901,12 @@ class Klondike < Scene
     settings[key]
   end
 
+  def vfx?(update: nil)
+    key = 'vfx'
+    settings[key]  = update if update != nil
+    settings[key].then {_1 == nil || _1 == true}
+  end
+
   STRINGS = {
     OK:     {},
     Cancel: {ja: 'キャンセル'},
@@ -922,6 +934,7 @@ class Klondike < Scene
 
     "Change Card Design": {ja: 'カードデザインを変更'},
     "Change Background":  {ja: 'ゲーム背景を変更'},
+    "Particle & Visual Effect": {ja: 'パーティクルと視覚効果'},
 
     '(New Record!)':   {ja: '（新記録！）'},
     "(Today's Best!)": {ja: '（本日のベスト！）'},

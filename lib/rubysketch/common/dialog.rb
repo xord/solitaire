@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 using RubySketch
 
 
@@ -39,12 +40,15 @@ class Dialog < Scene
     sprite
   end
 
-  def addLabel(label, rgb: [255], alpha: nil, fontSize: 20, align: CENTER, &block)
+  def addLabel(
+    label, rgb: [255], alpha: nil, background: nil, fontSize: 20, align: CENTER,
+    &block)
+
     bounds = textFont.textBounds label, 0, 0, fontSize
     addElement Label.new(0, 0, width - MARGIN * 2, bounds.h).tap {|sp|
       sp.label = label
       sp.draw do
-        r, g, b, a = skin.translucentBackgroundColor
+        r, g, b, a = background || skin.translucentBackgroundColor
         fill r, g, b, alpha || (a * 3)
         rect 0, -MARGIN / 2, sp.w, sp.h + MARGIN
         textAlign align, CENTER
@@ -60,6 +64,19 @@ class Dialog < Scene
     addElement Button.new(*args, **kwargs).tap {|b|
       b.clicked &block
     }
+  end
+
+  def addCheck(label, *args, checked: true, **kwargs, &block)
+    group do
+      addLabel label, background: [0, 0, 0, 0]
+      addButton(checked ? '✔' : '').tap do |b|
+        b.clicked do
+          checked = !checked
+          b.label = checked ? '✔' : ''
+          block.call checked
+        end
+      end
+    end
   end
 
   def addSpace(height = 0)
@@ -153,6 +170,8 @@ class Dialog < Scene
         y += eh + space if  v
       end
     else
+      x = MARGIN             if x < MARGIN
+      x = width - MARGIN - w if x + w > width - MARGIN
       element.x, element.y = x, y
     end
   end

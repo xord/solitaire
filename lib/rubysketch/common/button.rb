@@ -10,7 +10,7 @@ class Button < Sprite
     icon: nil, rgb: nil, width: 1, fontSize: 24, round: 5, **kwargs,
     &block)
 
-    raise if !label && !icon
+    raise if !label == !icon
 
     super 0, 0, 44 * width, 44, *args, **kwargs, &block
     @label, @icon, @rgb, @fontSize, @round = label, icon, rgb, fontSize, round
@@ -18,9 +18,23 @@ class Button < Sprite
     setup
   end
 
+  attr_reader :label, :icon
+
   def clicked(&block)
     @click = block
     nil
+  end
+
+  def label=(label)
+    raise unless label
+    @label = label
+    @icon  = nil
+  end
+
+  def icon=(icon)
+    raise unless icon
+    @icon  = icon
+    @label = nil
   end
 
   private
