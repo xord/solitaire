@@ -782,13 +782,19 @@ class Klondike < Scene
       .each.with_index do |card, index|
 
       setTimeout 0.1 * index do
+        next unless active?
         card.place&.pop
         card.sprite.tap do |sp|
           sp.fixAngle
+          sp.dynamic     = true
+          sp.restitution = 0.5
+          sp.vx          = rand -20..100
+          sp.vy          = -300
           sp.contact? {|o| o == ground}
+
           bounce = 0
-          sp.contact {|_, action|
-            next unless action == :begin
+          sp.contact {
+            next unless active?
             bounce += 1
             if bounce > 3
               sp.dynamic = false
@@ -798,10 +804,6 @@ class Klondike < Scene
               emitDust sp.center, vec, size: 10..20
             end
           }
-          sp.dynamic     = true
-          sp.restitution = 0.5
-          sp.vx          = rand -20..100
-          sp.vy          = -300
         end
       end
     end
