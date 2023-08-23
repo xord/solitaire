@@ -934,8 +934,8 @@ class Klondike < Scene
     "Start New Game?": {ja: '新しいゲームをはじめますか？'},
     "Start Next Game": {ja: '次のゲームを開始'},
 
-    "Change Card Design": {ja: 'カードデザインを変更'},
-    "Change Background":  {ja: 'ゲーム背景を変更'},
+    "Change Card Design":       {ja: 'カードデザインを変更'},
+    "Change Background":        {ja: 'ゲーム背景を変更'},
     "Particle & Visual Effect": {ja: 'パーティクルと視覚効果'},
 
     '(New Record!)':   {ja: '（新記録！）'},
